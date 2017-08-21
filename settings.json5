@@ -8,21 +8,28 @@
         description: "default is gmail, see nodemailer reference for other clients - https://github.com/andris9/Nodemailer"
       },
       email: {
-        value: "________@gmail.com",
+        value: "lee.view.zone@gmail.com",
         description: "put your gmail address here - this will also be used to send SMS (SMS via email)"
       },
       emailpass: {
-        value: "________",
+        value: "A11111111",
         password: true,
         description: "put your gmail password or app access code here"
       },
       emailAlertsTo: {
-        value: "________@gmail.com",
+        value: "lee.view.zone@gmail.com",
         description: "put your alert/notification email here (can be the same as above)"
       },
       smsAlertsTo: {
-        value: "________@txt.att.net",
+        value: "0745545150@orangemail.ro",
         description: "if you want SMS notifications, fill this in with your phone number (it's your cell#, domain differs for each carrier, ex: 5551234567@vtext.com for verizon, or 5551234567@txt.att.net for at&t)"
+
+      },
+      adbSmsAlertsTo: {
+        value: "0745545150"
+      },
+      adbCallsAlertsTo: {
+        value: "0745545150"
       }
     },
     serial: {
@@ -70,7 +77,7 @@
         description: "generate a new node even if the data received does not match any metric definition, default = false"
       },
       keepMetricLogsOnDelete: {
-        value: "false",
+        value: "true",
         description: "keep the metric binary logs when metric is deleted, default = false"
       },
       graphMaxPoints: {
@@ -80,6 +87,17 @@
       smsRepeatLimit: {
         value: 180000,
         description: "an SMS will only be repeated after this many milliseconds. Helps to limit repeats for things like repeated motion or alerts"
+	  },
+      limitLowBatteryMessages: {
+        value: 3600000,
+         description: "an email will only be repeated after this many milliseconds. Helps to limit low battery alerts."
+      },
+      limitOflineMessages: {
+        value: 3600000
+      },
+      clockUpdateDelay:{
+        value: 10000,
+        description: "Server clock will be updated only after this many milliseconds."
       }
     },
     radiothermostat: {
@@ -88,6 +106,46 @@
       ip: {
         value: "192.168.1.100"
       }
+    },
+    smartthermostat: {
+      editable: true,
+      exposed: true,
+      nodeId: {
+        value: 300
+      },
+      temperatureDiferential: {
+        value:0.5
+      },
+      temperaturefortest: {
+        value:13.1
+      },
+      heatNodeId: {
+        value:0
+      },
+      coolNodeId: {
+        value:0
+      }
+    },
+    meteoforecast: {
+      editable: true,
+      exposed: true,
+      nodeId: {
+        value: 400
+      }
+    },
+    smartalarm: {
+      editable: true,
+      exposed: true,
+      nodeId: {
+        value: 200
+      },
+      limitMotionMessage: {
+        value: 30000
+      },
+      alarmDelay:{
+        value: 20000
+      }
     }
+    
   }
 }
