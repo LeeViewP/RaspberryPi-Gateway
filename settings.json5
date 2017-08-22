@@ -8,11 +8,11 @@
         description: "default is gmail, see nodemailer reference for other clients - https://github.com/andris9/Nodemailer"
       },
       email: {
-        value: "lee.view.zone@gmail.com",
+        value: "______@gmail.com",
         description: "put your gmail address here - this will also be used to send SMS (SMS via email)"
       },
       emailpass: {
-        value: "A11111111",
+        value: "______",
         password: true,
         description: "put your gmail password or app access code here"
       },
