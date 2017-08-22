@@ -17,6 +17,7 @@ The purpose of this folder is to have a place to put custom user definitions for
 <br/>
 
 Added 3 Motes type
+<br/>
 Smart Alarm is created from some events: 
 - event to the MotionMotes that push the motion to the alarm node (defined in settings) 
 - some events on th alarm node that is triggered only if the smart alarm is in ARMED mode (send email if the motion is detected, call adb, sms adb the last 2 need an android phone conected to the Pi  and adb tools installed) 
