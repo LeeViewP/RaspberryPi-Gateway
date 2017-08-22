@@ -7,7 +7,7 @@ global.dbLog = require(path.resolve(__dirname + '/../', 'logUtil.js'));
 //Set an server timer for datetime
 global.serverDataTime = function (currentTime) {
     currentTime = Date.now();
-    //console.log('Currrent Time : ' + currentTime);
+    console.log('Currrent Time : ' + currentTime);
     io.sockets.emit('UPDATETIME', currentTime);
     setTimeout(serverDataTime, settings.general.clockUpdateDelay.value, Date.now())
 }
@@ -264,3 +264,83 @@ exports.updateSourceNodesInNode = function (node) {
 
     });
 };
+
+// global.sendTemperatureToNode = function (node) {
+//   var dbNode = new Object();
+//   db.find({ _id: node.destinationNodeId }, function (err, entries) {
+//     if (entries.length == 1) {
+//       dbNode = entries[0];
+//     }
+
+//     dbNode._id = node.destinationNodeId;
+//     dbNode.updated = new Date().getTime(); //update timestamp we last heard from this node, regardless of any matches
+//     dbNode.rssi = undefined;
+//     // console.log("Temperature start pushing :" + node.nodeId + " Value:" + node.metricValue.value);
+
+//     if (dbNode.sourceNodes == undefined) dbNode.sourceNodes = new Object();
+//     if (dbNode.sourceNodes[node.nodeId] == null) dbNode.sourceNodes[node.nodeId] = new Object();
+//     dbNode.sourceNodes[node.nodeId].updated = dbNode.updated;
+//     dbNode.sourceNodes[node.nodeId].value = node.metricValue.value;
+//     dbNode.sourceNodes[node.nodeId].unit = node.metricValue.unit || dbNode.unit || undefined;
+
+//     var minValue = 100;
+//     var sourceNode;
+//     for (sourceNode in dbNode.sourceNodes) {
+//       if (sourceNode != undefined) {
+//         // Also check for last 10 minutes nodes
+//         if (minValue > dbNode.sourceNodes[sourceNode].value && (Date.now() - new Date(dbNode.sourceNodes[sourceNode].updated).getTime() < 600000)) {
+//           minValue = dbNode.sourceNodes[sourceNode].value;
+//         }
+//       }
+//       else {
+//         console.log("Temperature min failed for value :" + sourceNode);
+//       }
+
+//     }
+
+
+//     matchingMetric = metricsDef.metrics['C'];
+
+//     if (dbNode.metrics == undefined) dbNode.metrics = new Object();
+//     if (dbNode.metrics[matchingMetric.name] == null) dbNode.metrics[matchingMetric.name] = new Object();
+
+//     dbNode.metrics[matchingMetric.name].label = dbNode.metrics[matchingMetric.name].label || matchingMetric.name;
+//     dbNode.metrics[matchingMetric.name].descr = dbNode.metrics[matchingMetric.name].descr || matchingMetric.descr || undefined;
+//     dbNode.metrics[matchingMetric.name].value = minValue;
+//     dbNode.metrics[matchingMetric.name].unit = node.metricValue.unit || dbNode.unit || undefined;
+//     dbNode.metrics[matchingMetric.name].updated = dbNode.updated;
+//     dbNode.metrics[matchingMetric.name].pin = dbNode.metrics[matchingMetric.name].pin != undefined ? dbNode.metrics[matchingMetric.name].pin : matchingMetric.pin;
+//     dbNode.metrics[matchingMetric.name].graph = dbNode.metrics[matchingMetric.name].graph != undefined ? dbNode.metrics[matchingMetric.name].graph : matchingMetric.graph;
+
+
+
+//     //log data for graphing purposes, keep labels as short as possible since this log will grow indefinitely and is not compacted like the node database
+//     if (dbNode.metrics[matchingMetric.name].graph == 1) {
+//       var graphValue = metricsDef.isNumeric(matchingMetric.logValue) ? matchingMetric.logValue : minValue; //existingNode.metrics[matchingMetric.name].value;
+//       console.log('graphvalue : [' + graphValue + ']');
+//       if (metricsDef.isNumeric(graphValue)) {
+//         var ts = Math.floor(Date.now() / 1000); //get timestamp in whole seconds
+//         var logfile = path.join(__dirname, dbDir, dbLog.getLogName(dbNode._id, matchingMetric.name));
+//         try {
+//           console.log('post: ' + logfile + '[' + ts + ',' + graphValue + ']');
+//           dbLog.postData(logfile, ts, graphValue);
+//         } catch (err) { console.error('   POST ERROR: ' + err.message); /*console.log('   POST ERROR STACK TRACE: ' + err.stack); */ } //because this is a callback concurrent calls to the same log, milliseconds apart, can cause a file handle concurrency exception
+//       }
+//       else console.log('   METRIC NOT NUMERIC, logging skipped... (extracted value:' + graphValue + ')');
+//     }
+
+//     db.findOne({ _id: dbNode._id }, function (err, doc) {
+//       if (doc == null) {
+//         db.insert(dbNode);
+//         console.log('   [' + dbNode._id + '] DB-Insert new _id:' + dbNode._id + ' for Temperature');
+//       }
+//       else
+
+//         db.update({ _id: dbNode._id }, { $set: dbNode }, {}, function (err, numReplaced) { console.log('   [' + dbNode._id + '] DB-Updates:' + numReplaced + ' for Temperature'); });
+
+//       io.sockets.emit('UPDATENODE', dbNode); //post it back to all clients to confirm UI changes
+//     });
+
+//   });
+
+// }

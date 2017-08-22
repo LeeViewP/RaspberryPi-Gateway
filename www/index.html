@@ -50,7 +50,10 @@
 <head>
   <title>Moteino Gateway Dashboard</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="icon" href="images/favicon.ico" type="image/x-icon">
+ 
+<meta name="mobile-web-app-capable" content="yes">
+<meta charset="utf-8">
+ <link rel="icon" href="images/favicon.ico" type="image/x-icon">
   <script src="/socket.io/socket.io.js"></script>
   <link type="text/css" rel="stylesheet" href="https://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.css" />
   <link type="text/css" rel="stylesheet" href="css/jqm-font-awesome-usvg-upng.min.css" />
@@ -518,7 +521,8 @@
     var socket = io();
     var serverTimeOffset=0;
     $('#nodeList').hide();
-
+    
+    socket.emit('GETSERVERTIME');
     function isNumeric(n) {
       return !isNaN(parseFloat(n)) && isFinite(n); //http://stackoverflow.com/questions/18082/validate-decimal-numbers-in-javascript-isnumeric/1830844#1830844
     }

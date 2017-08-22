@@ -81,6 +81,34 @@ module.exports = function (io) {
 
 
         });
+        socket.on('TEST', function(x){console.log('TEST TEST TEST'+x);});
+        socket.on('GETSERVERTIME', function(){serverDataTime(Date.now());});
+  // socket.on('EDITSMARTTERMOSTATSCHEDULE', function (node) {
+  //   var dbNode = new Object();
+  //   db.find({ _id: node.nodeId }, function (err, entries) {
+  //     if (entries.length == 1) {
+  //       dbNode = entries[0];
+  //     }
+  //     if (dbNode.thermmostatSchedule == undefined) dbNode.thermmostatSchedule = new Object();
+  //     for (var i = 0; i <= 6; i++) {
+  //       var weekday = i.toString();
+  //       thermmostatSchedule[weekday] = [{ startTime: "08:30", confortType: "home" }, { startTime: "23:30", confortType: "sleep" }];
+  //     }
 
+  //   });
+  //   db.findOne({ _id: dbNode._id }, function (err, doc) {
+  //     if (doc == null) {
+  //       db.insert(dbNode);
+  //       // console.log('   [' + dbNode._id + '] DB-Insert new _id:' + dbNode._id + ' for ' + node.metric.name + ' in source node:' + node.sourceNodeId);
+  //     }
+  //     else
+
+  //       db.update({ _id: dbNode._id }, { $set: dbNode }, {}, function (err, numReplaced) { console.log('   [' + dbNode._id + '] DB-Updates:' + numReplaced + ' for ' + node.metric.name + ' in source node:' + node.sourceNodeId); });
+
+  //     io.sockets.emit('UPDATESMARTTERMOSTATSCHEDULE', dbNode); //post it back to all clients to confirm UI changes
+  //     //handleNodeEvents(dbNode);
+  //     console.log('EDITSMARTTERMOSTATSCHEDULE: [' + node.nodeId + '] the Node:' + JSON.stringify(dbNode));
+  //   });
+  // });
     });
 };
