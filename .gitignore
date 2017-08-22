@@ -1,4 +1,5 @@
 node_modules
-db/*
+data/db/*
+data/secure/.htpasswd
 *.log
 .vscode

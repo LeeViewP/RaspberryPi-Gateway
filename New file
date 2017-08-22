@@ -1,0 +1,13 @@
+minicom -b 115200 -o -D /dev/ttyAMA0
+minicom -b 19200-o -D /dev/ttyAMA0
+
+cat /dev/ttyAMA0
+echo i > /dev/ttyAMA0
+
+
+   <756 furtuna				appbar.weather.thunder when rapid drops (more than 11 points)
+745-746 ploaie			appbar.weather.rain/appbar.weather.snow depending on the temperature
+757-758 soare cu nori	appbar.weather.overcast
+769-769 soare plin		appbar.weather.sun
+
+se iau 2-3 puncte  si se compara (12,6 ore in urma) si se face trendul crescator descrescator
