@@ -3,41 +3,21 @@
     "short_name":"Smart Home",
     "name": "Perecrestov's Smart Home Dashboard",
     "icons": [
-        {
-            "src": "/images/appbar.home.logo.svg",
-            "type": "image/svg",
-            "sizes": "48x48"
-          },
           {
-            "src": "/images/appbar.home.logo.svg",
-            "type": "image/svg",
-            "sizes": "96x96"
-          },
-          {
-            "src": "/images/appbar.home.logo.svg",
-            "type": "image/svg",
-            "sizes": "128x128"
-          },
-          {
-            "src": "/images/appbar.home.logo.svg",
-            "type": "image/svg",
-            "sizes": "144x144"
-          },
-          {
-            "src": "/images/appbar.home.logo.svg",
-            "type": "image/svg",
-            "sizes": "152x152"
-          },
-          {
-            "src": "/images/appbar.home.logo.svg",
-            "type": "image/svg",
+            "src": "/manifest/appbar.home.logo.192.themecolor.png",
+            "type": "image/png",
             "sizes": "192x192"
+          },
+                    {
+            "src": "/manifest/appbar.home.logo.512.themecolor.png",
+            "type": "image/png",
+            "sizes": "512x512"
           }
         
     ],
-    "background_color": "#2196F3",
+    "background_color": "#8bc34a",
     "display": "standalone",
     "orientation": "portrait",
-    "theme_color": "#4285f4",
-    "start_url": "/?utm_source=homescreen"
+    "theme_color": "#5a9216",
+    "start_url": "/default.html?utm_source=homescreen"
 }
