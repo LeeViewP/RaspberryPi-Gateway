@@ -5,10 +5,13 @@ function startApp() {
     var motesDef;          //holds the definition of the motes (from server side metrics.js)
     var metricsDef;        //holds the definition of the metrics (from server side metrics.js)
     var eventsDef;
+  var comfortTypesDef;
     var settingsDef;
     var settingsDefBindMap;
     var boundSettings;
     var showHiddenNodes=false, showRawSend=false;
+  var selectedSchedulePeriod;
+  var selectedScheduleDay = (new Date()).getDay();
     var socket = io();
     var serverTimeOffset=0;
     $('#nodeList').hide();
@@ -49,6 +52,73 @@ function startApp() {
       refreshNodeListUI();
     });
 
+  socket.on('UPDATESMARTTERMOSTATSCHEDULE', function (entry) {
+    // updateNode(entry);
+
+    var days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    var tabsParent = $('#thermostatTabs').parent();
+    $('#thermostatTabs').remove();
+    var tabs = $('<div/>', { 'data-role': "tabs", 'id': "thermostatTabs" }).appendTo(tabsParent);
+    var thNavBar = $('<div/>', { 'data-role': "navbar", 'id': "thermostatNavbar" }).appendTo(tabs);
+
+    var thUl = $('<ul/>', { 'id': "thermostatScheduleWeekDays" }).appendTo(thNavBar);
+
+    for (var day in entry.thermostatSchedule) {
+      var thLi = $('<li/>', { class: "tab" }).appendTo(thUl);
+      var thLiA = $('<a/>', { 'href': "#day" + day, text: days[day], 'scheduled-day': day }).appendTo(thLi);
+      thLiA.addClass('scheduleday');
+      var thTab = $('<div/>', { 'id': "day" + day }).appendTo(tabs);
+      var thTabUl = $('<ul/>', { 'data-role': "listview", 'data-inset': "true", 'id':"listview"+day }).appendTo(thTab);
+      var thTabUlDivider = $('<li/>', { 'data-role': "divider", 'id': "listDivider" + day }).appendTo(thTabUl);
+      var thDividerH = $('<h2/>', { 'text': days[day] + ' Schedule' }).appendTo(thTabUlDivider);
+      //var thDividerAdd =  $('<a/>', {'href':"#thermostatScheduleDetatils", 'data-role':"button", 'data-inline':"true", 'data-icon':"plus", 'data-iconpos':"notext", 'data-mini':"true", 'title':"Add new schedule" }).appendTo(thTabUlDivider); 
+      var thDividerAddContainer = $('<div/>').appendTo(thTabUlDivider);
+      thDividerAddContainer.addClass("ui-li-count ui-body-inherit");
+      var thDividerAdd = $('<a/>', { 'href': "#thermostatScheduleDetatils", 'data-role': "button", 'data-inline': "true", 'data-icon': "plus", 'data-iconpos': "notext", 'data-mini': "true", 'title': "Add new schedule" }).appendTo(thDividerAddContainer);
+      thDividerAdd.addClass("newschedule");
+      for (var schedule in entry.thermostatSchedule[day]) {
+        var comfortType = getComfortType(entry.thermostatSchedule[day][schedule].comfortType);
+
+        var thTabLi = $('<li/>').appendTo(thTabUl);
+        var thASchedule = $('<a/>', { 'href': "#thermostatScheduleDetatils", 'scheduled-period': schedule }).appendTo(thTabLi);
+        thASchedule.addClass('scheduledetails');
+        var thComfortTypeImage = $('<img/>', { 'src': "images/" + comfortType.icon, }).appendTo(thASchedule);
+        var thStartHour = $('<div/>', { 'id': "thStartHour"+day+schedule, 'style': "float:right;" }).appendTo(thASchedule);
+        thStartHour.text(entry.thermostatSchedule[day][schedule].startTime);
+        var thConfortType = $('<div/>', { 'text': comfortType.label }).appendTo(thASchedule);
+        var thConfortTypeTemperatures = $('<div/>').appendTo(thASchedule); //newBtn.addClass('ui-icon-' + state.icon);
+        var thSpanHeat = $('<span/>', { 'data-icon': comfortType.heat.icon, 'style': "color:#ff1100; border-style: hidden;background-color: transparent" }).appendTo(thConfortTypeTemperatures);
+        thSpanHeat.addClass('ui-btn ui-btn-inline ui-btn-icon-left ui-icon-' + comfortType.heat.icon);
+        thSpanHeat.text(comfortType.heat.temperature + "°");
+
+        var thSpanCool = $('<span/>', { 'data-icon': comfortType.cool.icon, 'text': comfortType.cool.temperature + "°", 'style': "color:#0077ff; border-style: hidden;background-color: transparent;" }).appendTo(thConfortTypeTemperatures);
+        thSpanCool.addClass('ui-btn ui-btn-inline ui-btn-icon-left ui-icon-' + comfortType.cool.icon);
+        var thAOption = $('<a/>', {
+          'href': "#schedule-option-popup",
+          'title': "Schedule Options",
+          'scheduled-period': schedule,
+          'data-role': "button", 'data-icon': "action",
+          'data-iconpos': "notext", 'data-rel': "popup",
+          'data-position-to': "window",
+          'data-transition': "pop"
+        }).appendTo(thTabLi);
+        thAOption.addClass('scheduledetails');
+      }
+      thTabUl.listview().listview('refresh');
+       $('#listview'+day).listview('refresh');
+    }
+    // thUl.listview().listview('refresh');
+    //  $('#thermostatScheduleWeekDays').listview('refresh');
+
+    tabsParent.enhanceWithin();
+    tabs.tabs({ active: selectedScheduleDay });
+
+    //$('#thermostatSchedulePage').trigger('pagecreate');
+    //$('#thermostatScheduleWeekDays').trigger('create');
+    $.mobile.changePage('#thermostatSchedulePage', { transition: 'slide' });
+    //alert(JSON.stringify(entry));
+  });
+
     socket.on('UPDATENODES', function(entries) {
       $("#loader").hide();
       $("#nodeList").empty();
@@ -69,6 +139,26 @@ function startApp() {
         $('#nodeMoteType').append('<option value="' + mote + '">' + motesDef[mote].label || mote + '</option>');
       $("#nodeMoteType").selectmenu();
     });
+
+  socket.on('COMFORTTYPESDEF', function (comfortTypesDefinition) {
+    comfortTypesDef = comfortTypesDefinition;
+    $("#addComfortType").empty();
+    $('#addComfortType').append('<option value="">Select type...</option>');
+    for (var key in comfortTypesDef)
+      $('#addComfortType').append('<option value="' + key + '">' + (comfortTypesDef[key].label || key) + '</option>');
+    $("#addComfortType").selectmenu();
+
+    $('#addComfortType').change(function () {
+      if ($(this).val()) {
+        $('#addComfortTypeDescr').html('<span style="color:#fff">Action: </span> ' + (comfortTypesDef[$(this).val()].label || ''));
+        $('#addSchedule_OK').show();
+      }
+      else {
+        $('#addComfortTypeDescr').html(' ');
+        $('#addSchedule_OK').hide();
+      }
+    });
+  });
 
     socket.on('METRICSDEF', function(metricsDefinition) {
       metricsDef = metricsDefinition;
@@ -145,6 +235,21 @@ function startApp() {
     socket.on('SERVERSTARTTIME', function(serverMillisSinceProcessStart) {
       $('#status-uptime').attr('data-time', serverMillisSinceProcessStart + serverTimeOffset);
     });
+
+  socket.on('UPDATETIME', function (curentTime) {
+    $(".datetime").each(function () {
+
+      //d+'';                  // "Sun Dec 08 2013 18:55:38 GMT+0100"
+      //d.toDateString();      // "Sun Dec 08 2013"
+      //d.toISOString();       // "2013-12-08T17:55:38.130Z"
+      //d.toLocaleDateString() // "8/12/2013" on my system
+      //d.toLocaleString()     // "8/12/2013 18.55.38" on my system
+      //d.toUTCString()  
+      var d = new Date(curentTime);
+      var options = { weekday: "long", year: "numeric", month: "long", day: "numeric", hour: "2-digit", minute: "2-digit", second: "2-digit" };
+      $(this).html(d.toLocaleString('ro-RO', options));
+    });
+  });
 
     $(document).on("pagecreate", "#eventAdd", function(){ if ($('addEventType').val()) $('#addEvent_OK').show(); else $('#addEvent_OK').hide(); });
 
@@ -424,15 +529,38 @@ function startApp() {
     function resolveRSSIImage(rssi) {
       if (rssi == undefined) return '';
       var img;
-      if (Math.abs(rssi) > 95) img = 'icon_rssi_7.png';
-      else if (Math.abs(rssi) > 90) img = 'icon_rssi_6.png';
-      else if (Math.abs(rssi) > 85) img = 'icon_rssi_5.png';
-      else if (Math.abs(rssi) > 80) img = 'icon_rssi_4.png';
-      else if (Math.abs(rssi) > 75) img = 'icon_rssi_3.png';
-      else if (Math.abs(rssi) > 70) img = 'icon_rssi_2.png';
-      else img = 'icon_rssi_1.png';
-      return '<img class="listIcon20px" src="images/'+img+'" title="RSSI:-'+Math.abs(rssi)+'" /> ';
+      //if (Math.abs(rssi) > 95) img = 'icon_rssi_7.png';
+      //else if (Math.abs(rssi) > 90) img = 'icon_rssi_6.png';
+      //else if (Math.abs(rssi) > 85) img = 'icon_rssi_5.png';
+      //else if (Math.abs(rssi) > 80) img = 'icon_rssi_4.png';
+      //else if (Math.abs(rssi) > 75) img = 'icon_rssi_3.png';
+      //else if (Math.abs(rssi) > 70) img = 'icon_rssi_2.png';
+      //else img = 'icon_rssi_1.png';
+      //return '<img class="listIcon20px" src="images/'+img+'" title="RSSI:-'+Math.abs(rssi)+'" /> ';
+
+    if (Math.abs(rssi) > 95) img = 'appbar.connection.quality.veryhigh.svg.png';
+    else if (Math.abs(rssi) > 90) img = 'appbar.connection.quality.high.svg';
+    else if (Math.abs(rssi) > 85) img = 'appbar.connection.quality.medium.svg';
+    else if (Math.abs(rssi) > 80) img = 'appbar.connection.quality.low.svg';
+    else if (Math.abs(rssi) > 75) img = 'appbar.connection.quality.verylow.svg';
+    else if (Math.abs(rssi) > 70) img = 'appbar.connection.quality.extremelylow.svg';
+    else img = 'appbar.connection.quality.extremelylow.svg';
+    return '<img class="listIcon20px svg" src="images/' + img + '" title="RSSI:-' + Math.abs(rssi) + '" style="display:block;float:right;"/> ';
+    
     }
+
+ function resolveBatteryImage(voltage) {
+
+    var img;
+    var minVoltage = 3.35;
+    if (voltage < 3.55) img = "appbar.battery.0.svg";
+    else if (voltage < 3.85) img = "appbar.battery.1.svg";
+    else if (voltage < 4.15) img = "appbar.battery.2.svg";
+    else img = "appbar.battery.3.svg";
+    var lobat = voltage < minVoltage ? ' blink' : '';
+    return '<img class="listIcon20px svg' + lobat + '" src="images/' + img + '" title="Battery:' + Math.abs(voltage) + '" style="display:block;float:right;"/> ';
+
+  }
 
     function updateNode(node) {
       LOG(JSON.stringify(node));
@@ -440,8 +568,11 @@ function startApp() {
       {
         nodes[node._id] = node;
         var nodeValue = metricsValues(node.metrics);
-        var lowBat = node.metrics != null ? node.metrics.V != null && node.metrics.V.value < 3.55 : false;
-        var newLI = $('<li id="' +  node._id + '"><a node-id="' + node._id + '" href="#nodedetails" class="nodedetails"><img class="productimg" src="images/'+getNodeIcon(node)+'"><h2>' + (nodeResolveString(node.label, node.metrics) || node._id) + ' ' + resolveRSSIImage(node.rssi) + ' ' + (lowBat ? '<img src="images/lowbattery.png" class="lowbattimg"/> ' : '') + ago(node.updated, 0).tag + (node.hidden ? ' <img class="listIcon20px" src="images/icon_hidden.png" />' : '') + '</h2><p>' + (nodeResolveString(node.descr, node.metrics) || '&nbsp;') + '</p>' + (nodeValue ? '<span class="ui-li-count ui-li-count16">' + nodeValue + '</span>' : '') + '</a></li>');
+        var lowBat = node.metrics != null ? node.metrics.V != null : false //&& node.metrics.V.value < 3.55 : false;
+        var newLI = $('<li id="' +  node._id + '"><a node-id="' + node._id + '" href="#nodedetails" class="nodedetails"><img class="productimg" src="images/'+getNodeIcon(node)+'"><h2>' + (nodeResolveString(node.label, node.metrics) || node._id) + ' ' + resolveRSSIImage(node.rssi) + ' ' + 
+         //(lowBat ? '<img src="images/lowbattery.png" class="lowbattimg"/> ' : '') + 
+         (lowBat ? resolveBatteryImage(node.metrics.V.value) : '') +
+         ago(node.updated, 0).tag + (node.hidden ? ' <img class="listIcon20px" src="images/images/appbar.eye.hide.svg" />' : '') + '</h2><p>' + (nodeResolveString(node.descr, node.metrics) || '&nbsp;') + '</p>' + (nodeValue ? '<span class="ui-li-count ui-li-count16">' + nodeValue + '</span>' : '') + '</a></li>');
         var existingNode = $('#nodeList li#' + node._id);
         if (node.hidden)
           if (showHiddenNodes)
@@ -600,7 +731,8 @@ function startApp() {
       else $("#btnHideNodeToggle").removeClass('hidden').css('background-color','');;
 
       $('.nodeID').html(node._id);
-      if (node.rssi) { $('#rssiinfo').show(); $('.nodeRSSI').html(node.rssi); }
+      if (node.rssi) { $('#rssiinfo').show(); $('.nodeRSSI').html(node.rssi); $('.nodeRSSIImage').html(resolveRSSIImage(node.rssi)); }
+//      if (node.rssi) { $('#rssiinfo').show(); $('.nodeRSSI').html(node.rssi); }
       else $('#rssiinfo').hide();
       $('.nodeUpdated').html(ago(node.updated, false).tag);
 
@@ -718,6 +850,42 @@ function startApp() {
       }
     }
 
+  function refreshScheduleDetails(schedule) {
+    $('#addComfortTypeDescr').html(' ');
+    $('#addSchedule_OK').hide();
+    // $("#addComfortType").empty();
+    // $('#addComfortType').append('<option value="">Select type...</option>');
+    // for (var key in comfortTypesDef)
+    //   $('#addComfortType').append('<option value="' + key + '">' + (comfortTypesDef[key].label || key) + '</option>');
+
+    if (schedule != null) {
+      if (nodes[selectedNodeId].thermostatSchedule == null) {
+        alert("missing schedule");
+        return
+      }
+      if (schedule.schedulePeriod == null) {
+        $("#scheduleHour").val('');
+        $("#scheduleMinutes").val('');
+        $("#addComfortType").val('');
+        $("#addComfortType").selectmenu('refresh', true);
+      }
+      else {
+        $("#addComfortType").val(nodes[selectedNodeId].thermostatSchedule[schedule.scheduleday][schedule.schedulePeriod].comfortType);
+        var startTime = nodes[selectedNodeId].thermostatSchedule[schedule.scheduleday][schedule.schedulePeriod].startTime;
+        var separatorPos = startTime.indexOf(":");
+        $("#scheduleHour").val(startTime.substr(0, separatorPos));
+        $("#scheduleMinutes").val(startTime.substr(separatorPos + 1, startTime.length))
+        $('#addSchedule_OK').show();
+        $("#addComfortType").selectmenu('refresh', true);
+      }
+    }
+    //var comfortType = getComfortType(entry.thermostatSchedule[day][schedule].comfortType);
+    $(document).on("pagebeforeshow", "#addSchedule", function (event) {
+      $("#addComfortType").selectmenu('refresh');
+      //$("#addComfortType").val('');
+    });
+  }
+
     $(document).on("click", ".nodedetails", function () {
       var nodeId = $(this).attr('node-id');
       selectedNodeId = parseInt(nodeId);
@@ -732,6 +900,25 @@ function startApp() {
       refreshMetricDetails(metric);
     });
 
+  $(document).on("click", ".scheduledetails", function () {
+    var schedulePeriod = $(this).attr('scheduled-period');
+    selectedSchedulePeriod = parseInt(schedulePeriod);
+    // var node = nodes[selectedNodeId];
+    refreshScheduleDetails({ 'scheduleday': selectedScheduleDay, 'schedulePeriod': selectedSchedulePeriod });
+  });
+  $(document).on("click", ".newschedule", function () {
+    var schedulePeriod = $(this).attr('scheduled-period');
+    selectedSchedulePeriod = null;
+    // var node = nodes[selectedNodeId];
+    refreshScheduleDetails({ 'scheduleday': selectedScheduleDay, 'schedulePeriod': selectedSchedulePeriod });
+  });
+
+  $(document).on("click", ".scheduleday", function () {
+    var scheduleday = $(this).attr('scheduled-day');
+    selectedScheduleDay = parseInt(scheduleday);
+    // var node = nodes[selectedNodeId];
+    // refreshNodeDetails(node);
+  });
     $(document).on("click", ".eventEnableDisable", function () {
       var eventKey = $(this).attr('event-id');
       socket.emit('EDITNODEEVENT', selectedNodeId, eventKey, !nodes[selectedNodeId].events[eventKey]);
@@ -819,6 +1006,14 @@ function startApp() {
       socket.emit('EDITNODEEVENT', selectedNodeId, $('#addEventType').val(), true);
     });
 
+  $("#addSchedule_OK").click("tap", function (event) {
+    socket.emit('EDITNODESCHEDULE', selectedNodeId, selectedScheduleDay, selectedSchedulePeriod, { startTime: $("#scheduleHour").val() + ":" + $("#scheduleMinutes").val(), comfortType: $('#addComfortType').val() }, false);
+  });
+
+  $("#deleteSchedule_yes").click("tap", function (event) {
+    socket.emit('EDITNODESCHEDULE', selectedNodeId, selectedScheduleDay, selectedSchedulePeriod,null, true);
+  });
+
     $("#metric_return,#event_return").click("tap", function(event) {
       var metric = nodes[selectedNodeId].metrics[selectedMetricKey];
       if (metric != undefined)
@@ -846,6 +1041,12 @@ function startApp() {
       socket.emit('PROCESSEXIT');
     });
 
+  $("#piReboot_yes").click("tap", function (event) {
+    socket.emit('PIREBOOT');
+    // $.mobile.navigate('#homepage', { transition : 'fade'});
+  });
+
+
     $("#clearbtn").click("tap", function(event) {
       $('#log').val('');
     });
@@ -862,10 +1063,17 @@ function startApp() {
       //LOG(JSON.stringify({nodeId:$("#rawActionID").val(), action:$("#rawActionText").val()}));
       var id = $("#rawActionID").val();
       var value = $("#rawActionText").val();
-      if (value.toLowerCase() == 'new')
-        socket.emit("INJECTNODE", {nodeId:id, label:value});
-      else
-        socket.emit("NODEMESSAGE", {nodeId:id, action:value});
+    switch (value.toLowerCase()) {
+      case 'new':
+        socket.emit("INJECTNODE", { nodeId: id, label: value });
+        break;
+      case 'cleansourcenodes':
+        socket.emit("CLEANSOURCENODES", { nodeId: id });
+        break;
+      default:
+        socket.emit("NODEMESSAGE", { nodeId: id, action: value });
+        break;
+    }
     });
 
     //enforce positive numeric input

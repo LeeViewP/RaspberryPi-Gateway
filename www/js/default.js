@@ -899,11 +899,6 @@ function startApp() {
     socket.emit('EDITNODEEVENT', selectedNodeId, eventKey, null, true);
   });
 
-  //   $(document).on("click", ".scheduleDelete", function () {
-  //   var eventKey = $(this).attr('event-id');
-  //   socket.emit('EDITNODESCHEDULE', selectedNodeId, selectedScheduleDay, selectedSchedulePeriod, null, true);
-  // });
-
   $('#nodeLabel').keyup(function () { $('#nodeDetailTitle').html($('#nodeLabel').val() || 'no label'); });
   $('#metricLabel').keyup(function () { $('#metricDetailTitle').html($('#metricLabel').val() || 'no label'); });
 
