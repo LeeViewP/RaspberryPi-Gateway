@@ -1,0 +1,168 @@
+.ui-content { padding-top:0; }
+  .btn-text, #loadingsocket { font-size: 32px; }
+  #loadingsocket, #loadinggraph {padding:15px;}
+  .labelbold { font-weight:bold !important; overflow:hidden; text-overflow:ellipsis;white-space:nowrap; }
+  .wrap { padding: 12px; }
+  .ui-listview>li.hiddenNode { display:none; }
+  .ui-listview>li.hiddenNodeShow { display:block; }
+  .ui-li-count18 { font-size:18px; }
+  .ui-li-count16 { font-size:16px; }
+  .ui-li-countSTATIC {
+    position:static !important;
+    float:right;
+    font-size:16px;
+  }
+
+  h1, #nodeList li {
+    user-select: none;
+    -moz-user-select: none;
+    -webkit-user-select: none;
+    cursor: default;
+  }
+
+  .center-div{ margin: 0 auto; }
+  .center-wrapper{ text-align: center; }
+  .center-wrapper * { margin: 0 auto; }
+  #nodeControls { padding: 0 0.5em 0 0.5em; }
+  .listIcon20px { max-width:20px; }
+  .ui-slider { width: 10em !important; }
+
+  textarea.ui-input-text {
+    height:auto;
+    font-size:15px;
+    font-weight:bold;
+    font-family:Courier New;
+  }
+
+  .icon {
+    display:inline-block;
+    white-space:nowrap;
+    max-width:20px;
+    max-height:20px;
+  }
+
+  .nodeDetailLabel {
+    float:left;
+    font-weight:bold;
+    width: 110px;
+  }
+
+  .lowbatt {
+    background:red;
+    color:white;
+    font-weight:bold;
+    display:none;
+  }
+
+  /*styling of inline raw action controls*/
+  .rawAction .ui-mini { margin:0; }
+  .rawAction .ui-btn { margin:0; padding: .3em 0; }
+  .rawAction a { margin:4px 0; }
+  #rawActionIDspan {
+      padding: 12px 0 12px 12px;
+      float:left;
+      width:15%;
+  }
+  #rawActionTextspan {
+      padding: 12px 0;
+      float:left;
+      width:55%;
+  }
+  #rawActionSendspan {
+      padding: 12px 12px 12px 0;
+      float:left;
+      width:20%;
+  }
+  #rawActionIDspan div { border-radius: 0.3em 0 0 0.3em; }
+  #rawActionTextspan div { border-radius: 0; }
+  #rawActionSend { border-radius: 0 0.3em 0.3em 0; }
+  
+  .hiddenNodeShow a { background-color: #ffe5e5 !important; }
+  
+  #nodeList > li.ui-li-has-thumb > a { padding-right:2.5em;  }
+  @media (max-width: 599px) {
+    #nodeList > li.ui-li-has-thumb > a { padding-left: 5.25em; }
+    #nodeList > li.ui-li-has-thumb > a > span.ui-li-count { top:70%; }
+  }
+  @media (max-width: 767px) {
+    .sideButton { display:none !important; }
+  }
+  
+  #nav-panel-popup {
+    right: 0 !important;
+    left: auto !important;
+  }
+  #nav-panel {
+    width: 200px;
+    background: rgba(0,0,0,.7);
+    border: 1px solid #000;
+    border-right: none;
+    /*margin: -1px 0;*/
+    /*padding-top:20px;*/
+    
+  }
+  #nav-panel > ul { margin-top: 0 !important; }
+  #nav-panel .ui-btn {
+      /*margin: 2em 15px;*/
+  }
+  
+  .content-panel {
+    margin: 1em 0;
+    border: 1px solid #ddd;
+    display: block;
+    box-shadow: 0 1px 3px rgba(0,0,0,.15);
+    border-radius: .3125em;
+    text-shadow: 0 1px 0 #f3f3f3;
+    padding-right: .5em;
+  }
+  
+  @media (max-width: 539px) {
+    .content-panel { padding: 0 .5em; }
+    .nodeDetailImageWrapper { text-align:center; }
+    #nodeDetailInputList { padding-left: 0; padding-top: 0; margin-top:0;}
+  }
+  
+  @media (max-width: 448px) {
+    label.labelbold { margin: .4em .4em .1em .4em; }
+    .ui-content { padding:.3em; }
+  }
+  
+  @media (min-width: 540px) {
+    .nodeDetailImageWrapper {
+      position:absolute;
+      float:left;
+      padding-top:10px;
+    }
+    #nodeDetailInputList { padding-left: 130px; }
+  }
+  
+  @media (min-width: 1000px) {
+    .nodeDetailImageWrapper { padding-left: 10%; }
+    #nodeDetailInputList { padding-left: 25%; padding-right: 10%; }
+  }  
+  @media (min-width: 1600px) {
+    .nodeDetailImageWrapper { padding-left: 20%; }
+    #nodeDetailInputList { padding-left: 30%; padding-right: 25%; }
+  }
+  
+  .ui-page{ overflow-y:hidden !important; }
+  
+  div.popupInfo {max-width:90%;padding:0.7em;background-color: #fff;}
+  
+  .lowbattimg { animation: blinker 1.5s linear infinite; max-width:20px;position:absolute;left:78px;top:25px; }
+  @keyframes blinker { 50% { opacity: 0; } }
+
+  .loaderprogress {
+    /*position: absolute;*/
+    /*top: 50%;*/
+    /*left: 50%;*/
+    /*width: 120px;*/
+    /*height: 120px;*/
+    /*margin:-60px 0 0 -60px;*/
+    -webkit-animation:spin 4s linear infinite;
+    -moz-animation:spin 4s linear infinite;
+    animation:spin 4s linear infinite;
+}
+@-moz-keyframes spin { 100% { -moz-transform: rotate(360deg); } }
+@-webkit-keyframes spin { 100% { -webkit-transform: rotate(360deg); } }
+@keyframes spin { 100% { -webkit-transform: rotate(360deg); transform:rotate(-360deg); } }
