@@ -80,21 +80,37 @@ exports.events = {
       label: "Smart Meteo Forecasting Event",
       icon: 'clock',
       descr: 'Smart Meteo Forecasting Functionality',
+      condition: function (node){
+        // console.log('Evaluating Smart Meteo Condition');
+        // if (node.metrics['Forecast']){
+        // console.log('Smart meteo has FORECAST:' +JSON.stringify(node.metrics['Forecast']));
+        // var datadiff = Date.now() - new Date(node.metrics['Forecast'].updated).getTime();
+        // console.log('Smart Meteo Forecast Time Difference :' + datadiff);
+        // var conditionX = node.metrics['Forecast'] && (Date.now() - new Date(node.metrics['Forecast'].updated).getTime() > 2000);
+        // console.log('Evaluating Condition :' + conditionX);
+        // }
+
+        return node.metrics['AVGP'] && (Date.now() - new Date(node.metrics['AVGP'].updated).getTime() < 2000)
+      },
       serverExecute:function (node){
+        console.log('Smart Meteo Start Executing');
         // var periodsToCalculate=[1,6,12];
         var metrictrend1 = getMetricTrend(node._id, "AVGP", 1, 1.3332239 * 100); //Average Pressure
         var pressureChange1 = getPressureChangeType(metrictrend1);
-        // setTimeout(updateNodeMetric,1720,{ nodeId: node._id, metric: { name: 'PT1', value: pressureChange1 } });
+        console.log('Smart Meteo Metric trend :' + metrictrend1 + ' pressure change: ' +pressureChange1);
+         setTimeout(updateNodeMetric,1720,{ nodeId: node._id, metric: { name: 'PT1', value: pressureChange1 } });
 
         var metrictrend6 = getMetricTrend(node._id, "AVGP", 6, 1.3332239 * 100); //Average Pressure
         var pressureChange6 = getPressureChangeType(metrictrend6);
-        // setTimeout(updateNodeMetric, 1740,{ nodeId: node._id, metric: { name: 'PT6', value: pressureChange6 } });
+        console.log('Smart Meteo Metric trend :' + metrictrend6 + ' pressure change: ' +pressureChange6);
+         setTimeout(updateNodeMetric, 1740,{ nodeId: node._id, metric: { name: 'PT6', value: pressureChange6 } });
 
-        // var metrictrend12 = getMetricTrend(node._id, "AVGP", 12, 1.3332239 * 100); //Average Pressure
-        // var pressureChange12 = getPressureChangeType(metrictrend12);
-        // setTimeout(updateNodeMetric,1760, { nodeId: node._id, metric: { name: 'PT12', value: pressureChange12 } });
+         var metrictrend12 = getMetricTrend(node._id, "AVGP", 12, 1.3332239 * 100); //Average Pressure
+         var pressureChange12 = getPressureChangeType(metrictrend12);
+         console.log('Smart Meteo Metric trend :' + metrictrend12 + ' pressure change: ' +pressureChange12);
+         setTimeout(updateNodeMetric,1760, { nodeId: node._id, metric: { name: 'PT12', value: pressureChange12 } });
 
-        setTimeout(updateNodeMetric,1780,{ nodeId: node._id, metric: { name: 'FORECAST', value: getForecast(node._id, pressureChange1, pressureChange6) } });
+        setTimeout(updateNodeMetric,1780,{ nodeId: node._id, metric: { name: 'Forecast', value: getForecast(node._id, pressureChange1, pressureChange6) } });
 
       }
     }
@@ -223,21 +239,21 @@ exports.events = {
 
 global.getMetricTrend = function (nodeId, metricKey, hours, unitConversion) {
   // unitConversion for mmHg To mb*100 = 1.3332239*100
-  // console.log("Forecasting hours:"+hours);
+  //  console.log("Forecasting hours:"+hours);
 
   start = ((new Date()).getTime()) - (3600000 * hours);	//Get start time
-  // console.log("Forecasting start:"+start);
+  //  console.log("Forecasting start:"+start);
 
   end = (new Date()).getTime();	//Get end time
-  // console.log("Forecasting end:"+end);
+  //  console.log("Forecasting end:"+end);
 
   var sts = Math.floor(start / 1000); //get timestamp in whole seconds
   var ets = Math.floor(end / 1000); //get timestamp in whole seconds
-  var logfile = path.join(__dirname, dbDir, dbLog.getLogName(nodeId, metricKey));
+  var logfile = path.join(__dirname + '/../', dbDir, dbLog.getLogName(nodeId, metricKey));
   var logData = dbLog.getData(logfile, sts, ets);
 
   var ratePerHour = 0;
-  // console.log("Forecasting logData.length:"+logData.data.length);
+  //  console.log("Forecasting logData.length:"+logData.data.length);
   if (logData.data.length > 0) {
 
     var pastPressure = logData.data[0].v * unitConversion; //(logData[0]*1.3332239)*100; // put in units of mb * 100

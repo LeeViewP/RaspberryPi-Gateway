@@ -159,7 +159,12 @@ global.handleNodeEvents = function (node) {
         var evt = metricsDef.events[key];
         if (evt.serverExecute != undefined)
           try {
-            evt.serverExecute(node);
+            if (evt.condition != undefined) {
+              if (evt.condition(node))
+                evt.serverExecute(node);
+            }
+            else
+              evt.serverExecute(node)
           }
           catch (ex) { console.warn('Event ' + key + ' execution failed: ' + ex.message); }
       }

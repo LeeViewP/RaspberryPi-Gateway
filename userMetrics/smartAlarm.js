@@ -1,6 +1,6 @@
 exports.motes = {
     SmartAlarm: {
-        label: 'Smart Alarm (Moteino Based)',
+        label: 'Smart Security',
         icon: 'appbar.shield.alert.svg',
         controls: {
             armedstatus: {
@@ -161,82 +161,72 @@ exports.events = {
         label: 'Motion Alarm : adb SMS',
         icon: 'comment',
         descr: 'Send adb SMS when MOTION is detected and alarm is ON',
+        condition: function (node) {
+            if (node.metrics['ALARMMODE'] == undefined) return false;
+            if (node.metrics['ALARMMODE'].value != 'ARMED') return false;
+            return node.metrics['M'] && node.metrics['M'].value == 'MOTION' &&
+                (Date.now() - new Date(node.metrics['M'].updated).getTime() < 2000);
+        },
         serverExecute: function (node) {
-            if (node.metrics['ALARMMODE']) {
-                console.log('ALARM : ' + node.metrics['ALARMMODE'].value);
-                if (node.metrics['ALARMMODE'] && node.metrics['ALARMMODE'].value == 'ARMED')
-                    if (node.metrics['M'] && node.metrics['M'].value == 'MOTION' &&
-                        (Date.now() - new Date(node.metrics['M'].updated).getTime() < 2000)
-                    ) {
-                        var approveSendMessage = false;
-                        if (node.metrics['M'].lastTriggeredMovement) {
-                            if (new Date(node.metrics['M'].updated).getTime() - new Date(node.metrics['M'].lastTriggeredMovement).getTime() < settings.smartalarm.alarmDelay.value) {
-                                if (node.metrics['M'].lastMessage) /*check if lastMessage value is not NULL ... */ {
-                                    if (Date.now() - node.metrics['M'].lastMessage > settings.smartalarm.limitMotionMessage.value) /*check if lastMessage timestamp is more than 1hr ago*/ {
-                                        approveSendMessage = true;
-                                    }
-                                }
-                                else {
-                                    approveSendMessage = true;
-                                }
-                            }
+            var approveSendMessage = false;
+            if (node.metrics['M'].lastTriggeredMovement) {
+                if (new Date(node.metrics['M'].updated).getTime() - new Date(node.metrics['M'].lastTriggeredMovement).getTime() < settings.smartalarm.alarmDelay.value) {
+                    if (node.metrics['M'].lastMessage) /*check if lastMessage value is not NULL ... */ {
+                        if (Date.now() - node.metrics['M'].lastMessage > settings.smartalarm.limitMotionMessage.value) /*check if lastMessage timestamp is more than 1hr ago*/ {
+                            approveSendMessage = true;
                         }
-
-                        node.metrics['M'].lastTriggeredMovement = node.metrics['M'].updated
-                        if (approveSendMessage) {
-                            node.metrics['M'].lastMessage = Date.now();
-                            console.log('   [' + node._id + '] Start ADB MOTION Message Alert.');
-                            sendAdbSMS('INTRUDER%sALERT');
-                            //sendAdbSMS('INTRUDER%sALERT%s:%sMOTION%sWAS%sDETECTED%sWHEN%sALARM%sIS%sON%s@%s');// + (new Date().toLocaleTimeString() + (new Date().getHours() > 12 ? 'PM' : 'AM')));
-                            //sendEmail('INTRUDER ALERT', 'MOTION WAS DETECTED WHEN ALARM IS ON @ ' + (new Date().toLocaleTimeString() + (new Date().getHours() > 12 ? 'PM' : 'AM')));
-                            db.update({ _id: node._id }, { $set: node }, {}, function (err, numReplaced) { console.log('   [' + node._id + '] DB-Updates:' + numReplaced); }); /*save lastMessage timestamp to DB*/
-                        }
-                        else console.log('   [' + node._id + '] MOTION Message skipped.');
                     }
+                    else {
+                        approveSendMessage = true;
+                    }
+                }
             }
-            else {
-                console.log('ALARMMOTE METRIC NOT FOUND!');
+
+            node.metrics['M'].lastTriggeredMovement = node.metrics['M'].updated
+            if (approveSendMessage) {
+                node.metrics['M'].lastMessage = Date.now();
+                console.log('   [' + node._id + '] Start ADB MOTION Message Alert.');
+                sendAdbSMS('INTRUDER%sALERT');
+                //sendAdbSMS('INTRUDER%sALERT%s:%sMOTION%sWAS%sDETECTED%sWHEN%sALARM%sIS%sON%s@%s');// + (new Date().toLocaleTimeString() + (new Date().getHours() > 12 ? 'PM' : 'AM')));
+                //sendEmail('INTRUDER ALERT', 'MOTION WAS DETECTED WHEN ALARM IS ON @ ' + (new Date().toLocaleTimeString() + (new Date().getHours() > 12 ? 'PM' : 'AM')));
+                db.update({ _id: node._id }, { $set: node }, {}, function (err, numReplaced) { console.log('   [' + node._id + '] DB-Updates:' + numReplaced); }); /*save lastMessage timestamp to DB*/
             }
+            else console.log('   [' + node._id + '] MOTION Message skipped.');
         }
     },
     alarmCall: {
         label: 'Motion Alarm : adb Call',
         icon: 'phone',
         descr: 'Send adb Call when MOTION is detected and alarm is ON',
+        condition: function (node) {
+            if (node.metrics['ALARMMODE'] == undefined) return false;
+            if (node.metrics['ALARMMODE'].value != 'ARMED') return false;
+            return node.metrics['M'] && node.metrics['M'].value == 'MOTION' &&
+                (Date.now() - new Date(node.metrics['M'].updated).getTime() < 2000);
+        },
         serverExecute: function (node) {
-            if (node.metrics['ALARMMODE']) {
-                console.log('ALARM : ' + node.metrics['ALARMMODE'].value);
-                if (node.metrics['ALARMMODE'] && node.metrics['ALARMMODE'].value == 'ARMED')
-                    if (node.metrics['M'] && node.metrics['M'].value == 'MOTION' &&
-                        (Date.now() - new Date(node.metrics['M'].updated).getTime() < 2000)
-                    ) {
-                        var approveSendMessage = false;
-                        if (node.metrics['M'].lastTriggeredMovement) {
-                            if (new Date(node.metrics['M'].updated).getTime() - new Date(node.metrics['M'].lastTriggeredMovement).getTime() < settings.smartalarm.alarmDelay.value) {
-                                if (node.metrics['M'].lastMessage) /*check if lastMessage value is not NULL ... */ {
-                                    if (Date.now() - node.metrics['M'].lastMessage > settings.smartalarm.limitMotionMessage.value) /*check if lastMessage timestamp is more than 1hr ago*/ {
-                                        approveSendMessage = true;
-                                    }
-                                }
-                                else {
-                                    approveSendMessage = true;
-                                }
-                            }
+            var approveSendMessage = false;
+            if (node.metrics['M'].lastTriggeredMovement) {
+                if (new Date(node.metrics['M'].updated).getTime() - new Date(node.metrics['M'].lastTriggeredMovement).getTime() < settings.smartalarm.alarmDelay.value) {
+                    if (node.metrics['M'].lastMessage) /*check if lastMessage value is not NULL ... */ {
+                        if (Date.now() - node.metrics['M'].lastMessage > settings.smartalarm.limitMotionMessage.value) /*check if lastMessage timestamp is more than 1hr ago*/ {
+                            approveSendMessage = true;
                         }
-
-                        node.metrics['M'].lastTriggeredMovement = node.metrics['M'].updated
-                        if (approveSendMessage) {
-                            node.metrics['M'].lastMessage = Date.now();
-                            startAdbCall();
-                            //sendEmail('INTRUDER ALERT', 'MOTION WAS DETECTED WHEN ALARM IS ON @ ' + (new Date().toLocaleTimeString() + (new Date().getHours() > 12 ? 'PM' : 'AM')));
-                            db.update({ _id: node._id }, { $set: node }, {}, function (err, numReplaced) { console.log('   [' + node._id + '] DB-Updates:' + numReplaced); }); /*save lastMessage timestamp to DB*/
-                        }
-                        else console.log('   [' + node._id + '] MOTION Message skipped.');
                     }
+                    else {
+                        approveSendMessage = true;
+                    }
+                }
             }
-            else {
-                console.log('ALARMMOTE METRIC NOT FOUND!');
+
+            node.metrics['M'].lastTriggeredMovement = node.metrics['M'].updated
+            if (approveSendMessage) {
+                node.metrics['M'].lastMessage = Date.now();
+                startAdbCall();
+                //sendEmail('INTRUDER ALERT', 'MOTION WAS DETECTED WHEN ALARM IS ON @ ' + (new Date().toLocaleTimeString() + (new Date().getHours() > 12 ? 'PM' : 'AM')));
+                db.update({ _id: node._id }, { $set: node }, {}, function (err, numReplaced) { console.log('   [' + node._id + '] DB-Updates:' + numReplaced); }); /*save lastMessage timestamp to DB*/
             }
+            else console.log('   [' + node._id + '] MOTION Message skipped.');
         }
     },
     alarmBeep: {

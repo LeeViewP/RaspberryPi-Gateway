@@ -65,8 +65,6 @@ global.startAdbCall = function () {
     });
 }
 
-
-
 global.updateNodeMetric = function (node) {
     var dbNode = new Object();
     db.find({ _id: node.nodeId }, function (err, entries) {

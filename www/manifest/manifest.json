@@ -1,7 +1,7 @@
 {
     "gcm_sender_id": "103953800507",
-    "short_name":"Smart Home",
-    "name": "Perecrestov's Smart Home Dashboard",
+    "short_name":"Smart HomeMaker",
+    "name": "Smart HomeMake Dashboard",
     "icons": [
           {
             "src": "/manifest/appbar.home.logo.192.themecolor.png",
@@ -19,5 +19,6 @@
     "display": "standalone",
     "orientation": "portrait",
     "theme_color": "#5a9216",
-    "start_url": "/default.html?utm_source=homescreen"
+    //"start_url": "/default.html?utm_source=homescreen"
+    "start_url": "/?utm_source=homescreen"
 }

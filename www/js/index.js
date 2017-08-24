@@ -538,14 +538,22 @@ function startApp() {
       //else img = 'icon_rssi_1.png';
       //return '<img class="listIcon20px" src="images/'+img+'" title="RSSI:-'+Math.abs(rssi)+'" /> ';
 
-    if (Math.abs(rssi) > 95) img = 'appbar.connection.quality.veryhigh.svg.png';
+    if (Math.abs(rssi) > 95) img = 'appbar.connection.quality.veryhigh.svg';
     else if (Math.abs(rssi) > 90) img = 'appbar.connection.quality.high.svg';
     else if (Math.abs(rssi) > 85) img = 'appbar.connection.quality.medium.svg';
     else if (Math.abs(rssi) > 80) img = 'appbar.connection.quality.low.svg';
     else if (Math.abs(rssi) > 75) img = 'appbar.connection.quality.verylow.svg';
     else if (Math.abs(rssi) > 70) img = 'appbar.connection.quality.extremelylow.svg';
     else img = 'appbar.connection.quality.extremelylow.svg';
-    return '<img class="listIcon20px svg" src="images/' + img + '" title="RSSI:-' + Math.abs(rssi) + '" style="display:block;float:right;"/> ';
+     var image = $('<img/>', 
+              { 'class': "listIcon20px"
+              ,'src':"images/" + img
+              ,'title': "RSSI:" + Math.abs(rssi)
+              //,style: "display:block;float:right;"
+              //,style: "position:absolute;left:0;bottom:0;"
+             });
+    return image.prop('outerHTML');
+    // return '<img class="listIcon20px svg" src="images/' + img + '" title="RSSI:-' + Math.abs(rssi) + '" style="display:block;float:right;"/> ';
     
     }
 
@@ -556,9 +564,17 @@ function startApp() {
     if (voltage < 3.55) img = "appbar.battery.0.svg";
     else if (voltage < 3.85) img = "appbar.battery.1.svg";
     else if (voltage < 4.15) img = "appbar.battery.2.svg";
-    else img = "appbar.battery.3.svg";
+    else if (voltage < 4.9) img = "appbar.battery.3.svg";
+    else img = "appbar.battery.chargging.svg";
     var lobat = voltage < minVoltage ? ' blink' : '';
-    return '<img class="listIcon20px svg' + lobat + '" src="images/' + img + '" title="Battery:' + Math.abs(voltage) + '" style="display:block;float:right;"/> ';
+    var image = $('<img/>', 
+              { 'class': "listIcon20px"
+              ,'src':"images/" + img
+              ,'title': "Battery:" + Math.abs(voltage)
+              //,style: "position:absolute;left:0;bottom:0;"
+             });
+    return image.prop('outerHTML');
+   // return '<img class="listIcon20px svg' + lobat + '" src="images/' + img + '" title="Battery:' + Math.abs(voltage) + '" style="display:block;float:right;"/> ';
 
   }
 
@@ -569,10 +585,14 @@ function startApp() {
         nodes[node._id] = node;
         var nodeValue = metricsValues(node.metrics);
         var lowBat = node.metrics != null ? node.metrics.V != null : false //&& node.metrics.V.value < 3.55 : false;
-        var newLI = $('<li id="' +  node._id + '"><a node-id="' + node._id + '" href="#nodedetails" class="nodedetails"><img class="productimg" src="images/'+getNodeIcon(node)+'"><h2>' + (nodeResolveString(node.label, node.metrics) || node._id) + ' ' + resolveRSSIImage(node.rssi) + ' ' + 
-         //(lowBat ? '<img src="images/lowbattery.png" class="lowbattimg"/> ' : '') + 
+        var newLI = $('<li id="' +  node._id + '"><a node-id="' + node._id + '" href="#nodedetails" class="nodedetails"><img class="productimg" src="images/'+getNodeIcon(node)+'"><h2>' + (nodeResolveString(node.label, node.metrics) || node._id) + ' ' + 
+
+         ago(node.updated, 0).tag + (node.hidden ? ' <img class="listIcon20px" src="images/images/appbar.eye.hide.svg" />' : '') + '</h2><p>' + 
+         (nodeResolveString(node.descr, node.metrics) || '&nbsp;') + '</p>' + 
+         (nodeValue ? '<span class="ui-li-count ui-li-count16">' + nodeValue + '</span>' : '') + 
+          resolveRSSIImage(node.rssi) + ' ' + 
          (lowBat ? resolveBatteryImage(node.metrics.V.value) : '') +
-         ago(node.updated, 0).tag + (node.hidden ? ' <img class="listIcon20px" src="images/images/appbar.eye.hide.svg" />' : '') + '</h2><p>' + (nodeResolveString(node.descr, node.metrics) || '&nbsp;') + '</p>' + (nodeValue ? '<span class="ui-li-count ui-li-count16">' + nodeValue + '</span>' : '') + '</a></li>');
+         '</a></li>');
         var existingNode = $('#nodeList li#' + node._id);
         if (node.hidden)
           if (showHiddenNodes)
@@ -741,7 +761,8 @@ function startApp() {
       {
         var metric = node.metrics[key];
         var metricValue = metricsValues([metric]);
-        var newLI = $('<li id="' + key + '"><a metric-id="' + key + '" href="#metricdetails" class="metricdetails"><img class="ui-li-icon" src="images/' + (metric.pin==1 ? 'pin.png' : 'blank.png') + '" />' +  metric.label + ' ' + (metric.graph==1 ? '<img style="width:16px" src="images/graph.png" /> ' : '') + ago(metric.updated, 0).tag + '<span class="ui-li-count ui-li-count16">' + metricValue +  '</span></a></li>');
+        var newLI = $('<li id="' + key + '"><a metric-id="' + key + '" href="#metricdetails" class="metricdetails"><img class="ui-li-icon icon" src="images/' + 
+        (metric.pin==1 ? 'appbar.pin.svg' : 'blank.png') + '" />' +  metric.label + ' ' + (metric.graph==1 ? '<img class="ui-li-icon icon" src="images/appbar.graph.bar.svg" /> ' : '') + ago(metric.updated, 0).tag + '<span class="ui-li-count ui-li-count16">' + metricValue +  '</span></a></li>');
         $('#metricList').append(newLI);
         if (key == selectedMetricKey)
         {
