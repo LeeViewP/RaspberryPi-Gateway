@@ -74,13 +74,13 @@ function startApp() {
       //var thDividerAdd =  $('<a/>', {'href':"#thermostatScheduleDetatils", 'data-role':"button", 'data-inline':"true", 'data-icon':"plus", 'data-iconpos':"notext", 'data-mini':"true", 'title':"Add new schedule" }).appendTo(thTabUlDivider); 
       var thDividerAddContainer = $('<div/>').appendTo(thTabUlDivider);
       thDividerAddContainer.addClass("ui-li-count ui-body-inherit");
-      var thDividerAdd = $('<a/>', { 'href': "#thermostatScheduleDetatils", 'data-role': "button", 'data-inline': "true", 'data-icon': "plus", 'data-iconpos': "notext", 'data-mini': "true", 'title': "Add new schedule" }).appendTo(thDividerAddContainer);
+      var thDividerAdd = $('<a/>', { 'href': "#thermostatScheduleDetails", 'data-role': "button", 'data-inline': "true", 'data-icon': "plus", 'data-iconpos': "notext", 'data-mini': "true", 'title': "Add new schedule" }).appendTo(thDividerAddContainer);
       thDividerAdd.addClass("newschedule");
       for (var schedule in entry.thermostatSchedule[day]) {
         var comfortType = getComfortType(entry.thermostatSchedule[day][schedule].comfortType);
 
         var thTabLi = $('<li/>').appendTo(thTabUl);
-        var thASchedule = $('<a/>', { 'href': "#thermostatScheduleDetatils", 'scheduled-period': schedule }).appendTo(thTabLi);
+        var thASchedule = $('<a/>', { 'href': "#thermostatScheduleDetails", 'scheduled-period': schedule }).appendTo(thTabLi);
         thASchedule.addClass('scheduledetails');
         var thComfortTypeImage = $('<img/>', { 'src': "images/" + comfortType.icon, }).appendTo(thASchedule);
         var thStartHour = $('<div/>', { 'id': "thStartHour"+day+schedule, 'style': "float:right;" }).appendTo(thASchedule);
@@ -252,6 +252,7 @@ function startApp() {
   });
 
     $(document).on("pagecreate", "#eventAdd", function(){ if ($('addEventType').val()) $('#addEvent_OK').show(); else $('#addEvent_OK').hide(); });
+  $(document).on("pagecreate", "#scheduleAdd", function () { if ($('addComfortType').val()) $('#addSchedule_OK').show(); else $('#addSchedule_OK').hide(); });
 
     socket.on('LOG', function(data) {
       LOG(data);
@@ -525,6 +526,18 @@ function startApp() {
         return motesDef[node.type].icon || 'icon_default.png';
       return 'icon_default.png';
     };
+
+  function getComfortTypeIcon(comfortType) {
+    if (comfortTypesDef != undefined && comfortType != undefined && comfortTypesDef[comfortType] != undefined)
+      return comfortTypesDef[comfortType].icon || 'icon_default.png';
+    return 'icon_default.png';
+  };
+  function getComfortType(comfortType) {
+    if (comfortTypesDef != undefined && comfortType != undefined && comfortTypesDef[comfortType] != undefined)
+      return comfortTypesDef[comfortType] || new Object();
+    return new Object();
+  };
+
 
     function resolveRSSIImage(rssi) {
       if (rssi == undefined) return '';

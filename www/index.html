@@ -64,17 +64,17 @@
   <script src="https://code.jquery.com/jquery-1.12.1.min.js"></script>
   <script src="https://code.jquery.com/ui/1.11.4/jquery-ui.min.js"></script>
   <script src="https://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.js"></script>
-  <script language="javascript" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/flot/0.8.3/jquery.flot.min.js"></script>
-  <script language="javascript" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/flot/0.8.3/jquery.flot.time.min.js"></script>
-  <script language="javascript" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/flot/0.8.3/jquery.flot.selection.min.js"></script>
-  <script language="javascript" type="text/javascript" src="https://rawgit.com/MichaelZinsmaier/CurvedLines/master/curvedLines.js"></script>
-  <script language="javascript" type="text/javascript" src="js/graphHelper.js"></script>
-  <script language="javascript" type="text/javascript" src="js/dateFormat.js"></script> <!-- for demo see http://jsfiddle.net/phZr7/1/ -->
-  <script language="javascript" type="text/javascript" src="js/bind.1.0.1.min.js"></script>
+  <script defer  language="javascript" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/flot/0.8.3/jquery.flot.min.js"></script>
+  <script defer  language="javascript" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/flot/0.8.3/jquery.flot.time.min.js"></script>
+  <script defer  language="javascript" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/flot/0.8.3/jquery.flot.selection.min.js"></script>
+  <script defer  language="javascript" type="text/javascript" src="https://rawgit.com/MichaelZinsmaier/CurvedLines/master/curvedLines.js"></script>
+  <script defer  language="javascript" type="text/javascript" src="js/graphHelper.js"></script>
+  <script defer  language="javascript" type="text/javascript" src="js/dateFormat.js"></script> <!-- for demo see http://jsfiddle.net/phZr7/1/ -->
+  <script defer  language="javascript" type="text/javascript" src="js/bind.1.0.1.min.js"></script>
   <!-- support for datepicker: -->
   <link rel="stylesheet" href="https://rawgithub.com/arschmitz/jquery-mobile-datepicker-wrapper/master/jquery.mobile.datepicker.css" />
-  <script src="https://rawgithub.com/jquery/jquery-ui/1.10.4/ui/jquery.ui.datepicker.js"></script>
-  <script src="https://rawgithub.com/arschmitz/jquery-mobile-datepicker-wrapper/v0.1.1/jquery.mobile.datepicker.js"></script>
+  <script defer  src="https://rawgithub.com/jquery/jquery-ui/1.10.4/ui/jquery.ui.datepicker.js"></script>
+  <script defer  src="https://rawgithub.com/arschmitz/jquery-mobile-datepicker-wrapper/v0.1.1/jquery.mobile.datepicker.js"></script>
   <script language="javascript" type="text/javascript" src="js/index.js"></script>
 </head>
 <body>
@@ -99,6 +99,9 @@
         </li>
         <li data-icon="power">
           <a href="#processExit" title="Restart gateway app">Restart app</a>
+        </li>
+        <li data-icon="power">
+          <a href="#piReboot" title="Restart PI">Restart System</a>
         </li>
       </ul>
       <div style="font-weight:bold;padding:5px;">
@@ -136,7 +139,7 @@
     </div>
 
     <div data-role="footer" data-position="fixed">
-      <h1><span style="font-size:11px">� <a href="http://lowpowerlab.com">LowPowerLab.com</a> 2015. All rights reserved. <a href="http://lowpowerlab.com/gateway">About</a></span></h1>
+      <h1><span style="font-size:11px">&copy; <a href="http://lowpowerlab.com">LowPowerLab.com</a> 2015. All rights reserved. <a href="http://lowpowerlab.com/gateway">About</a></span></h1>
     </div>
   </div>
 
@@ -353,6 +356,75 @@
       </div>
     </div>
   </div>
+<div data-role="page" data-dialog="true"  id="piReboot">
+  <div data-role="main" class="ui-content">
+    <div class="center-wrapper" style="padding:20px">
+      <h3>Do you want to restart the system?</h3>
+    </div>
+  <div class="center-wrapper" style="padding:10px">
+    <span><strong>NOTE:</strong> This command will actually restart the system.<br/>You will have to wait for the system to start.</span>
+  </div>
+  <div class="center-wrapper" style="padding:20px">
+    <a id="piReboot_yes" href="#homepage" class="ui-btn ui-btn-inline ui-btn-b ui-shadow ui-corner-all ui-icon-check ui-btn-icon-left ui-mini"
+    data-rel="nodedetails" style="background: red; color: white;">Restart!</a>
+    <a href="#" class="ui-btn ui-btn-inline ui-shadow ui-corner-all ui-mini ui-icon-back ui-btn-icon-left" data-rel="back">Cancel</a>
+  </div>
+  </div>
+</div>
+<div data-role="page"  id="thermostatSchedulePage">
+  <div data-role="header">
+    <h1>Thermostat Schedule</h1>
+    <a id="thermostat_return" href="#" class="ui-btn ui-btn-inline ui-btn-b ui-shadow ui-corner-all ui-icon-back ui-btn-icon-left ui-mini" data-rel="back">Node</a>
+  </div>
+  <div data-role="main" class="ui-content">
+    <div id="thermostatTabs" ></div>
+  </div>
+  <div data-role="footer"  data-position="fixed" >
+    <!--<a href="#nodedetails" class="ui-btn ui-btn-inline ui-shadow ui-corner-all ui-mini ui-icon-back ui-btn-icon-left" data-rel="back">Cancel</a>
+    <a id="thermostatSchedule_yes" class="ui-btn ui-corner-all ui-shadow ui-btn-icon-left ui-icon-check" style="background-color:#9BFFBE;color:#000000;margin:.5em;">Save</a>-->
+  </div>
+  <div id="schedule-option-popup" data-role="popup" class="ui-content" style="padding-bottom:2em;padding-top:2em;">
+    <h3>Schedule Actions</h3>
+    <p>&nbsp;</p>
+      <div data-role="controlgroup" data-type="horizontal">
+        <a href="#deleteschedule" data-role="button" data-icon="delete" data-iconpos="notext" data-transition="fade" title="Delete this schedule">Delete</a>
+        <a href="#thermostatScheduleDetails" data-role="button" data-icon="edit" data-iconpos="notext" data-transition="fade" title="Edit this schedule" >Edit</a>
+        <a href="#homepage" data-icon="back" data-iconpos="notext" data-role="button" data-rel="back" title="Cancel">Cancel</a>
+      </div>
+  </div>
+</div>
+<div data-role="page" data-dialog="true"   id="thermostatScheduleDetails">
+  <div data-role="main" class="ui-content">
+    <div class="center-wrapper" style="padding:20px">
+      <h3>Change the schedule:</h3>
+    </div>
+    <label for="addComfortType" class="labelbold">Pick the comfort type:</label>
+    <select id="addComfortType" ></select>
+    <div class="center-wrapper" style="padding:8px; font-size:0.75em; font-weight:bold; color:red">
+        <span id="addComfortTypeDescr">&nbsp;</span>
+    </div>
+    <label for="scheduleHour" class="labelbold">Start Time:</label>
+    <input type="number" name="scheduleHour" id="scheduleHour" placeholder="Hour of the start time..." min="0" step="1" max="23"/>
+    <input type="number" name="scheduleMinutes" id="scheduleMinutes" placeholder="Minutes of the start time ..." min="0" step="1" max="59" />
+    <div class="center-wrapper">
+      <a id="addSchedule_OK" href="#thermostatSchedulePage" class="ui-btn ui-btn-inline ui-btn-b ui-shadow ui-corner-all ui-icon-check ui-btn-icon-left ui-mini"
+        data-rel="thermostatSchedulePage" style="background-color:#9BFFBE;color:#000">Add</a>
+      <a href="#" class="ui-btn ui-btn-inline ui-shadow ui-corner-all ui-mini ui-icon-back ui-btn-icon-left" data-rel="back">Cancel</a>
+    </div>
+  </div>
+</div>
+<div data-role="page" data-dialog="true"  id="deleteschedule">
+  <div data-role="main" class="ui-content">
+    <div class="center-wrapper" style="padding:20px">
+      <h3>Are you sure you want to delete the schedule?</h3>
+    </div>
+    <div class="center-wrapper" style="padding:20px">
+      <a id="deleteSchedule_yes" href="#thermostatSchedulePage" class="ui-btn ui-btn-inline ui-btn-b ui-shadow ui-corner-all ui-icon-delete ui-btn-icon-left ui-mini"
+      data-rel="thermostatScheduleDetatils" style="background: red; color: white;">Delete</a>
+      <a href="#" class="ui-btn ui-btn-inline ui-shadow ui-corner-all ui-mini ui-icon-back ui-btn-icon-left" data-rel="back">Cancel</a>
+    </div>
+  </div>
+</div>
   
   <script type="text/javascript">
   if (!window.jQuery || typeof $.mobile == 'undefined')

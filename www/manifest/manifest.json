@@ -1,7 +1,7 @@
 {
     "gcm_sender_id": "103953800507",
-    "short_name":"Smart HomeMaker",
-    "name": "Smart HomeMake Dashboard",
+    "short_name":"Home Keeper",
+    "name": "Smart Home Keeper Dashboard",
     "icons": [
           {
             "src": "/manifest/appbar.home.logo.192.themecolor.png",
@@ -21,4 +21,5 @@
     "theme_color": "#5a9216",
     //"start_url": "/default.html?utm_source=homescreen"
     "start_url": "/?utm_source=homescreen"
+    //"start_url": "/dashboard/index.html"
 }
