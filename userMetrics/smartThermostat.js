@@ -170,7 +170,7 @@ exports.events = {
                         if (meteonode.metrics['MINC'] != undefined) {
                             console.log('Smart Thermostat Functionality: Outside temperature FOUND:' + meteonode.metrics['MINC'].value);
                             //outsideTemperature = meteonode.metrics['MINC'].value
-                            thermostatFunctionality(node,meteonode.metrics['MINC'].value);
+                            thermostatFunctionality(node, meteonode.metrics['MINC'].value);
 
                         }
                     }
@@ -291,7 +291,7 @@ global.thermostatFunctionality = function (thNode, outsideTemperature) {
         case 'HEAT':
             //targetTemperature = currentComfortType.heat.temperature;
             var heatComfortType = currentComfortType;
-            heatComfortType.cool.temperature =100; //Set the upper limit sky high to disable cooling
+            heatComfortType.cool.temperature = 100; //Set the upper limit sky high to disable cooling
             thermostatTemperatureDecisions(currentInternalTemperature, outsideTemperature, heatComfortType);
             break;
         case 'COOL':
@@ -394,19 +394,29 @@ global.thermostatTemperatureDecisions = function (currentInternalTemperature, ou
 }
 
 global.thermostatGetCurrentComfortType = function (thNode) {
-    var todaySchedules = thNode.thermostatSchedule[(new Date()).getDay()];
-    //var todaySchedulesObject = node.thermostatSchedule[(new Date()).getDay()];
-    // console.log('Smart Thermostat Functionality: Today Schedules ' + JSON.stringify(todaySchedulesObject));
-    // var todaySchedules = [];
-    //  todaySchedules  = todaySchedulesObject.map(function(schedule){ return schedule});
-    // Object.keys(todaySchedulesObject).map(function (key) { return todaySchedulesObject[key]; });
-    // console.info(todaySchedules);
+    //var todaySchedulesObject = thNode.thermostatSchedule[(new Date()).getDay()];
+    var todaySchedules = [];
+    todaySchedules = thNode.thermostatSchedule[(new Date()).getDay()].map(function (schedule) { return schedule });
+    //Find first schedule of the day
+    var todayFirstSchedules = todaySchedules.filter(function (schedule) {
+        var d = new Date();
+        return new Date('1970/01/01 ' + schedule.startTime) >= new Date('1970/01/01 00:00')
+    });
+    
+    var todayFirstSchedule = todaySchedules[todaySchedules.indexOf(todayFirstSchedules[0])];
+    //WE need to have full day filled so if the firs our is not 00:00 we have to add it from the last day
+    if (new Date('1970/01/01 ' + todayFirstSchedule.startTime) > new Date('1970/01/01 00:00')) {
+        //We dont have 00:00 schedule get previous day schedule
+        var yesterdaySchedules = thNode.thermostatSchedule[(new Date()).getDay() - 1];
+        var yesterdayLastSchedule = yesterdaySchedules[yesterdaySchedules.length - 1];
+        yesterdayLastSchedule.startTime = '00:00';
+        todaySchedules.unshift(yesterdayLastSchedule);
 
+    }
 
-    // some issues with the magin of the intervals 
     var nextSchedules = todaySchedules.filter(function (schedule) {
         var d = new Date();
-        return new Date('1970/01/01 ' + schedule.startTime) >= new Date('1970/01/01 ' + +d.getHours() + ':' + d.getMinutes())
+        return new Date('1970/01/01 ' + schedule.startTime) >= new Date('1970/01/01 ' + d.getHours() + ':' + d.getMinutes())
     });
     // console.info(nextSchedules)
     var currentSchedule = new Object();

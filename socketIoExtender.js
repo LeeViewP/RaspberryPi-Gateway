@@ -3,7 +3,7 @@ module.exports = function (io) {
     io.on('connection', function (socket) {
         
         socket.on('PIREBOOT', function () {
-            console.log('PI REBOOT REQUESTED from ' + address);
+            console.log('PI REBOOT REQUESTED from ' ); //address
             var sshcommand = 'sudo reboot'; //'shutdown -r now';
             execute(sshcommand, function (callback) {
                 console.log('PI REBOOT: ' + callback);

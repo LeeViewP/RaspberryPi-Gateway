@@ -90,7 +90,8 @@ exports.events = {
         // console.log('Evaluating Condition :' + conditionX);
         // }
 
-        return node.metrics['AVGP'] && (Date.now() - new Date(node.metrics['AVGP'].updated).getTime() < 2000)
+        return node.metrics['AVGP'] && (Date.now() - new Date(node.metrics['AVGP'].updated).getTime() < 2000) &&
+        node.metrics['Forecast'] && (Date.now() - new Date(node.metrics['Forecast'].updated).getTime() > 1000) // anfd if forecast is not updated in the last second
       },
       serverExecute:function (node){
         console.log('Smart Meteo Start Executing');
@@ -98,7 +99,7 @@ exports.events = {
         var metrictrend1 = getMetricTrend(node._id, "AVGP", 1, 1.3332239 * 100); //Average Pressure
         var pressureChange1 = getPressureChangeType(metrictrend1);
         console.log('Smart Meteo Metric trend :' + metrictrend1 + ' pressure change: ' +pressureChange1);
-         setTimeout(updateNodeMetric,1720,{ nodeId: node._id, metric: { name: 'PT1', value: pressureChange1 } });
+         setTimeout(updateNodeMetric,1710,{ nodeId: node._id, metric: { name: 'PT1', value: pressureChange1 } });
 
         var metrictrend6 = getMetricTrend(node._id, "AVGP", 6, 1.3332239 * 100); //Average Pressure
         var pressureChange6 = getPressureChangeType(metrictrend6);
@@ -108,9 +109,9 @@ exports.events = {
          var metrictrend12 = getMetricTrend(node._id, "AVGP", 12, 1.3332239 * 100); //Average Pressure
          var pressureChange12 = getPressureChangeType(metrictrend12);
          console.log('Smart Meteo Metric trend :' + metrictrend12 + ' pressure change: ' +pressureChange12);
-         setTimeout(updateNodeMetric,1760, { nodeId: node._id, metric: { name: 'PT12', value: pressureChange12 } });
+         setTimeout(updateNodeMetric,1770, { nodeId: node._id, metric: { name: 'PT12', value: pressureChange12 } });
 
-        setTimeout(updateNodeMetric,1780,{ nodeId: node._id, metric: { name: 'Forecast', value: getForecast(node._id, pressureChange1, pressureChange6) } });
+        setTimeout(updateNodeMetric,1790,{ nodeId: node._id, metric: { name: 'Forecast', value: getForecast(node._id, pressureChange1, pressureChange6) } });
 
       }
     }
