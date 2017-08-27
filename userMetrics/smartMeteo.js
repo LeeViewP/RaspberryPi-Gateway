@@ -91,7 +91,10 @@ exports.events = {
         // }
 
         return node.metrics['AVGP'] && (Date.now() - new Date(node.metrics['AVGP'].updated).getTime() < 2000) &&
-        node.metrics['Forecast'] && (Date.now() - new Date(node.metrics['Forecast'].updated).getTime() > 1000) // anfd if forecast is not updated in the last second
+        node.metrics['Forecast'] && (Date.now() - new Date(node.metrics['Forecast'].updated).getTime() > 1000) && // anfd if forecast is not updated in the last second
+        node.metrics['PT1'] && (Date.now() - new Date(node.metrics['PT1'].updated).getTime() > 1000) &&
+        node.metrics['PT6'] && (Date.now() - new Date(node.metrics['PT6'].updated).getTime() > 1000) &&
+        node.metrics['PT12'] && (Date.now() - new Date(node.metrics['PT12'].updated).getTime() > 1000) 
       },
       serverExecute:function (node){
         console.log('Smart Meteo Start Executing');

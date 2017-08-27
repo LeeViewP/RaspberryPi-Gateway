@@ -8,23 +8,37 @@ server{
   listen 80;
   listen 443 ssl;
   server_name default;
- 
+  
+   geo $mysubnet {
+    default 0;
+    192.168.1.1/24;
+  }
+
+  # access is granted if if a client satisfies at least one condition
+  satisfy any;
+
+  #allow all lan ips
+  allow $mysubnet
+
   # enable basic authentication and point to the credentials file
   auth_basic "Restricted";
   auth_basic_user_file /home/pi/gateway/data/secure/.htpasswd;
  
+	
+  ssl_protocols TLSv1 TLSv1.1 TLSv1.2;
   # point to the SSL certificate required for SSL
   ssl_certificate /home/pi/gateway/data/secure/server.crt;
   ssl_certificate_key /home/pi/gateway/data/secure/server.key;
  
   access_log /var/log/nginx/default.access.log;
   error_log /var/log/nginx/default.error.log;
- 
+
+  if (!$mysubnet){
   # Redirect all non-SSL traffic to SSL.
   if ($ssl_protocol = "") {
     rewrite ^ https://$host$request_uri? permanent;
   }
- 
+  }
   # point to the www directory of this site, and setup the index pages
   root /home/pi/gateway/www;
   index index.html index.php index.htm; ## first that is found is matched
@@ -39,7 +53,9 @@ server{
     proxy_set_header X-Real-IP  $remote_addr;
     proxy_set_header X-Forwarded-For $remote_addr;
   }
- 
+  location /manifest/{
+	allow all;
+}
   # enable and configure PHP
   location ~* \.php$ {
     fastcgi_split_path_info ^(.+\.php)(.*)$;

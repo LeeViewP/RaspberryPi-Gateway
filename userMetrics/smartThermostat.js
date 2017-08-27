@@ -158,7 +158,7 @@ exports.events = {
         label: 'Smart Thermostat Working Event',
         icon: 'clock',
         descr: 'Smart Thermostat Functionality',
-        nextSchedule: function (node) { return 60000 / 2; }, //Run on 1 minute  //{ return exports.timeoutOffset(16, 0); }, //ie 16:00 (4pm)
+        nextSchedule: function (node) { return 600000; }, //Run on 10 minute  //{ return exports.timeoutOffset(16, 0); }, //ie 16:00 (4pm)
         scheduledExecute: function (node) {
 
             //get outside temperature
@@ -407,7 +407,11 @@ global.thermostatGetCurrentComfortType = function (thNode) {
     //WE need to have full day filled so if the firs our is not 00:00 we have to add it from the last day
     if (new Date('1970/01/01 ' + todayFirstSchedule.startTime) > new Date('1970/01/01 00:00')) {
         //We dont have 00:00 schedule get previous day schedule
-        var yesterdaySchedules = thNode.thermostatSchedule[(new Date()).getDay() - 1];
+        var msecsIn1Day = 86400000;
+        var yesterdayIndex = new Date((new Date()).getTime() - msecsIn1Day).getDay();
+        console.log('Smart Thermostat Functionality: yesterday index ' +JSON.stringify(yesterdayIndex));
+        var yesterdaySchedules = thNode.thermostatSchedule[yesterdayIndex];
+       
         var yesterdayLastSchedule = yesterdaySchedules[yesterdaySchedules.length - 1];
         yesterdayLastSchedule.startTime = '00:00';
         todaySchedules.unshift(yesterdayLastSchedule);
