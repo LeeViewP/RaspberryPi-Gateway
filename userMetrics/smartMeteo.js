@@ -4,242 +4,116 @@ exports.updateSourceNodesInNode = require(path.resolve(__dirname, 'customFunctio
 
 
 exports.motes = {
-    SmartMeteo: {
-        label: 'Smart Meteo',
-        icon: 'appbar.weather.symbol.svg',
-    }
+  SmartMeteo: {
+    label: 'Smart Meteo',
+    icon: 'appbar.weather.symbol.svg',
+  }
 };
 exports.metrics = {
-    FORECAST:{ name: 'Forecast',  value: ''  },
-    PT1:{name: 'PT1', value:'', graph:1, graphOptions: { legendLbl: 'Pressure Trend 1h', lines: { lineWidth: 1 } }},
-    PT6:{name: 'PT6', value:'', graph:1, graphOptions: { legendLbl: 'Pressure Trend 6h', lines: { lineWidth: 1 } }},
-    PT12:{name: 'PT12', value:'', graph:1 , graphOptions: { legendLbl: 'Pressure Trend 12h', lines: { lineWidth: 1 } }},
+  FORECAST: { name: 'Forecast',regexp:/\bForecast\:("Brief Shower|Unchanged|Poor Weather|Approaching Storm|Good Weather|Clearing|Very Stormy|Stormy|Rain|Fair|Clear, Dry|Error)\b/i, value: '' },
+  PT1: { name: 'PT1',regexp:/\bPT1\:([-\d\.]+)\b/i, value: '', graph: 1, graphOptions: { legendLbl: 'Pressure Trend 1h', lines: { lineWidth: 1 } } },
+  PT6: { name: 'PT6',regexp:/\bPT6\:([-\d\.]+)\b/i, value: '', graph: 1, graphOptions: { legendLbl: 'Pressure Trend 6h', lines: { lineWidth: 1 } } },
+  PT12: { name: 'PT12',regexp:/\bPT12\:([-\d\.]+)\b/i, value: '', graph: 1, graphOptions: { legendLbl: 'Pressure Trend 12h', lines: { lineWidth: 1 } } },
 };
 
 exports.events = {
-    // forecastPush: {
-    //     label: "Push: Pressure For Forecast",
-    //     icon: "action",
-    //     descr: "Push Pressure from this node to Forecast Node",
-    //     serverExecute: function (node) {
-    //         if (node.metrics['P'] && (Date.now() - new Date(node.metrics['P'].updated).getTime() < 2000)) {
-    //             sendForecastToNode({ nodeId: node._id, forecastNodeId: settings.meteoforecast.nodeId.value });
-    //         };
-    //     }
-    // },
-    outsidePressurePushToSourceNodes: {
-        label: "Push to Source Nodes:Smart Meteo Atmosferic Pressure",
-        icon: "action",
-        descr: "Push Atmosferic Pressure from this node to Meteo Node",
-        serverExecute: function (node) {
-            if (node.metrics['C'] && (Date.now() - new Date(node.metrics['C'].updated).getTime() < 2000)) {
-                var metricSource = new Object();
-                metricSource.label = node.metrics['P'].label;
-                metricSource.value = node.metrics['P'].value;
-                metricSource.unit = node.metrics['P'].unit;
-                metricSource.updated = node.metrics['P'].updated;
-                metricSource.name = 'P';
-                setTimeout(exports.updateSourceNodesInNode, 1050, { nodeId: settings.meteoforecast.nodeId.value, sourceNodeId: node._id, metric: metricSource })
-            };
-        }
-    },
-    outsideTemperaturePushToSourceNodes: {
-        label: "Push to Source Nodes:Smart Meteo Temperature",
-        icon: "action",
-        descr: "Push Temperature from this node to Meteo Node",
-        serverExecute: function (node) {
-            if (node.metrics['C'] && (Date.now() - new Date(node.metrics['C'].updated).getTime() < 2000)) {
-                var metricSource = new Object();
-                metricSource.label = node.metrics['C'].label;
-                metricSource.value = node.metrics['C'].value;
-                metricSource.unit = node.metrics['C'].unit;
-                metricSource.updated = node.metrics['C'].updated;
-                metricSource.name = 'C';
-                console.log('outsideTemperaturePushToSourceNodes: ' + JSON.stringify({ nodeId: settings.meteoforecast.nodeId.value, sourceNodeId: node._id, metric: metricSource }));
-                setTimeout(exports.updateSourceNodesInNode, 1400, { nodeId: settings.meteoforecast.nodeId.value, sourceNodeId: node._id, metric: metricSource })
-            };
-        }
-    },
-    outsideHumidityPushToSourceNodes: {
-        label: "Push to Source Nodes:Smart Meteo Humidity",
-        icon: "action",
-        descr: "Push Humidity from this node to Meteo Node",
-        serverExecute: function (node) {
-            if (node.metrics['H'] && (Date.now() - new Date(node.metrics['H'].updated).getTime() < 2000)) {
-                var metricSource = new Object();
-                metricSource.label = node.metrics['H'].label;
-                metricSource.value = node.metrics['H'].value;
-                metricSource.unit = node.metrics['H'].unit;
-                metricSource.updated = node.metrics['H'].updated;
-                metricSource.name = 'H';
-                setTimeout(exports.updateSourceNodesInNode, 1100, { nodeId: settings.meteoforecast.nodeId.value, sourceNodeId: node._id, metric: metricSource })
-            };
-        }
-    },
-    smartMeteoForecast:{
-      label: "Smart Meteo Forecasting Event",
-      icon: 'clock',
-      descr: 'Smart Meteo Forecasting Functionality',
-      condition: function (node){
-        // console.log('Evaluating Smart Meteo Condition');
-        // if (node.metrics['Forecast']){
-        // console.log('Smart meteo has FORECAST:' +JSON.stringify(node.metrics['Forecast']));
-        // var datadiff = Date.now() - new Date(node.metrics['Forecast'].updated).getTime();
-        // console.log('Smart Meteo Forecast Time Difference :' + datadiff);
-        // var conditionX = node.metrics['Forecast'] && (Date.now() - new Date(node.metrics['Forecast'].updated).getTime() > 2000);
-        // console.log('Evaluating Condition :' + conditionX);
-        // }
-
-        return node.metrics['AVGP'] && (Date.now() - new Date(node.metrics['AVGP'].updated).getTime() < 2000) &&
+  // forecastPush: {
+  //     label: "Push: Pressure For Forecast",
+  //     icon: "action",
+  //     descr: "Push Pressure from this node to Forecast Node",
+  //     serverExecute: function (node) {
+  //         if (node.metrics['P'] && (Date.now() - new Date(node.metrics['P'].updated).getTime() < 2000)) {
+  //             sendForecastToNode({ nodeId: node._id, forecastNodeId: settings.meteoforecast.nodeId.value });
+  //         };
+  //     }
+  // },
+  outsidePressurePushToSourceNodes: {
+    label: "Push to Source Nodes:Smart Meteo Atmosferic Pressure",
+    icon: "action",
+    descr: "Push Atmosferic Pressure from this node to Meteo Node",
+    serverExecute: function (node) {
+      if (node.metrics['C'] && (Date.now() - new Date(node.metrics['C'].updated).getTime() < 2000)) {
+        var metricSource = new Object();
+        metricSource.label = node.metrics['P'].label;
+        metricSource.value = node.metrics['P'].value;
+        metricSource.unit = node.metrics['P'].unit;
+        metricSource.updated = node.metrics['P'].updated;
+        metricSource.name = 'P';
+        setTimeout(exports.updateSourceNodesInNode, 1050, { nodeId: settings.meteoforecast.nodeId.value, sourceNodeId: node._id, metric: metricSource })
+      };
+    }
+  },
+  outsideTemperaturePushToSourceNodes: {
+    label: "Push to Source Nodes:Smart Meteo Temperature",
+    icon: "action",
+    descr: "Push Temperature from this node to Meteo Node",
+    serverExecute: function (node) {
+      if (node.metrics['C'] && (Date.now() - new Date(node.metrics['C'].updated).getTime() < 2000)) {
+        var metricSource = new Object();
+        metricSource.label = node.metrics['C'].label;
+        metricSource.value = node.metrics['C'].value;
+        metricSource.unit = node.metrics['C'].unit;
+        metricSource.updated = node.metrics['C'].updated;
+        metricSource.name = 'C';
+        // console.log('outsideTemperaturePushToSourceNodes: ' + JSON.stringify({ nodeId: settings.meteoforecast.nodeId.value, sourceNodeId: node._id, metric: metricSource }));
+        setTimeout(exports.updateSourceNodesInNode, 1400, { nodeId: settings.meteoforecast.nodeId.value, sourceNodeId: node._id, metric: metricSource })
+      };
+    }
+  },
+  outsideHumidityPushToSourceNodes: {
+    label: "Push to Source Nodes:Smart Meteo Humidity",
+    icon: "action",
+    descr: "Push Humidity from this node to Meteo Node",
+    serverExecute: function (node) {
+      if (node.metrics['H'] && (Date.now() - new Date(node.metrics['H'].updated).getTime() < 2000)) {
+        var metricSource = new Object();
+        metricSource.label = node.metrics['H'].label;
+        metricSource.value = node.metrics['H'].value;
+        metricSource.unit = node.metrics['H'].unit;
+        metricSource.updated = node.metrics['H'].updated;
+        metricSource.name = 'H';
+        setTimeout(exports.updateSourceNodesInNode, 1100, { nodeId: settings.meteoforecast.nodeId.value, sourceNodeId: node._id, metric: metricSource })
+      };
+    }
+  },
+  smartMeteoForecast: {
+    label: "Smart Meteo Forecasting Event",
+    icon: 'clock',
+    descr: 'Smart Meteo Forecasting Functionality',
+    condition: function (node) {
+      return node.metrics['AVGP'] && (Date.now() - new Date(node.metrics['AVGP'].updated).getTime() < 2000) &&
         node.metrics['Forecast'] && (Date.now() - new Date(node.metrics['Forecast'].updated).getTime() > 1000) && // anfd if forecast is not updated in the last second
         node.metrics['PT1'] && (Date.now() - new Date(node.metrics['PT1'].updated).getTime() > 1000) &&
         node.metrics['PT6'] && (Date.now() - new Date(node.metrics['PT6'].updated).getTime() > 1000) &&
-        node.metrics['PT12'] && (Date.now() - new Date(node.metrics['PT12'].updated).getTime() > 1000) 
-      },
-      serverExecute:function (node){
-        console.log('Smart Meteo Start Executing');
-        // var periodsToCalculate=[1,6,12];
-        var metrictrend1 = getMetricTrend(node._id, "AVGP", 1, 1.3332239 * 100); //Average Pressure
-        var pressureChange1 = getPressureChangeType(metrictrend1);
-        console.log('Smart Meteo Metric trend :' + metrictrend1 + ' pressure change: ' +pressureChange1);
-         setTimeout(updateNodeMetric,1710,{ nodeId: node._id, metric: { name: 'PT1', value: pressureChange1 } });
+        node.metrics['PT12'] && (Date.now() - new Date(node.metrics['PT12'].updated).getTime() > 1000)
+    },
+    serverExecute: function (node) {
+      console.info('Smart Meteo Start Executing');
+      // var periodsToCalculate=[1,6,12];
+      var fakeSerialMsg = '[' + node._id + '] ';
+      var metrictrend1 = getMetricTrend(node._id, "AVGP", 1, 1.3332239 * 100); //Average Pressure
+      var pressureChange1 = getPressureChangeType(metrictrend1);
+      fakeSerialMsg += 'PT1:' + (pressureChange1) + ' ';
 
-        var metrictrend6 = getMetricTrend(node._id, "AVGP", 6, 1.3332239 * 100); //Average Pressure
-        var pressureChange6 = getPressureChangeType(metrictrend6);
-        console.log('Smart Meteo Metric trend :' + metrictrend6 + ' pressure change: ' +pressureChange6);
-         setTimeout(updateNodeMetric, 1740,{ nodeId: node._id, metric: { name: 'PT6', value: pressureChange6 } });
+      var metrictrend6 = getMetricTrend(node._id, "AVGP", 6, 1.3332239 * 100); //Average Pressure
+      var pressureChange6 = getPressureChangeType(metrictrend6);
+      fakeSerialMsg += 'PT6:' + (pressureChange6) + ' ';
 
-         var metrictrend12 = getMetricTrend(node._id, "AVGP", 12, 1.3332239 * 100); //Average Pressure
-         var pressureChange12 = getPressureChangeType(metrictrend12);
-         console.log('Smart Meteo Metric trend :' + metrictrend12 + ' pressure change: ' +pressureChange12);
-         setTimeout(updateNodeMetric,1770, { nodeId: node._id, metric: { name: 'PT12', value: pressureChange12 } });
 
-        setTimeout(updateNodeMetric,1790,{ nodeId: node._id, metric: { name: 'Forecast', value: getForecast(node._id, pressureChange1, pressureChange6) } });
+      var metrictrend12 = getMetricTrend(node._id, "AVGP", 12, 1.3332239 * 100); //Average Pressure
+      var pressureChange12 = getPressureChangeType(metrictrend12);
+      fakeSerialMsg += 'PT12:' + (pressureChange12) + ' ';
 
-      }
+      var forecast = getForecast(node._id, pressureChange1, pressureChange6);
+      fakeSerialMsg += 'Forecast:' + (forecast) + ' ';
+
+      // console.info('Smart Meteo Metric :' + fakeSerialMsg);
+      processSerialData(fakeSerialMsg);
+
+
     }
+  }
 };
-
-// global.sendForecastToNode = function (node) {
-
-//   var dbNode = new Object();
-
-//   db.find({ _id: node.forecastNodeId }, function (err, entries) {
-//     if (entries.length == 1) {
-//       dbNode = entries[0];
-//     }
-//     // console.log("Forecast start pushing :" + node.nodeId);
-//     dbNode._id = node.forecastNodeId;
-//     dbNode.updated = new Date().getTime(); //update timestamp we last heard from this node, regardless of any matches
-//     dbNode.rssi = undefined;
-//     if (dbNode.metrics == undefined)
-//       dbNode.metrics = new Object();
-
-//     matchingMetric = metricsDef.metrics['PT1'];
-//     var metrictrend1 = getMetricTrend(node.nodeId, "P", 1, 1.3332239 * 100);
-//     var pressureChange1 = getPressureChangeType(metrictrend1);
-//     if (dbNode.metrics[matchingMetric.name] == null) dbNode.metrics[matchingMetric.name] = new Object();
-//     dbNode.metrics[matchingMetric.name].label = dbNode.metrics[matchingMetric.name].label || matchingMetric.name;
-//     dbNode.metrics[matchingMetric.name].descr = dbNode.metrics[matchingMetric.name].descr || matchingMetric.descr || undefined;
-//     dbNode.metrics[matchingMetric.name].value = pressureChange1;
-//     dbNode.metrics[matchingMetric.name].unit = dbNode.unit || undefined;
-//     dbNode.metrics[matchingMetric.name].updated = dbNode.updated;
-//     dbNode.metrics[matchingMetric.name].pin = dbNode.metrics[matchingMetric.name].pin != undefined ? dbNode.metrics[matchingMetric.name].pin : matchingMetric.pin;
-//     dbNode.metrics[matchingMetric.name].graph = dbNode.metrics[matchingMetric.name].graph != undefined ? dbNode.metrics[matchingMetric.name].graph : matchingMetric.graph;
-
-//     //log data for graphing purposes, keep labels as short as possible since this log will grow indefinitely and is not compacted like the node database
-//     if (dbNode.metrics[matchingMetric.name].graph == 1) {
-//       var graphValue = metricsDef.isNumeric(matchingMetric.logValue) ? matchingMetric.logValue : pressureChange1; //existingNode.metrics[matchingMetric.name].value;
-//       console.log('graphvalue : [' + graphValue + ']');
-//       if (metricsDef.isNumeric(graphValue)) {
-//         var ts = Math.floor(Date.now() / 1000); //get timestamp in whole seconds
-//         var logfile = path.join(__dirname, dbDir, dbLog.getLogName(dbNode._id, matchingMetric.name));
-//         try {
-//           console.log('post: ' + logfile + '[' + ts + ',' + graphValue + ']');
-//           dbLog.postData(logfile, ts, graphValue);
-//         } catch (err) { console.error('   POST ERROR: ' + err.message); /*console.log('   POST ERROR STACK TRACE: ' + err.stack); */ } //because this is a callback concurrent calls to the same log, milliseconds apart, can cause a file handle concurrency exception
-//       }
-//       else console.log('   METRIC NOT NUMERIC, logging skipped... (extracted value:' + graphValue + ')');
-//     }
-
-//     matchingMetric = metricsDef.metrics['PT6'];
-//     var metrictrend6 = getMetricTrend(node.nodeId, "P", 6, 1.3332239 * 100);
-//     var pressureChange6 = getPressureChangeType(metrictrend6);
-//     if (dbNode.metrics[matchingMetric.name] == null) dbNode.metrics[matchingMetric.name] = new Object();
-//     dbNode.metrics[matchingMetric.name].label = dbNode.metrics[matchingMetric.name].label || matchingMetric.name;
-//     dbNode.metrics[matchingMetric.name].descr = dbNode.metrics[matchingMetric.name].descr || matchingMetric.descr || undefined;
-//     dbNode.metrics[matchingMetric.name].value = pressureChange6;
-//     dbNode.metrics[matchingMetric.name].unit = dbNode.unit || undefined;
-//     dbNode.metrics[matchingMetric.name].updated = dbNode.updated;
-//     dbNode.metrics[matchingMetric.name].pin = dbNode.metrics[matchingMetric.name].pin != undefined ? dbNode.metrics[matchingMetric.name].pin : matchingMetric.pin;
-//     dbNode.metrics[matchingMetric.name].graph = dbNode.metrics[matchingMetric.name].graph != undefined ? dbNode.metrics[matchingMetric.name].graph : matchingMetric.graph;
-
-//     //log data for graphing purposes, keep labels as short as possible since this log will grow indefinitely and is not compacted like the node database
-//     if (dbNode.metrics[matchingMetric.name].graph == 1) {
-//       var graphValue = metricsDef.isNumeric(matchingMetric.logValue) ? matchingMetric.logValue : pressureChange6; //existingNode.metrics[matchingMetric.name].value;
-//       console.log('graphvalue : [' + graphValue + ']');
-//       if (metricsDef.isNumeric(graphValue)) {
-//         var ts = Math.floor(Date.now() / 1000); //get timestamp in whole seconds
-//         var logfile = path.join(__dirname, dbDir, dbLog.getLogName(dbNode._id, matchingMetric.name));
-//         try {
-//           console.log('post: ' + logfile + '[' + ts + ',' + graphValue + ']');
-//           dbLog.postData(logfile, ts, graphValue);
-//         } catch (err) { console.error('   POST ERROR: ' + err.message); /*console.log('   POST ERROR STACK TRACE: ' + err.stack); */ } //because this is a callback concurrent calls to the same log, milliseconds apart, can cause a file handle concurrency exception
-//       }
-//       else console.log('   METRIC NOT NUMERIC, logging skipped... (extracted value:' + graphValue + ')');
-//     }
-
-//     matchingMetric = metricsDef.metrics['PT12'];
-//     var metrictrend12 = getMetricTrend(node.nodeId, "P", 12, 1.3332239 * 100);
-//     var pressureChange12 = getPressureChangeType(metrictrend12);
-//     if (dbNode.metrics[matchingMetric.name] == null) dbNode.metrics[matchingMetric.name] = new Object();
-//     dbNode.metrics[matchingMetric.name].label = dbNode.metrics[matchingMetric.name].label || matchingMetric.name;
-//     dbNode.metrics[matchingMetric.name].descr = dbNode.metrics[matchingMetric.name].descr || matchingMetric.descr || undefined;
-//     dbNode.metrics[matchingMetric.name].value = pressureChange12;
-//     dbNode.metrics[matchingMetric.name].unit = dbNode.unit || undefined;
-//     dbNode.metrics[matchingMetric.name].updated = dbNode.updated;
-//     dbNode.metrics[matchingMetric.name].pin = dbNode.metrics[matchingMetric.name].pin != undefined ? dbNode.metrics[matchingMetric.name].pin : matchingMetric.pin;
-//     dbNode.metrics[matchingMetric.name].graph = dbNode.metrics[matchingMetric.name].graph != undefined ? dbNode.metrics[matchingMetric.name].graph : matchingMetric.graph;
-
-//     //log data for graphing purposes, keep labels as short as possible since this log will grow indefinitely and is not compacted like the node database
-//     if (dbNode.metrics[matchingMetric.name].graph == 1) {
-//       var graphValue = metricsDef.isNumeric(matchingMetric.logValue) ? matchingMetric.logValue : pressureChange12; //existingNode.metrics[matchingMetric.name].value;
-//       console.log('graphvalue : [' + graphValue + ']');
-//       if (metricsDef.isNumeric(graphValue)) {
-//         var ts = Math.floor(Date.now() / 1000); //get timestamp in whole seconds
-//         var logfile = path.join(__dirname, dbDir, dbLog.getLogName(dbNode._id, matchingMetric.name));
-//         try {
-//           console.log('post: ' + logfile + '[' + ts + ',' + graphValue + ']');
-//           dbLog.postData(logfile, ts, graphValue);
-//         } catch (err) { console.error('   POST ERROR: ' + err.message); /*console.log('   POST ERROR STACK TRACE: ' + err.stack); */ } //because this is a callback concurrent calls to the same log, milliseconds apart, can cause a file handle concurrency exception
-//       }
-//       else console.log('   METRIC NOT NUMERIC, logging skipped... (extracted value:' + graphValue + ')');
-//     }
-
-//     matchingMetric = metricsDef.metrics['FORECAST'];
-
-//     if (dbNode.metrics[matchingMetric.name] == null) dbNode.metrics[matchingMetric.name] = new Object();
-//     dbNode.metrics[matchingMetric.name].label = dbNode.metrics[matchingMetric.name].label || matchingMetric.name;
-//     dbNode.metrics[matchingMetric.name].descr = dbNode.metrics[matchingMetric.name].descr || matchingMetric.descr || undefined;
-//     dbNode.metrics[matchingMetric.name].value = getForecast(node.nodeId, pressureChange1, pressureChange6);
-//     dbNode.metrics[matchingMetric.name].unit = dbNode.unit || undefined;
-//     dbNode.metrics[matchingMetric.name].updated = dbNode.updated;
-//     dbNode.metrics[matchingMetric.name].pin = dbNode.metrics[matchingMetric.name].pin != undefined ? dbNode.metrics[matchingMetric.name].pin : matchingMetric.pin;
-//     dbNode.metrics[matchingMetric.name].graph = dbNode.metrics[matchingMetric.name].graph != undefined ? dbNode.metrics[matchingMetric.name].graph : matchingMetric.graph;
-
-
-//     db.findOne({ _id: dbNode._id }, function (err, doc) {
-//       if (doc == null) {
-//         db.insert(dbNode);
-//         console.log('   [' + dbNode._id + '] DB-Insert new _id:' + dbNode._id + ' for Forecast');
-//       }
-//       else
-//         db.update({ _id: dbNode._id }, { $set: dbNode }, {}, function (err, numReplaced) { console.log('   [' + dbNode._id + '] DB-Updates:' + numReplaced + ' for Forecast'); });
-
-//       io.sockets.emit('UPDATENODE', dbNode); //post it back to all clients to confirm UI changes
-//     });
-//   });
-// }
 
 global.getMetricTrend = function (nodeId, metricKey, hours, unitConversion) {
   // unitConversion for mmHg To mb*100 = 1.3332239*100
@@ -354,7 +228,7 @@ global.getForecast = function (nodeId, pressureChange1, pressureChange5) {
     return "Clear, Dry";
   }
   else {
-    return "Err ";
+    return "Error";
   }
 }
 

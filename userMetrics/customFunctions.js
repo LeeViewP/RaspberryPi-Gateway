@@ -18,11 +18,11 @@ global.execute = function (command, callback) {
 }
 
 global.startAdb = function () {
-    var sshcommand = 'sudo adb kill-server';
-    execute(sshcommand, function (callback) {
-        console.log('Kill ADB server[' + callback + ']');
-    });
-    sshcommand = 'sudo adb start-server';
+    // var sshcommand = 'sudo adb kill-server';
+    // execute(sshcommand, function (callback) {
+    //     console.log('Kill ADB server[' + callback + ']');
+    // });
+    var sshcommand = 'sudo adb start-server';
     execute(sshcommand, function (callback) {
         console.log('Start ADB server [' + callback + ']');
     });
@@ -65,77 +65,77 @@ global.startAdbCall = function () {
     });
 }
 
-global.updateNodeMetric = function (node) {
-    var dbNode = new Object();
-    db.find({ _id: node.nodeId }, function (err, entries) {
-        if (entries.length == 1) {
-            dbNode = entries[0];
-        }
-        console.log('Received Node [' + node.nodeId + '] with metric[ ' + node.metric.name + '] = ' + node.metric.value);
-        dbNode._id = node.nodeId;
-        dbNode.updated = new Date().getTime(); //update timestamp we last heard from this node, regardless of any matches
-        dbNode.rssi = undefined;
-        var matchingMetric = undefined;
+// global.updateNodeMetric = function (node) {
+//     var dbNode = new Object();
+//     db.find({ _id: node.nodeId }, function (err, entries) {
+//         if (entries.length == 1) {
+//             dbNode = entries[0];
+//         }
+//         console.log('Received Node [' + node.nodeId + '] with metric[ ' + node.metric.name + '] = ' + node.metric.value);
+//         dbNode._id = node.nodeId;
+//         dbNode.updated = new Date().getTime(); //update timestamp we last heard from this node, regardless of any matches
+//         dbNode.rssi = undefined;
+//         var matchingMetric = undefined;
 
-        for (var k in metricsDef.metrics) {
-            if (metricsDef.metrics[k].name == node.metric.name) {
-                matchingMetric = metricsDef.metrics[k];
-                break;
-            }
-        }
-        if (matchingMetric == undefined) {
-            console.log('Unable to find matching metric for metric: ' + node.metric.name)
-            return;
-        }
+//         for (var k in metricsDef.metrics) {
+//             if (metricsDef.metrics[k].name == node.metric.name) {
+//                 matchingMetric = metricsDef.metrics[k];
+//                 break;
+//             }
+//         }
+//         if (matchingMetric == undefined) {
+//             console.log('Unable to find matching metric for metric: ' + node.metric.name)
+//             return;
+//         }
 
-        //matchingMetric = metricsDef.metrics[node.metric];
+//         //matchingMetric = metricsDef.metrics[node.metric];
 
-        if (dbNode.metrics == undefined) dbNode.metrics = new Object();
-        if (dbNode.metrics[matchingMetric.name] == null) dbNode.metrics[matchingMetric.name] = new Object();
+//         if (dbNode.metrics == undefined) dbNode.metrics = new Object();
+//         if (dbNode.metrics[matchingMetric.name] == null) dbNode.metrics[matchingMetric.name] = new Object();
 
-        dbNode.metrics[matchingMetric.name].label = dbNode.metrics[matchingMetric.name].label || matchingMetric.name;
-        dbNode.metrics[matchingMetric.name].descr = dbNode.metrics[matchingMetric.name].descr || matchingMetric.descr || undefined;
-        dbNode.metrics[matchingMetric.name].value = node.metric.value;
-        dbNode.metrics[matchingMetric.name].unit = dbNode.metrics[matchingMetric.name].unit || matchingMetric.unit || undefined;//dbNode.metrics[matchingMetric.name].unit != undefined ? dbNode.metrics[matchingMetric.name].unit : undefined;
-        dbNode.metrics[matchingMetric.name].updated = dbNode.updated;
-        dbNode.metrics[matchingMetric.name].pin = dbNode.metrics[matchingMetric.name].pin != undefined ? dbNode.metrics[matchingMetric.name].pin : matchingMetric.pin;
-        dbNode.metrics[matchingMetric.name].graph = dbNode.metrics[matchingMetric.name].graph != undefined ? dbNode.metrics[matchingMetric.name].graph : matchingMetric.graph;
-
-
-
-        //log data for graphing purposes, keep labels as short as possible since this log will grow indefinitely and is not compacted like the node database
-        if (dbNode.metrics[matchingMetric.name].graph == 1) {
-            var graphValue = metricsDef.isNumeric(matchingMetric.logValue) ? matchingMetric.logValue : node.metric.value; //existingNode.metrics[matchingMetric.name].value;
-            console.log('graphvalue : [' + graphValue + ']');
-            if (metricsDef.isNumeric(graphValue)) {
-                var ts = Math.floor(Date.now() / 1000); //get timestamp in whole seconds
-                var logfile = path.join(__dirname + '/../', dbDir, dbLog.getLogName(dbNode._id, matchingMetric.name));
-                try {
-                    console.log('post: ' + logfile + '[' + ts + ',' + graphValue + ']');
-                    dbLog.postData(logfile, ts, graphValue);
-                } catch (err) { console.error('   POST ERROR: ' + err.message); /*console.log('   POST ERROR STACK TRACE: ' + err.stack); */ } //because this is a callback concurrent calls to the same log, milliseconds apart, can cause a file handle concurrency exception
-            }
-            else console.log('   METRIC NOT NUMERIC, logging skipped... (extracted value:' + graphValue + ')');
-        }
+//         dbNode.metrics[matchingMetric.name].label = dbNode.metrics[matchingMetric.name].label || matchingMetric.name;
+//         dbNode.metrics[matchingMetric.name].descr = dbNode.metrics[matchingMetric.name].descr || matchingMetric.descr || undefined;
+//         dbNode.metrics[matchingMetric.name].value = node.metric.value;
+//         dbNode.metrics[matchingMetric.name].unit = dbNode.metrics[matchingMetric.name].unit || matchingMetric.unit || undefined;//dbNode.metrics[matchingMetric.name].unit != undefined ? dbNode.metrics[matchingMetric.name].unit : undefined;
+//         dbNode.metrics[matchingMetric.name].updated = dbNode.updated;
+//         dbNode.metrics[matchingMetric.name].pin = dbNode.metrics[matchingMetric.name].pin != undefined ? dbNode.metrics[matchingMetric.name].pin : matchingMetric.pin;
+//         dbNode.metrics[matchingMetric.name].graph = dbNode.metrics[matchingMetric.name].graph != undefined ? dbNode.metrics[matchingMetric.name].graph : matchingMetric.graph;
 
 
-        db.findOne({ _id: dbNode._id }, function (err, doc) {
-            if (doc == null) {
-                db.insert(dbNode);
-                console.log('   [' + dbNode._id + '] DB-Insert new _id:' + dbNode._id + ' for ' + node.metric.name);
-            }
-            else
 
-                db.update({ _id: dbNode._id }, { $set: dbNode }, {}, function (err, numReplaced) { console.log('   [' + dbNode._id + '] DB-Updates:' + numReplaced + ' for ' + node.metric.name); });
+//         //log data for graphing purposes, keep labels as short as possible since this log will grow indefinitely and is not compacted like the node database
+//         if (dbNode.metrics[matchingMetric.name].graph == 1) {
+//             var graphValue = metricsDef.isNumeric(matchingMetric.logValue) ? matchingMetric.logValue : node.metric.value; //existingNode.metrics[matchingMetric.name].value;
+//             console.log('graphvalue : [' + graphValue + ']');
+//             if (metricsDef.isNumeric(graphValue)) {
+//                 var ts = Math.floor(Date.now() / 1000); //get timestamp in whole seconds
+//                 var logfile = path.join(__dirname + '/../', dbDir, dbLog.getLogName(dbNode._id, matchingMetric.name));
+//                 try {
+//                     console.log('post: ' + logfile + '[' + ts + ',' + graphValue + ']');
+//                     dbLog.postData(logfile, ts, graphValue);
+//                 } catch (err) { console.error('   POST ERROR: ' + err.message); /*console.log('   POST ERROR STACK TRACE: ' + err.stack); */ } //because this is a callback concurrent calls to the same log, milliseconds apart, can cause a file handle concurrency exception
+//             }
+//             else console.log('   METRIC NOT NUMERIC, logging skipped... (extracted value:' + graphValue + ')');
+//         }
 
-            io.sockets.emit('UPDATENODE', dbNode); //post it back to all clients to confirm UI changes
-            //handle any server side events (email, sms, custom actions)
-            handleNodeEvents(dbNode);
-        });
 
-    });
+//         db.findOne({ _id: dbNode._id }, function (err, doc) {
+//             if (doc == null) {
+//                 db.insert(dbNode);
+//                 console.log('   [' + dbNode._id + '] DB-Insert new _id:' + dbNode._id + ' for ' + node.metric.name);
+//             }
+//             else
 
-}
+//                 db.update({ _id: dbNode._id }, { $set: dbNode }, {}, function (err, numReplaced) { console.log('   [' + dbNode._id + '] DB-Updates:' + numReplaced + ' for ' + node.metric.name); });
+
+//             io.sockets.emit('UPDATENODE', dbNode); //post it back to all clients to confirm UI changes
+//             //handle any server side events (email, sms, custom actions)
+//             handleNodeEvents(dbNode);
+//         });
+
+//     });
+
+// }
 
 global.getMINMetricInSourceNodes = function (node) {
     //var node = {nodeId:1, metric:{}}
@@ -171,9 +171,11 @@ global.getMINMetricInSourceNodes = function (node) {
             }
         }
         returnMetric.name = 'MIN' + returnMetric.name
-        console.log('getMINMetricInSourceNodes: [' + node.nodeId + '] the Node:' + JSON.stringify(dbNode));
+        //console.log('getMINMetricInSourceNodes: [' + node.nodeId + '] the Node:' + JSON.stringify(dbNode));
         //console.log('getMINMetricInSourceNodes: [' + node.nodeId + ']' + JSON.stringify(returnMetric));
-        updateNodeMetric({ nodeId: dbNode._id, metric: returnMetric });
+        var fakeSerialMsg = '[' + dbNode._id + '] ' + returnMetric.name + ':' +  returnMetric.value;
+        processSerialData(fakeSerialMsg);
+        //updateNodeMetric({ nodeId: dbNode._id, metric: returnMetric });
         //return returnMetric;
     });
 }
@@ -208,8 +210,11 @@ global.getAVGMetricInSourceNodes = function (node) {
         }
         returnMetric.value = (avgValue / avgItems).toFixed(2);
         returnMetric.name = 'AVG' + returnMetric.name
+        console.info('Node [' + dbNode._id + '] AVG metrics [' + returnMetric.name + '] value: ' + returnMetric.value + ' found ');
         //console.log(JSON.stringify(returnMetric));
-        updateNodeMetric({ nodeId: dbNode._id, metric: returnMetric });
+        var fakeSerialMsg = '[' + dbNode._id + '] ' + returnMetric.name + ':' + returnMetric.value;
+        processSerialData(fakeSerialMsg);
+        //updateNodeMetric({ nodeId: dbNode._id, metric: returnMetric });
     });
 }
 

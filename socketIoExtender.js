@@ -1,9 +1,11 @@
 
 module.exports = function (io) {
     io.on('connection', function (socket) {
+        var addressEx = socket.handshake.headers['x-forwarded-for'] || socket.request.connection.remoteAddress;
+        socket.emit('COMFORTTYPESDEF', metricsDef.comfortTypes);
         
         socket.on('PIREBOOT', function () {
-            console.log('PI REBOOT REQUESTED from ' ); //address
+            console.log('PI REBOOT REQUESTED from ' +addressEx ); //address
             var sshcommand = 'sudo reboot'; //'shutdown -r now';
             execute(sshcommand, function (callback) {
                 console.log('PI REBOOT: ' + callback);

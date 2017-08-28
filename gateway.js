@@ -47,12 +47,12 @@ serial = new serialport.SerialPort(settings.serial.port.value, { baudrate: setti
 
 serial.on('error', function serialErrorHandler(error) {
   //Send serial error messages to console. Better error handling needs to be here in the future.
-  console.error(error.message);
+  console.error('Serial Error:' +error.message);
 });
 
 serial.on('close', function serialCloseHandler(error) {
   //Give user a sane error message and exit. Future possibilities could include sending message to front end via socket.io & setup timer to retry opening serial.
-  console.error(error.message);
+  console.error('Serial Close:'+error.message);
   process.exit(1);
 });
 
@@ -60,6 +60,7 @@ serial.on("data", function (data) { processSerialData(data); });
 serial.open();
 
 require("console-stamp")(console, settings.general.consoleLogDateFormat.value); //timestamp logs - https://github.com/starak/node-console-stamp
+
 
 //LOAD METRICS:
 // - First load main metrics.js definitions (metrics, motes, events etc)
@@ -82,7 +83,7 @@ try {
           delete tmp.motes;
           delete tmp.events;
           metricsDef = merge(true, metricsDef, tmp); //merge anything else (properties, variables, objects, functions)
-          //console.info('USER METRICS MERGE RESULT V: ' + JSON.stringify(metricsDef.metrics.V)); //verify that a custom metric was loaded
+          // console.info('USER METRICS MERGE RESULT V: ' + JSON.stringify(metricsDef.metrics)); //verify that a custom metric was loaded
           //console.info('USER METRICS MERGE RESULT VAR: ' + JSON.stringify(metricsDef.ONEDAYHOURS)); //verify that a custom variable was loaded
           //console.info('USER METRICS MERGE RESULT FUNC: ' + metricsDef.secondsInOneDay.toString()); //verify that a custom function was loaded
         } catch (ex) {
@@ -105,13 +106,14 @@ var transporter = nodemailer.createTransport({
     pass: settings.credentials.emailpass.value,
   }
 });
-
+//Start ADB
+startAdb();
 // metricsDef.serverDataTime(Date.now());
 //global.LOG = function(data) { process.stdout.write(data || ''); }
 //global.LOGln = function(data) { process.stdout.write((data || '') + '\n'); }
 global.sendEmail = function (SUBJECT, BODY) {
   var mailOptions = {
-    from: 'Moteino Gateway <gateway@moteino.com>',
+    from: 'Gateway <gateway@moteino.com>',
     to: settings.credentials.emailAlertsTo.value, // list of receivers, comma separated
     subject: SUBJECT,
     text: BODY
@@ -179,6 +181,7 @@ global.handleNodeEvents = function (node) {
   // }
 }
 
+sendEmail("Gateway Started", "The gateway is started at " +new Date().toLocaleTimeString());
 //authorize handshake - make sure the request is proxied from localhost, not from the outside world
 //if you comment out this section, you will be able to hit this socket directly at the port it's running at, from anywhere!
 //this was tested on Socket.IO v1.2.1 and will not work on older versions
@@ -206,7 +209,7 @@ io.sockets.on('connection', function (socket) {
   socket.emit('SETTINGSDEF', settings);
   socket.emit('SERVERTIME', Date.now());
   socket.emit('SERVERSTARTTIME', Date.now() - process.uptime() * 1000);
-  socket.emit('COMFORTTYPESDEF', metricsDef.comfortTypes);
+  
 
   //pull all nodes from the database and send them to client
   db.find({ _id: { $exists: true } }, function (err, entries) {
@@ -514,6 +517,7 @@ global.processSerialData = function (data) {
         var matchingMetric;
         //try to match a metric definition
         for (var metric in metricsDef.metrics) {
+          //  console.log('Metric:' + metric + 'regexp: '+metricsDef.metrics[metric].regexp);
           if (metricsDef.metrics[metric].regexp.test(match[0])) {
             //found matching metric, add/update the node with it
             //console.log('TOKEN MATCHED: ' + metricsDef.metrics[metric].regexp);

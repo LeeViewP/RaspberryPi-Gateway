@@ -36,7 +36,7 @@ exports.events = {
             return (Date.now() - new Date(lasttime).getTime() < 2000);
         },
         serverExecute: function (node) {
-            setTimeout(getAVGMetricInSourceNodes, 900, { nodeId: node._id, metric: { name: 'C' } });
+            setTimeout(getAVGMetricInSourceNodes, 100, { nodeId: node._id, metric: { name: 'C' } });
         }
     },
     getAvgHumidityFromSourceNodes: {
