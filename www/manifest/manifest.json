@@ -1,7 +1,7 @@
 {
     "gcm_sender_id": "103953800507",
-    "short_name":"Home Keeper",
-    "name": "Smart Home Keeper Dashboard",
+    "short_name":"AIHome",
+    "name": "AIHome Dashboard",
     "icons": [
           {
             "src": "/manifest/appbar.home.logo.192.themecolor.png",

@@ -268,6 +268,20 @@ exports.updateSourceNodesInNode = function (node) {
     });
 };
 
+exports.deleteNodeMetric = function (nodeId, metricKey) {
+    db.find({ _id: nodeId }, function (err, entries) {
+      if (entries.length == 1) {
+        var dbNode = entries[0];
+        dbNode.metrics[metricKey] = undefined; //TODO: use delete
+        db.update({ _id: dbNode._id }, { $set: dbNode }, {}, function (err, numReplaced) { console.log('DELETENODEMETRIC DB-Replaced:' + numReplaced); });
+        if (settings.general.keepMetricLogsOnDelete.value != 'true')
+          dbLog.removeMetricLog(path.join(__dirname, dbDir, dbLog.getLogName(dbNode._id, metricKey)));
+        io.sockets.emit('UPDATENODE', dbNode); //post it back to all clients to confirm UI changes
+      }
+    });
+  }
+
+
 // global.sendTemperatureToNode = function (node) {
 //   var dbNode = new Object();
 //   db.find({ _id: node.destinationNodeId }, function (err, entries) {

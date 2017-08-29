@@ -8,28 +8,28 @@
         description: "default is gmail, see nodemailer reference for other clients - https://github.com/andris9/Nodemailer"
       },
       email: {
-        value: "______@gmail.com",
+        value: "____@gmail.com",
         description: "put your gmail address here - this will also be used to send SMS (SMS via email)"
       },
       emailpass: {
-        value: "______",
+        value: "____",
         password: true,
         description: "put your gmail password or app access code here"
       },
       emailAlertsTo: {
-        value: "______@gmail.com",
+        value: "____@gmail.com",
         description: "put your alert/notification email here (can be the same as above)"
       },
       smsAlertsTo: {
-        value: "_____@orangemail.ro",
+        value: "____",
         description: "if you want SMS notifications, fill this in with your phone number (it's your cell#, domain differs for each carrier, ex: 5551234567@vtext.com for verizon, or 5551234567@txt.att.net for at&t)"
 
       },
       adbSmsAlertsTo: {
-        value: "_____"
+        value: "____"
       },
       adbCallsAlertsTo: {
-        value: "______"
+        value: "____"
       }
     },
     serial: {
@@ -114,10 +114,12 @@
         value: 300
       },
       temperatureDiferential: {
-        value:0.5
+        value:0.5,
+        description: "temperature histeresis"
       },
-      temperaturefortest: {
-        value:13.1
+      thermostatworkerofffset: {
+        value:60000
+        description: "the thermostat worker will run after this many milis"
       },
       heatNodeId: {
         value:0

@@ -47,12 +47,12 @@ serial = new serialport.SerialPort(settings.serial.port.value, { baudrate: setti
 
 serial.on('error', function serialErrorHandler(error) {
   //Send serial error messages to console. Better error handling needs to be here in the future.
-  console.error('Serial Error:' +error.message);
+  console.error('Serial Error:' + error.message);
 });
 
 serial.on('close', function serialCloseHandler(error) {
   //Give user a sane error message and exit. Future possibilities could include sending message to front end via socket.io & setup timer to retry opening serial.
-  console.error('Serial Close:'+error.message);
+  console.error('Serial Close:' + error.message);
   process.exit(1);
 });
 
@@ -159,16 +159,18 @@ global.handleNodeEvents = function (node) {
       var enabled = node.events[key];
       if (enabled) {
         var evt = metricsDef.events[key];
-        if (evt.serverExecute != undefined)
-          try {
-            if (evt.condition != undefined) {
-              if (evt.condition(node))
-                evt.serverExecute(node);
+        if (evt != undefined) {
+          if (evt.serverExecute != undefined)
+            try {
+              if (evt.condition != undefined) {
+                if (evt.condition(node))
+                  evt.serverExecute(node);
+              }
+              else
+                evt.serverExecute(node)
             }
-            else
-              evt.serverExecute(node)
-          }
-          catch (ex) { console.warn('Event ' + key + ' execution failed: ' + ex.message); }
+            catch (ex) { console.warn('Event ' + key + ' execution failed: ' + ex.message); }
+        }
       }
     }
   }
@@ -181,7 +183,7 @@ global.handleNodeEvents = function (node) {
   // }
 }
 
-sendEmail("Gateway Started", "The gateway is started at " +new Date().toLocaleTimeString());
+sendEmail("Gateway Started", "The gateway is started at " + new Date().toLocaleTimeString());
 //authorize handshake - make sure the request is proxied from localhost, not from the outside world
 //if you comment out this section, you will be able to hit this socket directly at the port it's running at, from anywhere!
 //this was tested on Socket.IO v1.2.1 and will not work on older versions
@@ -209,7 +211,7 @@ io.sockets.on('connection', function (socket) {
   socket.emit('SETTINGSDEF', settings);
   socket.emit('SERVERTIME', Date.now());
   socket.emit('SERVERSTARTTIME', Date.now() - process.uptime() * 1000);
-  
+
 
   //pull all nodes from the database and send them to client
   db.find({ _id: { $exists: true } }, function (err, entries) {
@@ -648,6 +650,6 @@ db.find({ events: { $exists: true } }, function (err, entries) {
   //console.log('*** Events Register db count: ' + count);
 });
 
-global.exposeschedule = function(functionToExecute, node, eventKey) {
+global.exposeschedule = function (functionToExecute, node, eventKey) {
   runAndReschedule(functionToExecute, node, eventKey);
 }
