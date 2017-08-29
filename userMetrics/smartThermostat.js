@@ -173,32 +173,32 @@ exports.events = {
             };
         }
     },
-    smartthermostatfunction: {
-        label: 'Smart Thermostat Working Event',
-        icon: 'clock',
-        descr: 'Smart Thermostat Functionality',
-        nextSchedule: function (node) { return 600000 / 20; }, //Run on 10 minute  //{ return exports.timeoutOffset(16, 0); }, //ie 16:00 (4pm)
-        scheduledExecute: function (node) {
+    // smartthermostatfunction: {
+    //     label: 'Smart Thermostat Working Event',
+    //     icon: 'clock',
+    //     descr: 'Smart Thermostat Functionality',
+    //     nextSchedule: function (node) { return 600000 / 20; }, //Run on 10 minute  //{ return exports.timeoutOffset(16, 0); }, //ie 16:00 (4pm)
+    //     scheduledExecute: function (node) {
 
-            //get outside temperature
-            //var outsideTemperature = undefined;
-            db.findOne({ _id: settings.meteoforecast.nodeId.value }, function (err, meteonode) {
-                if (meteonode) {
-                    if (meteonode.metrics != undefined) {
+    //         //get outside temperature
+    //         //var outsideTemperature = undefined;
+    //         db.findOne({ _id: settings.meteoforecast.nodeId.value }, function (err, meteonode) {
+    //             if (meteonode) {
+    //                 if (meteonode.metrics != undefined) {
 
-                        if (meteonode.metrics['MINC'] != undefined) {
-                            console.log('Smart Thermostat Functionality: Outside temperature FOUND:' + meteonode.metrics['MINC'].value);
-                            //outsideTemperature = meteonode.metrics['MINC'].value
-                            thermostatFunctionality(node, meteonode.metrics['MINC'].value);
+    //                     if (meteonode.metrics['MINC'] != undefined) {
+    //                         console.log('Smart Thermostat Functionality: Outside temperature FOUND:' + meteonode.metrics['MINC'].value);
+    //                         //outsideTemperature = meteonode.metrics['MINC'].value
+    //                         thermostatFunctionality(node, meteonode.metrics['MINC'].value);
 
-                        }
-                    }
-                }
-            });
+    //                     }
+    //                 }
+    //             }
+    //         });
 
 
-        }
-    },
+    //     }
+    // },
     smartthermostattargettemperature: {
         label: 'Smart Thermostat Temperature Event',
         icon: 'clock',
@@ -264,7 +264,10 @@ exports.events = {
                         if (meteonode.metrics[metricKey] != undefined) {
                             var outsideTemperature = parseFloat(meteonode.metrics[metricKey].value);
                             //console.log('Smart Thermostat Functionality: Outside temperature FOUND:' + meteonode.metrics[metricKey].value);
-                            exports.thermostatWorker(node, outsideTemperature);
+                            //Let's get the new actualized value of the node 
+                            db.findOne({ _id: node._id }, function (err, thNode) {
+                                exports.thermostatWorker(thNode, outsideTemperature);
+                            });
                         }
                     }
                 }
@@ -386,201 +389,6 @@ exports.editThermostatSchedule = function (node) {
     //     }
 
     // });
-}
-
-global.thermostatFunctionality = function (thNode, outsideTemperature) {
-    console.info('Smart Thermostat Functionality: RUN');
-    if (thNode.metrics['MODE'] == null) {
-        console.info('Smart Thermostat Functionality: Unable to find metric MODE');
-        return;
-    }
-    else {
-        console.info('Smart Thermostat Functionality: current MODE ' + JSON.stringify(thNode.metrics['MODE']));
-    }
-    if (thNode.thermostatSchedule == null) {
-        console.info('Smart Thermostat Functionality: Unable to find schedule program');
-        return;
-    }
-
-    // Find comfort type
-    var currentComfortType = thermostatGetCurrentComfortType(thNode);
-    console.info('Smart Thermostat Functionality: current Comfort Type ' + JSON.stringify(currentComfortType));
-    var targetTemperature = 0;
-
-
-    var currentInternalTemperature = undefined;
-    //Get Inside temperature
-    if (thNode.metrics != undefined)
-        if (thNode.metrics['AVGC'] != undefined)
-            currentInternalTemperature = thNode.metrics['AVGC'].value;
-
-    switch (thNode.metrics['MODE'].value) {
-        case 'HEAT':
-            //targetTemperature = currentComfortType.heat.temperature;
-            var heatComfortType = currentComfortType;
-            heatComfortType.cool.temperature = 100; //Set the upper limit sky high to disable cooling
-            targetTemperature = thermostatTemperatureDecisions(currentInternalTemperature, outsideTemperature, heatComfortType);
-            break;
-        case 'COOL':
-            // targetTemperature = currentComfortType.cool.temperature;
-            var coolComfortType = currentComfortType;
-            coolComfortType.heat.temperature = -100; //Set the lower limit verry low to disable cooling
-            targetTemperature = thermostatTemperatureDecisions(currentInternalTemperature, outsideTemperature, coolComfortType);
-            break;
-        case 'AWAY':
-            currentComfortType = metricsDef.comfortTypes['away'];
-            targetTemperature = thermostatTemperatureDecisions(currentInternalTemperature, outsideTemperature, currentComfortType);
-            // if (currentInternalTemperature < metricsDef.comfortTypes['away'].heat.temperature - settings.smartthermostat.temperatureDiferential.value) {
-            //     //Need For Heat
-            //     targetTemperature = metricsDef.comfortTypes['away'].heat.temperature;
-            // }
-            // if (currentInternalTemperature > metricsDef.comfortTypes['away'].cool.temperature + settings.smartthermostat.temperatureDiferential.value) {
-            //     //  Need for Cool
-            //     targetTemperature = metricsDef.comfortTypes['away'].cool.temperature;
-            // }
-            // var heatDiff = Math.abs(metricsDef.comfortTypes['away'].heat.temperature - currentInternalTemperature);
-            // var coolDiff = Math.abs(metricsDef.comfortTypes['away'].cool.temperature - currentInternalTemperature);
-            // if (heatDiff > coolDiff) {
-            //     targetTemperature = metricsDef.comfortTypes['away'].cool.temperature
-
-            // }
-            // else {
-            //     targetTemperature = metricsDef.comfortTypes['away'].heat.temperature
-            // }
-            // if (targetTemperature == 0) targetTemperature = currentInternalTemperature
-
-            //Maybe here we have to check to see if we return heat or cool
-            //targetTemperature = metricsDef.comfortTypes['away'].heat.temperature;
-            break;
-        case 'AUTO':
-            targetTemperature = thermostatTemperatureDecisions(currentInternalTemperature, outsideTemperature, currentComfortType);
-            break;
-        case 'OFF':
-            //targetTemperature = 0;
-            break;
-    }
-    // if (targetTemperature > 0) {
-    //     var fakeSerialMsg = '[' + thNode._id + '] ' + 'TARGET:' + targetTemperature;
-    //     processSerialData(fakeSerialMsg);
-    // }
-
-}
-
-global.thermostatTemperatureDecisions = function (scurrentInternalTemperature, soutsideTemperature, currentComfortType) {
-    var currentInternalTemperature = parseFloat(scurrentInternalTemperature);
-    var outsideTemperature = parseFloat(soutsideTemperature);
-    console.info('Smart Thermostat Functionality: Outside temperature: ' + outsideTemperature);
-    console.info('Smart Thermostat Functionality: Inside temperature: ' + currentInternalTemperature);
-    console.info('Smart Thermostat Functionality: used Comfort Type ' + JSON.stringify(currentComfortType));
-    var targetTemperature = 0;
-    var heatTemperatureLimit = parseFloat(currentComfortType.heat.temperature) - parseFloat(settings.smartthermostat.temperatureDiferential.value)
-    var coolTemperatureLimit = parseFloat(currentComfortType.cool.temperature) + parseFloat(settings.smartthermostat.temperatureDiferential.value)
-    console.info('Smart Thermostat Functionality: Inside temperature lower limit >=' + heatTemperatureLimit)
-    console.info('Smart Thermostat Functionality: Inside temperature upper limit <=' + coolTemperatureLimit)
-    //Here we have to see what we have to use heat or cool
-    if (
-        (currentInternalTemperature >= heatTemperatureLimit) &&
-        (currentInternalTemperature <= coolTemperatureLimit)
-    ) {
-        //I'm Inside the interval kill all the heat/cool sources
-        sendMessageToNode({ nodeId: settings.smartthermostat.heatNodeId.value, action: 'OFF' });
-        sendMessageToNode({ nodeId: settings.smartthermostat.coolNodeId.value, action: 'OFF' });
-        console.info('Smart Thermostat Functionality: Im Inside the interval kill all the heat/cool sources');
-        //try to determine what is target temperature
-        targetTemperature = currentInternalTemperature < outsideTemperature ? currentComfortType.cool.temperature : currentComfortType.heat.temperature;
-    }
-    else {
-        //I'm outside the interval something need to be done
-        //Let's check where we are
-        if (currentInternalTemperature > coolTemperatureLimit) {
-            // Internal Temperature is on the high side of the interval let's check the outside temp
-            console.info('Smart Thermostat Functionality: Internal Temperature is on the high side of the interval lets check the outside temp');
-            if (outsideTemperature > coolTemperatureLimit) {
-                // Outside temperature is greater then the set limit lets start cooling
-                sendMessageToNode({ nodeId: settings.smartthermostat.coolNodeId.value, action: 'ON' });
-                targetTemperature = currentComfortType.cool.temperature;
-                console.info('Smart Thermostat Functionality: Outside temperature is greater then the set limit lets start cooling');
-            }
-            else {
-                //Outside Temperature < upper limit and Inside Temp > upper limit; i think i dont care let's kill the AC
-                sendMessageToNode({ nodeId: settings.smartthermostat.coolNodeId.value, action: 'OFF' });
-                targetTemperature = currentComfortType.cool.temperature;
-                console.info('Smart Thermostat Functionality: Outside Temperature < upper limit and Inside Temp > upper limit; i think i dont care lets kill the AC');
-            }
-        }
-        else if (currentInternalTemperature < heatTemperatureLimit) {
-            //Internal Temperature is on the low side of the interval let's check the outside temp
-            console.info('Smart Thermostat Functionality: Internal Temperature is on the low side of the interval lets check the outside temp');
-            if (outsideTemperature > coolTemperatureLimit) {
-                //Outside Temperature is hiher than higher set limit smthing is wrong Too much cool kill the AC ALERT!!!
-                sendMessageToNode({ nodeId: settings.smartthermostat.coolNodeId.value, action: 'OFF' });
-                targetTemperature = currentComfortType.cool.temperature;
-                console.info('Smart Thermostat Functionality: Outside Temperature is hiher than higher set limit smthing is wrong Too much cool kill the AC ALERT!!!');
-            }
-
-            if (outsideTemperature < heatTemperatureLimit) {
-                //Outside Temperature is lower than lower set limit  and our internal Temperature is the same Let's start the heater
-                //Here we have to check if we can start AC for heating
-                sendMessageToNode({ nodeId: settings.smartthermostat.heatNodeId.value, action: 'ON' });
-                targetTemperature = currentComfortType.heat.temperature;
-                console.info('Smart Thermostat Functionality: Outside Temperature is lower than lower set limit  and our internal Temperature is the same Lets start the heater');
-            }
-
-
-        }
-    }
-
-    console.info('Smart Thermostat Functionality: current target Temperature  ' + targetTemperature);
-    return targetTemperature
-    // if (targetTemperature != 0)
-    //     updateNodeMetric({ nodeId: node._id, metric: { name: 'ThC', value: targetTemperature } });
-}
-
-global.thermostatGetCurrentComfortType = function (thNode) {
-    //var todaySchedulesObject = thNode.thermostatSchedule[(new Date()).getDay()];
-    var todaySchedules = [];
-    todaySchedules = thNode.thermostatSchedule[(new Date()).getDay()].map(function (schedule) { return schedule });
-    //Find first schedule of the day
-    var todayFirstSchedules = todaySchedules.filter(function (schedule) {
-        var d = new Date();
-        return new Date('1970/01/01 ' + schedule.startTime) >= new Date('1970/01/01 00:00')
-    });
-
-    var todayFirstSchedule = todaySchedules[todaySchedules.indexOf(todayFirstSchedules[0])];
-    //WE need to have full day filled so if the firs our is not 00:00 we have to add it from the last day
-    if (new Date('1970/01/01 ' + todayFirstSchedule.startTime) > new Date('1970/01/01 00:00')) {
-        //We dont have 00:00 schedule get previous day schedule
-        var msecsIn1Day = 86400000;
-        var yesterdayIndex = new Date((new Date()).getTime() - msecsIn1Day).getDay();
-        console.info('Smart Thermostat Functionality: yesterday index ' + JSON.stringify(yesterdayIndex));
-        var yesterdaySchedules = thNode.thermostatSchedule[yesterdayIndex];
-
-        var yesterdayLastSchedule = yesterdaySchedules[yesterdaySchedules.length - 1];
-        yesterdayLastSchedule.startTime = '00:00';
-        todaySchedules.unshift(yesterdayLastSchedule);
-
-    }
-
-    var nextSchedules = todaySchedules.filter(function (schedule) {
-        var d = new Date();
-        return new Date('1970/01/01 ' + schedule.startTime) >= new Date('1970/01/01 ' + d.getHours() + ':' + d.getMinutes())
-    });
-    // console.info(nextSchedules)
-    var currentSchedule = new Object();
-    if (nextSchedules.length > 0) {
-        // console.log('Smart Thermostat Functionality:' + JSON.stringify(nextSchedules));
-        var index = todaySchedules.indexOf(nextSchedules[0]) - 1;
-        currentSchedule = todaySchedules[index];
-    }
-    else {
-        // console.log('Smart Thermostat Functionality: Unable to find a schedule using the last in array');
-        currentSchedule = todaySchedules[todaySchedules.length - 1];
-    }
-
-    //console.log('Smart Thermostat Functionality: current schedule ' + JSON.stringify(currentSchedule));
-    // Find comfort type
-    return metricsDef.comfortTypes[currentSchedule.comfortType]
-
 }
 
 exports.thermostatGetCurrrentComfortType = function (node) {
@@ -743,15 +551,15 @@ exports.thermostatTemperaturesProcess = function (currentTemperature, outsideTem
 
     var llimitHeatTemperature = targetHeatTemperature + temperatureHisteresis;
     var llimitCoolTemperature = targetCoolTemperature - temperatureHisteresis;
-    console.info('Smart Thermostat Temperature Process: CurrentTemperature[' +currentTemperature + '] ' 
-            + ' hHEAT[' + hlimitHeatTemperature + ']  hCOOL[' + hlimitCoolTemperature + ']'   
-            + ' lHEAT[' + llimitHeatTemperature + ']  lCOOL[' + llimitCoolTemperature + ']'   
-            + ' Outside Temperature [' + outsideTemperature + ']'
-            );
+    console.info('Smart Thermostat Temperature Process: CurrentTemperature[' + currentTemperature + '] '
+        + ' hHEAT[' + hlimitHeatTemperature + ']  hCOOL[' + hlimitCoolTemperature + ']'
+        + ' lHEAT[' + llimitHeatTemperature + ']  lCOOL[' + llimitCoolTemperature + ']'
+        + ' Outside Temperature [' + outsideTemperature + ']'
+    );
     //check to see if is inside the interval
     if ((currentTemperature >= hlimitHeatTemperature) && (currentTemperature <= hlimitCoolTemperature)) {
         //Lets see if we are inside the smaller interval
-         console.info('Smart Thermostat Temperature Process: Im Inside the bigger interval');
+        console.info('Smart Thermostat Temperature Process: Im Inside the bigger interval');
         if ((currentTemperature >= llimitHeatTemperature) && (currentTemperature <= llimitCoolTemperature)) {
             // we are inside the interval so lets kill all the controlls
             sendMessageToNode({ nodeId: settings.smartthermostat.heatNodeId.value, action: 'OFF' });
@@ -829,3 +637,198 @@ exports.thermostatTemperaturesProcess = function (currentTemperature, outsideTem
         }
     }
 }
+
+// global.thermostatFunctionality = function (thNode, outsideTemperature) {
+//     console.info('Smart Thermostat Functionality: RUN');
+//     if (thNode.metrics['MODE'] == null) {
+//         console.info('Smart Thermostat Functionality: Unable to find metric MODE');
+//         return;
+//     }
+//     else {
+//         console.info('Smart Thermostat Functionality: current MODE ' + JSON.stringify(thNode.metrics['MODE']));
+//     }
+//     if (thNode.thermostatSchedule == null) {
+//         console.info('Smart Thermostat Functionality: Unable to find schedule program');
+//         return;
+//     }
+
+//     // Find comfort type
+//     var currentComfortType = thermostatGetCurrentComfortType(thNode);
+//     console.info('Smart Thermostat Functionality: current Comfort Type ' + JSON.stringify(currentComfortType));
+//     var targetTemperature = 0;
+
+
+//     var currentInternalTemperature = undefined;
+//     //Get Inside temperature
+//     if (thNode.metrics != undefined)
+//         if (thNode.metrics['AVGC'] != undefined)
+//             currentInternalTemperature = thNode.metrics['AVGC'].value;
+
+//     switch (thNode.metrics['MODE'].value) {
+//         case 'HEAT':
+//             //targetTemperature = currentComfortType.heat.temperature;
+//             var heatComfortType = currentComfortType;
+//             heatComfortType.cool.temperature = 100; //Set the upper limit sky high to disable cooling
+//             targetTemperature = thermostatTemperatureDecisions(currentInternalTemperature, outsideTemperature, heatComfortType);
+//             break;
+//         case 'COOL':
+//             // targetTemperature = currentComfortType.cool.temperature;
+//             var coolComfortType = currentComfortType;
+//             coolComfortType.heat.temperature = -100; //Set the lower limit verry low to disable cooling
+//             targetTemperature = thermostatTemperatureDecisions(currentInternalTemperature, outsideTemperature, coolComfortType);
+//             break;
+//         case 'AWAY':
+//             currentComfortType = metricsDef.comfortTypes['away'];
+//             targetTemperature = thermostatTemperatureDecisions(currentInternalTemperature, outsideTemperature, currentComfortType);
+//             // if (currentInternalTemperature < metricsDef.comfortTypes['away'].heat.temperature - settings.smartthermostat.temperatureDiferential.value) {
+//             //     //Need For Heat
+//             //     targetTemperature = metricsDef.comfortTypes['away'].heat.temperature;
+//             // }
+//             // if (currentInternalTemperature > metricsDef.comfortTypes['away'].cool.temperature + settings.smartthermostat.temperatureDiferential.value) {
+//             //     //  Need for Cool
+//             //     targetTemperature = metricsDef.comfortTypes['away'].cool.temperature;
+//             // }
+//             // var heatDiff = Math.abs(metricsDef.comfortTypes['away'].heat.temperature - currentInternalTemperature);
+//             // var coolDiff = Math.abs(metricsDef.comfortTypes['away'].cool.temperature - currentInternalTemperature);
+//             // if (heatDiff > coolDiff) {
+//             //     targetTemperature = metricsDef.comfortTypes['away'].cool.temperature
+
+//             // }
+//             // else {
+//             //     targetTemperature = metricsDef.comfortTypes['away'].heat.temperature
+//             // }
+//             // if (targetTemperature == 0) targetTemperature = currentInternalTemperature
+
+//             //Maybe here we have to check to see if we return heat or cool
+//             //targetTemperature = metricsDef.comfortTypes['away'].heat.temperature;
+//             break;
+//         case 'AUTO':
+//             targetTemperature = thermostatTemperatureDecisions(currentInternalTemperature, outsideTemperature, currentComfortType);
+//             break;
+//         case 'OFF':
+//             //targetTemperature = 0;
+//             break;
+//     }
+//     // if (targetTemperature > 0) {
+//     //     var fakeSerialMsg = '[' + thNode._id + '] ' + 'TARGET:' + targetTemperature;
+//     //     processSerialData(fakeSerialMsg);
+//     // }
+
+// }
+
+// global.thermostatTemperatureDecisions = function (scurrentInternalTemperature, soutsideTemperature, currentComfortType) {
+//     var currentInternalTemperature = parseFloat(scurrentInternalTemperature);
+//     var outsideTemperature = parseFloat(soutsideTemperature);
+//     console.info('Smart Thermostat Functionality: Outside temperature: ' + outsideTemperature);
+//     console.info('Smart Thermostat Functionality: Inside temperature: ' + currentInternalTemperature);
+//     console.info('Smart Thermostat Functionality: used Comfort Type ' + JSON.stringify(currentComfortType));
+//     var targetTemperature = 0;
+//     var heatTemperatureLimit = parseFloat(currentComfortType.heat.temperature) - parseFloat(settings.smartthermostat.temperatureDiferential.value)
+//     var coolTemperatureLimit = parseFloat(currentComfortType.cool.temperature) + parseFloat(settings.smartthermostat.temperatureDiferential.value)
+//     console.info('Smart Thermostat Functionality: Inside temperature lower limit >=' + heatTemperatureLimit)
+//     console.info('Smart Thermostat Functionality: Inside temperature upper limit <=' + coolTemperatureLimit)
+//     //Here we have to see what we have to use heat or cool
+//     if (
+//         (currentInternalTemperature >= heatTemperatureLimit) &&
+//         (currentInternalTemperature <= coolTemperatureLimit)
+//     ) {
+//         //I'm Inside the interval kill all the heat/cool sources
+//         sendMessageToNode({ nodeId: settings.smartthermostat.heatNodeId.value, action: 'OFF' });
+//         sendMessageToNode({ nodeId: settings.smartthermostat.coolNodeId.value, action: 'OFF' });
+//         console.info('Smart Thermostat Functionality: Im Inside the interval kill all the heat/cool sources');
+//         //try to determine what is target temperature
+//         targetTemperature = currentInternalTemperature < outsideTemperature ? currentComfortType.cool.temperature : currentComfortType.heat.temperature;
+//     }
+//     else {
+//         //I'm outside the interval something need to be done
+//         //Let's check where we are
+//         if (currentInternalTemperature > coolTemperatureLimit) {
+//             // Internal Temperature is on the high side of the interval let's check the outside temp
+//             console.info('Smart Thermostat Functionality: Internal Temperature is on the high side of the interval lets check the outside temp');
+//             if (outsideTemperature > coolTemperatureLimit) {
+//                 // Outside temperature is greater then the set limit lets start cooling
+//                 sendMessageToNode({ nodeId: settings.smartthermostat.coolNodeId.value, action: 'ON' });
+//                 targetTemperature = currentComfortType.cool.temperature;
+//                 console.info('Smart Thermostat Functionality: Outside temperature is greater then the set limit lets start cooling');
+//             }
+//             else {
+//                 //Outside Temperature < upper limit and Inside Temp > upper limit; i think i dont care let's kill the AC
+//                 sendMessageToNode({ nodeId: settings.smartthermostat.coolNodeId.value, action: 'OFF' });
+//                 targetTemperature = currentComfortType.cool.temperature;
+//                 console.info('Smart Thermostat Functionality: Outside Temperature < upper limit and Inside Temp > upper limit; i think i dont care lets kill the AC');
+//             }
+//         }
+//         else if (currentInternalTemperature < heatTemperatureLimit) {
+//             //Internal Temperature is on the low side of the interval let's check the outside temp
+//             console.info('Smart Thermostat Functionality: Internal Temperature is on the low side of the interval lets check the outside temp');
+//             if (outsideTemperature > coolTemperatureLimit) {
+//                 //Outside Temperature is hiher than higher set limit smthing is wrong Too much cool kill the AC ALERT!!!
+//                 sendMessageToNode({ nodeId: settings.smartthermostat.coolNodeId.value, action: 'OFF' });
+//                 targetTemperature = currentComfortType.cool.temperature;
+//                 console.info('Smart Thermostat Functionality: Outside Temperature is hiher than higher set limit smthing is wrong Too much cool kill the AC ALERT!!!');
+//             }
+
+//             if (outsideTemperature < heatTemperatureLimit) {
+//                 //Outside Temperature is lower than lower set limit  and our internal Temperature is the same Let's start the heater
+//                 //Here we have to check if we can start AC for heating
+//                 sendMessageToNode({ nodeId: settings.smartthermostat.heatNodeId.value, action: 'ON' });
+//                 targetTemperature = currentComfortType.heat.temperature;
+//                 console.info('Smart Thermostat Functionality: Outside Temperature is lower than lower set limit  and our internal Temperature is the same Lets start the heater');
+//             }
+
+
+//         }
+//     }
+
+//     console.info('Smart Thermostat Functionality: current target Temperature  ' + targetTemperature);
+//     return targetTemperature
+//     // if (targetTemperature != 0)
+//     //     updateNodeMetric({ nodeId: node._id, metric: { name: 'ThC', value: targetTemperature } });
+// }
+
+// global.thermostatGetCurrentComfortType = function (thNode) {
+//     //var todaySchedulesObject = thNode.thermostatSchedule[(new Date()).getDay()];
+//     var todaySchedules = [];
+//     todaySchedules = thNode.thermostatSchedule[(new Date()).getDay()].map(function (schedule) { return schedule });
+//     //Find first schedule of the day
+//     var todayFirstSchedules = todaySchedules.filter(function (schedule) {
+//         var d = new Date();
+//         return new Date('1970/01/01 ' + schedule.startTime) >= new Date('1970/01/01 00:00')
+//     });
+
+//     var todayFirstSchedule = todaySchedules[todaySchedules.indexOf(todayFirstSchedules[0])];
+//     //WE need to have full day filled so if the firs our is not 00:00 we have to add it from the last day
+//     if (new Date('1970/01/01 ' + todayFirstSchedule.startTime) > new Date('1970/01/01 00:00')) {
+//         //We dont have 00:00 schedule get previous day schedule
+//         var msecsIn1Day = 86400000;
+//         var yesterdayIndex = new Date((new Date()).getTime() - msecsIn1Day).getDay();
+//         console.info('Smart Thermostat Functionality: yesterday index ' + JSON.stringify(yesterdayIndex));
+//         var yesterdaySchedules = thNode.thermostatSchedule[yesterdayIndex];
+
+//         var yesterdayLastSchedule = yesterdaySchedules[yesterdaySchedules.length - 1];
+//         yesterdayLastSchedule.startTime = '00:00';
+//         todaySchedules.unshift(yesterdayLastSchedule);
+
+//     }
+
+//     var nextSchedules = todaySchedules.filter(function (schedule) {
+//         var d = new Date();
+//         return new Date('1970/01/01 ' + schedule.startTime) >= new Date('1970/01/01 ' + d.getHours() + ':' + d.getMinutes())
+//     });
+//     // console.info(nextSchedules)
+//     var currentSchedule = new Object();
+//     if (nextSchedules.length > 0) {
+//         // console.log('Smart Thermostat Functionality:' + JSON.stringify(nextSchedules));
+//         var index = todaySchedules.indexOf(nextSchedules[0]) - 1;
+//         currentSchedule = todaySchedules[index];
+//     }
+//     else {
+//         // console.log('Smart Thermostat Functionality: Unable to find a schedule using the last in array');
+//         currentSchedule = todaySchedules[todaySchedules.length - 1];
+//     }
+
+//     //console.log('Smart Thermostat Functionality: current schedule ' + JSON.stringify(currentSchedule));
+//     // Find comfort type
+//     return metricsDef.comfortTypes[currentSchedule.comfortType]
+
+// }
