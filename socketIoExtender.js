@@ -1,3 +1,4 @@
+exports.thermostatTriggerTargetTemperatureEvent = require(path.resolve(__dirname + '/userMetrics/',  'smartThermostat.js')).thermostatTriggerTargetTemperatureEvent;
 
 module.exports = function (io) {
     io.on('connection', function (socket) {
@@ -77,13 +78,12 @@ module.exports = function (io) {
                 });
                 //io.sockets.emit('UPDATENODE', dbNode); //post it back to all clients to confirm UI changes
                 io.sockets.emit('UPDATESMARTTERMOSTATSCHEDULE', dbNode); //post it back to all clients to confirm UI changes
-
+                exports.thermostatTriggerTargetTemperatureEvent(dbNode);
             });
 
 
 
         });
-        socket.on('TEST', function(x){console.log('TEST TEST TEST'+x);});
         socket.on('GETSERVERTIME', function(){serverDataTime(Date.now());});
   // socket.on('EDITSMARTTERMOSTATSCHEDULE', function (node) {
   //   var dbNode = new Object();

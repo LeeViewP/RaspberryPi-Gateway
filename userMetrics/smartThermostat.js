@@ -20,6 +20,7 @@ exports.motes = {
                         serverExecute: function (node) {
                             var fakeSerialMsg = '[' + node._id + '] ' + 'MODE:' + 'HEAT';
                             processSerialData(fakeSerialMsg);
+                            setTimeout(exports.thermostatTriggerTargetTemperatureEvent, 1000, node);
                             //updateNodeMetric({ nodeId: node._id, metric: { name: 'MODE', value: 'HEAT' } });
                             return;
                         },
@@ -41,6 +42,7 @@ exports.motes = {
                         serverExecute: function (node) {
                             var fakeSerialMsg = '[' + node._id + '] ' + 'MODE:' + 'COOL';
                             processSerialData(fakeSerialMsg);
+                            setTimeout(exports.thermostatTriggerTargetTemperatureEvent, 1000, node);
                             //updateNodeMetric({ nodeId: node._id, metric: { name: 'MODE', value: 'COOL' } });
                             return;
                         },
@@ -60,6 +62,7 @@ exports.motes = {
                         serverExecute: function (node) {
                             var fakeSerialMsg = '[' + node._id + '] ' + 'MODE:' + 'AUTO';
                             processSerialData(fakeSerialMsg);
+                            setTimeout(exports.thermostatTriggerTargetTemperatureEvent, 1000, node);
                             //updateNodeMetric({ nodeId: node._id, metric: { name: 'MODE', value: 'AUTO' } });
                             return;
                         },
@@ -103,6 +106,7 @@ exports.motes = {
                         serverExecute: function (node) {
                             var fakeSerialMsg = '[' + node._id + '] ' + 'MODE:' + 'AWAY';
                             processSerialData(fakeSerialMsg);
+                            setTimeout(exports.thermostatTriggerTargetTemperatureEvent, 1000, node);
                             //updateNodeMetric({ nodeId: node._id, metric: { name: 'MODE', value: 'AWAY' } });
                             return;
                         },
@@ -130,8 +134,8 @@ exports.motes = {
 
 exports.metrics = {
     MODE: { name: 'MODE', regexp: /MODE\:(COOL|HEAT|AUTO|OFF|AWAY)/i, value: '' },
-    TARGETHEAT : { name:'TARGETHEAT', regexp:/TARGETHEAT\:([-\d\.]+)/i, value:'', unit:'°'},
-    TARGETCOOL : { name:'TARGETCOOL', regexp:/TARGETCOOL\:([-\d\.]+)/i, value:'', unit:'°'},
+    TARGETHEAT: { name: 'TARGETHEAT', regexp: /TARGETHEAT\:([-\d\.]+)/i, value: '', unit: '°' },
+    TARGETCOOL: { name: 'TARGETCOOL', regexp: /TARGETCOOL\:([-\d\.]+)/i, value: '', unit: '°' },
 };
 
 exports.events = {
@@ -209,11 +213,11 @@ exports.events = {
         scheduledExecute: function (node) {
             var currentComfortType = exports.thermostatGetCurrrentComfortType(node);
             // console.info('Smart Thermostat TARGET Event Executing: '+ JSON.stringify(currentComfortType));
-            var fakeSerialMsg = '[' + node._id + '] ' ;
+            var fakeSerialMsg = '[' + node._id + '] ';
             switch (node.metrics['MODE'].value) {
                 case 'HEAT':
                     //currentComfortType.heat.temperature
-                    fakeSerialMsg +=  'TARGETHEAT:' + currentComfortType.heat.temperature;
+                    fakeSerialMsg += 'TARGETHEAT:' + currentComfortType.heat.temperature;
                     // io.sockets.emit('DELETENODEMETRIC',node._id, 'TARGETHIGH');
                     // io.sockets.emit('DELETENODEMETRIC',node._id, 'TARGETLOW');
                     //  console.info('Smart Thermostat TARGET Event: Executing'+ JSON.stringify(fakeSerialMsg));
@@ -232,19 +236,19 @@ exports.events = {
                     // io.sockets.emit('DELETENODEMETRIC',node._id, 'TARGET');
                     fakeSerialMsg += 'TARGETCOOL:' + currentComfortType.cool.temperature + ' ';
                     fakeSerialMsg += 'TARGETHEAT:' + currentComfortType.heat.temperature + ' ';
-                    console.info('Smart Thermostat TARGET Event: Executing'+ JSON.stringify(fakeSerialMsg));
+                    console.info('Smart Thermostat TARGET Event: Executing' + JSON.stringify(fakeSerialMsg));
                     processSerialData(fakeSerialMsg);
                     break;
                 case 'AUTO':
                     // io.sockets.emit('DELETENODEMETRIC',node._id, 'TARGET');
                     fakeSerialMsg += 'TARGETCOOL:' + currentComfortType.cool.temperature + ' ';
                     fakeSerialMsg += 'TARGETHEAT:' + currentComfortType.heat.temperature + ' ';
-                    console.info('Smart Thermostat TARGET Event: Executing'+ JSON.stringify(fakeSerialMsg));
+                    console.info('Smart Thermostat TARGET Event: Executing' + JSON.stringify(fakeSerialMsg));
                     processSerialData(fakeSerialMsg);
                     break;
-                case 'OFF': 
+                case 'OFF':
                     fakeSerialMsg += 'undefined';
-                    processSerialData(fakeSerialMsg);         
+                    processSerialData(fakeSerialMsg);
                     break;
             }
         }
@@ -554,7 +558,7 @@ exports.thermostatGetCurrrentComfortType = function (node) {
         return new Date('1970/01/01 ' + schedule.startTime) > new Date('1970/01/01 ' + d.getHours() + ':' + d.getMinutes())
     });
     // console.log('Smart Thermostat Functionality: nextSchedules ' + JSON.stringify(nextSchedules));
-    
+
     var currentSchedule = new Object();
     if (nextSchedules.length > 0) {
         // console.log('Smart Thermostat Functionality:' + JSON.stringify(nextSchedules));
@@ -610,4 +614,21 @@ exports.thermostatGetNextSchedule = function (node) {
     //console.log('Smart Thermostat Functionality: current schedule ' + JSON.stringify(currentSchedule));
     // Find comfort type
     //return metricsDef.comfortTypes[currentSchedule.comfortType]
+}
+exports.thermostatTriggerTargetTemperatureEvent = function (nodeX) {
+    var node = new Object();
+    db.find({ _id: nodeX._id }, function (err, entries) {
+        if (entries.length == 1) {
+            node = entries[0];
+        }
+        var eventKey = 'smartthermostattargettemperature';
+        var event = metricsDef.events[eventKey];
+        if (node.events[eventKey]) {
+            if (node.events[eventKey] == 1) {
+                exposeschedule(event.scheduledExecute, node, eventKey);
+            }
+        }
+
+    });
+
 }

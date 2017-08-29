@@ -647,3 +647,7 @@ db.find({ events: { $exists: true } }, function (err, entries) {
     }
   //console.log('*** Events Register db count: ' + count);
 });
+
+global.exposeschedule = function(functionToExecute, node, eventKey) {
+  runAndReschedule(functionToExecute, node, eventKey);
+}
