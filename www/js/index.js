@@ -547,10 +547,10 @@ function startApp() {
     else img = 'appbar.connection.quality.extremelylow.svg';
     var image = $('<img/>',
       {
-        'class': "listIcon20px"
+         'class': "listIcon20px"
         , 'src': "images/" + img
         , 'title': "RSSI:" + Math.abs(rssi)
-        //,style: "display:block;float:right;"
+        // , 'style': "display:block;float:right;"
         //,style: "position:absolute;left:0;bottom:0;"
       });
     return image.prop('outerHTML');
@@ -570,10 +570,10 @@ function startApp() {
     var lobat = voltage < minVoltage ? ' blink' : '';
     var image = $('<img/>',
       {
-        'class': "listIcon20px"
+         'class': "listIcon20px"
         , 'src': "images/" + img
         , 'title': "Battery:" + Math.abs(voltage)
-        //,style: "position:absolute;left:0;bottom:0;"
+        // , 'style': "display:block;float:right;"
       });
     return image.prop('outerHTML');
     // return '<img class="listIcon20px svg' + lobat + '" src="images/' + img + '" title="Battery:' + Math.abs(voltage) + '" style="display:block;float:right;"/> ';
@@ -588,13 +588,15 @@ function startApp() {
       //   console.log('Climate Control: ' + JSON.stringify(node));
       var nodeValue = metricsValues(node.metrics);
       var lowBat = node.metrics != null ? node.metrics.V != null : false //&& node.metrics.V.value < 3.55 : false;
-      var newLI = $('<li id="' + node._id + '"><a node-id="' + node._id + '" href="#nodedetails" class="nodedetails"><img class="productimg" src="images/' + getNodeIcon(node) + '"><h2>' + (nodeResolveString(node.label, node.metrics) || node._id) + ' ' +
-
-        ago(node.updated, 0).tag + (node.hidden ? ' <img class="listIcon20px" src="images/appbar.eye.hide.svg" />' : '') + '</h2><p>' +
-        (nodeResolveString(node.descr, node.metrics) || '&nbsp;') + '</p>' +
-        (nodeValue ? '<span class="ui-li-count ui-li-count16">' + nodeValue + '</span>' : '') +
+      var newLI = $('<li id="' + node._id + '"><a node-id="' + node._id + '" href="#nodedetails" class="nodedetails"><img class="productimg" src="images/' + getNodeIcon(node) + '"><h2>' 
+      + (nodeResolveString(node.label, node.metrics) || node._id) + ' ' +
         resolveRSSIImage(node.rssi) + ' ' +
         (lowBat ? resolveBatteryImage(node.metrics.V.value) : '') +
+        ago(node.updated, 0).tag + (node.hidden ? ' <img class="listIcon20px" src="images/appbar.eye.hide.svg" />' : '') + 
+        '</h2><p>' +
+        (nodeResolveString(node.descr, node.metrics) || '&nbsp;') + '</p>' +
+        (nodeValue ? '<span class="ui-li-count ui-li-count16">' + nodeValue + '</span>' : '') +
+
         '</a></li>');
       var existingNode = $('#nodeList li#' + node._id);
       if (node.hidden)
