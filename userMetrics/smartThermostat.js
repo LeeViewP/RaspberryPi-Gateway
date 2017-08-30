@@ -94,25 +94,25 @@ exports.motes = {
                 ],
                 breakAfter: true,
             },
-            awaycontrol: {
+            holidaycontrol: {
                 states: [
                     {
-                        label: 'Away',
+                        label: 'Holiday',
                         css: 'background-color:#FF9B9B;color:#fff',
                         icon: 'fa-plane',
-                        condition: '' + function (node) { if (node.metrics != null) if (node.metrics['MODE']) return node.metrics['MODE'].value == 'AWAY'; else return false; else return false; }
+                        condition: '' + function (node) { if (node.metrics != null) if (node.metrics['MODE']) return node.metrics['MODE'].value == 'HOLIDAY'; else return false; else return false; }
                     },
                     {
-                        label: 'Away',
+                        label: 'Holiday',
                         icon: 'fa-plane',
                         serverExecute: function (node) {
-                            var fakeSerialMsg = '[' + node._id + '] ' + 'MODE:' + 'AWAY';
+                            var fakeSerialMsg = '[' + node._id + '] ' + 'MODE:' + 'HOLIDAY';
                             processSerialData(fakeSerialMsg);
                             setTimeout(exports.thermostatTriggerTargetTemperatureEvent, 1000, node);
                             //updateNodeMetric({ nodeId: node._id, metric: { name: 'MODE', value: 'AWAY' } });
                             return;
                         },
-                        condition: '' + function (node) { if (node.metrics != null) if (node.metrics['MODE']) return node.metrics['MODE'].value != 'AWAY'; else return false; else return true; }
+                        condition: '' + function (node) { if (node.metrics != null) if (node.metrics['MODE']) return node.metrics['MODE'].value != 'HOLIDAY'; else return false; else return true; }
                     }
 
                 ]
@@ -135,7 +135,7 @@ exports.motes = {
 };
 
 exports.metrics = {
-    MODE: { name: 'MODE', regexp: /MODE\:(COOL|HEAT|AUTO|OFF|AWAY)/i, value: '' },
+    MODE: { name: 'MODE', regexp: /MODE\:(COOL|HEAT|AUTO|OFF|HOLIDAY)/i, value: '' },
     TARGETHEAT: { name: 'TARGETHEAT', regexp: /TARGETHEAT\:([-\d\.]+)/i, value: '', unit: '°' },
     TARGETCOOL: { name: 'TARGETCOOL', regexp: /TARGETCOOL\:([-\d\.]+)/i, value: '', unit: '°' },
 };
@@ -227,8 +227,8 @@ exports.events = {
                     fakeSerialMsg += 'TARGETCOOL:' + currentComfortType.cool.temperature;
                     processSerialData(fakeSerialMsg);
                     break;
-                case 'AWAY':
-                    currentComfortType = metricsDef.comfortTypes['away'];
+                case 'HOLIDAY':
+                    currentComfortType = metricsDef.comfortTypes['holiday'];
                     fakeSerialMsg += 'TARGETCOOL:' + currentComfortType.cool.temperature + ' ';
                     fakeSerialMsg += 'TARGETHEAT:' + currentComfortType.heat.temperature + ' ';
                     processSerialData(fakeSerialMsg);
@@ -298,12 +298,24 @@ exports.comfortTypes = {
         },
         cool: {
             icon: "fa-ge",
-            temperature: 27.8
+            temperature: 26.8
         },
     },
     away: {
         label: "Away",
         icon: "appbar.man.suitcase.run.svg",
+        heat: {
+            icon: "fa-fire",
+            temperature: 19.5
+        },
+        cool: {
+            icon: "fa-ge",
+            temperature: 27.8
+        },
+    },
+    holiday: {
+        label: "Holiday",
+        icon: "appbar.plane.rotated.45.svg",
         heat: {
             icon: "fa-fire",
             temperature: 14
