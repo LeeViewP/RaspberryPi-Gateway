@@ -22,7 +22,7 @@ exports.motes = {
                         serverExecute: function (node) {
                             var fakeSerialMsg = '[' + node._id + '] ' + 'ALARM:' + 'ON';
                             processSerialData(fakeSerialMsg);
-                            exports.sendAdbSMS('Alarm%Armed');
+                            exports.sendAdbSMS('Alarm%s*Armed');
                             // updateNodeMetric({ nodeId: node._id, metric: { name: 'ALARMMODE', value: 'ARMED' } });
                             return;
                         },
@@ -45,7 +45,7 @@ exports.motes = {
                             var fakeSerialMsg = '[' + node._id + '] ' + 'ALARM:' + 'OFF';
                             processSerialData(fakeSerialMsg);
                             // updateNodeMetric({ nodeId: node._id, metric: { name: 'ALARMMODE', value: 'DISARMED' } });
-                            exports.sendAdbSMS('Alarm%sDisarmed');
+                            exports.sendAdbSMS('Alarm%s*Disarmed');
                             return;
                         },
                     },
