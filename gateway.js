@@ -543,7 +543,13 @@ global.processSerialData = function (data) {
                 try {
                   console.log('post: ' + logfile + '[' + ts + ',' + graphValue + ']');
                   dbLog.postData(logfile, ts, graphValue, matchingMetric.duplicateInterval || null);
-                } catch (err) { console.error('   POST ERROR: ' + err.message); /*console.log('   POST ERROR STACK TRACE: ' + err.stack); */ } //because this is a callback concurrent calls to the same log, milliseconds apart, can cause a file handle concurrency exception
+                }
+                catch (err) {
+                  console.error('   POST ERROR: ' + err.message);
+                  if (err.message.indexOf('EMFILE:') != -1)
+                    process.exit();
+                  /*console.log('   POST ERROR STACK TRACE: ' + err.stack); */
+                } //because this is a callback concurrent calls to the same log, milliseconds apart, can cause a file handle concurrency exception
               }
               else console.log('   METRIC NOT NUMERIC, logging skipped... (extracted value:' + graphValue + ')');
             }
@@ -556,12 +562,15 @@ global.processSerialData = function (data) {
       }
 
       //prepare entry to save to DB, undefined values will not be saved, hence saving space
-      var entry = { _id: id, updated: existingNode.updated, type: existingNode.type || undefined, label: existingNode.label || undefined, descr: existingNode.descr || undefined, hidden: existingNode.hidden || undefined, rssi: existingNode.rssi, 
-        metrics: Object.keys(existingNode.metrics).length > 0 ? existingNode.metrics : {}, 
-        thermostatSchedule: existingNode.thermostatSchedule !=undefined? Object.keys(existingNode.thermostatSchedule).length > 0 ? existingNode.thermostatSchedule :{}:undefined, 
-        sourceNodes: existingNode.sourceNodes !=undefined? Object.keys(existingNode.sourceNodes).length > 0 ? existingNode.sourceNodes :{}:undefined, 
-        events: Object.keys(existingNode.events).length > 0 ? existingNode.events : undefined };
-      //console.log('UPDATING ENTRY: ' + JSON.stringify(entry));
+      var entry = {
+        _id: id, updated: existingNode.updated, type: existingNode.type || undefined, label: existingNode.label || undefined, descr: existingNode.descr || undefined, hidden: existingNode.hidden || undefined, rssi: existingNode.rssi,
+        metrics: Object.keys(existingNode.metrics).length > 0 ? existingNode.metrics : {},
+        thermostatSchedule: existingNode.thermostatSchedule != undefined ? Object.keys(existingNode.thermostatSchedule).length > 0 ? existingNode.thermostatSchedule : {} : undefined,
+        sourceNodes: existingNode.sourceNodes != undefined ? Object.keys(existingNode.sourceNodes).length > 0 ? existingNode.sourceNodes : {} : undefined,
+        events: Object.keys(existingNode.events).length > 0 ? existingNode.events : undefined
+      };
+      if (entry._id == 400)
+        console.log('UPDATING ENTRY: ' + JSON.stringify(entry));
 
       //save to DB
       db.findOne({ _id: id }, function (err, doc) {

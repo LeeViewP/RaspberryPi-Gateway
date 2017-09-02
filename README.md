@@ -37,3 +37,7 @@ https://www.youtube.com/watch?v=F15dEqZ4pMM
 
 ### 3rd party custom gateway setup overview
 https://www.youtube.com/watch?v=DP83RJeTpUY
+
+### Updated list
+- added option to send SMS and call using android phone. (on pi added adb tools: sudo apt-get install android-tools-adb)
+- added 3 Mote types (alarm, Thermostat and some forecasting)
