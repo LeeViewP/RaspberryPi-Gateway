@@ -1,3 +1,7 @@
+exports.sendAdbSMS = require(path.resolve(__dirname, 'customFunctions.js')).sendAdbSMS;
+exports.startAdbCall = require(path.resolve(__dirname, 'customFunctions.js')).startAdbCall;
+
+
 exports.motes = {
     SmartAlarm: {
         label: 'Smart Security',
@@ -18,6 +22,7 @@ exports.motes = {
                         serverExecute: function (node) {
                             var fakeSerialMsg = '[' + node._id + '] ' + 'ALARM:' + 'ON';
                             processSerialData(fakeSerialMsg);
+                            exports.sendAdbSMS('Alarm%s*Armed');
                             // updateNodeMetric({ nodeId: node._id, metric: { name: 'ALARMMODE', value: 'ARMED' } });
                             return;
                         },
@@ -40,6 +45,7 @@ exports.motes = {
                             var fakeSerialMsg = '[' + node._id + '] ' + 'ALARM:' + 'OFF';
                             processSerialData(fakeSerialMsg);
                             // updateNodeMetric({ nodeId: node._id, metric: { name: 'ALARMMODE', value: 'DISARMED' } });
+                            exports.sendAdbSMS('Alarm%s*Disarmed');
                             return;
                         },
                     },
@@ -214,7 +220,7 @@ exports.events = {
             if (approveSendMessage) {
                 node.metrics['M'].lastMessage = Date.now();
                 console.log('   [' + node._id + '] Start ADB MOTION Message Alert.');
-                sendAdbSMS('INTRUDER%sALERT');
+                exports.sendAdbSMS('INTRUDER%sALERT');
                 //sendAdbSMS('INTRUDER%sALERT%s:%sMOTION%sWAS%sDETECTED%sWHEN%sALARM%sIS%sON%s@%s');// + (new Date().toLocaleTimeString() + (new Date().getHours() > 12 ? 'PM' : 'AM')));
                 //sendEmail('INTRUDER ALERT', 'MOTION WAS DETECTED WHEN ALARM IS ON @ ' + (new Date().toLocaleTimeString() + (new Date().getHours() > 12 ? 'PM' : 'AM')));
                 db.update({ _id: node._id }, { $set: node }, {}, function (err, numReplaced) { console.log('   [' + node._id + '] DB-Updates:' + numReplaced); }); /*save lastMessage timestamp to DB*/
@@ -250,7 +256,7 @@ exports.events = {
             node.metrics['M'].lastTriggeredMovement = node.metrics['M'].updated
             if (approveSendMessage) {
                 node.metrics['M'].lastMessage = Date.now();
-                startAdbCall();
+                exports.startAdbCall();
                 //sendEmail('INTRUDER ALERT', 'MOTION WAS DETECTED WHEN ALARM IS ON @ ' + (new Date().toLocaleTimeString() + (new Date().getHours() > 12 ? 'PM' : 'AM')));
                 db.update({ _id: node._id }, { $set: node }, {}, function (err, numReplaced) { console.log('   [' + node._id + '] DB-Updates:' + numReplaced); }); /*save lastMessage timestamp to DB*/
             }

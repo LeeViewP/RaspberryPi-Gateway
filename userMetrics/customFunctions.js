@@ -23,12 +23,13 @@ global.startAdb = function () {
     //     console.log('Kill ADB server[' + callback + ']');
     // });
     var sshcommand = 'sudo adb start-server';
-    execute(sshcommand, function (callback) {
-        console.log('Start ADB server [' + callback + ']');
-    });
+    // execute(sshcommand, function (callback) {
+    //     console.log('Start ADB server [' + callback + ']');
+    // });
+    sendAdbCommand(sshcommand);
 }
 
-global.sendAdbSMS = function (BODY) {
+exports.sendAdbSMS = function (BODY) {
     // startAdb();
 
     // //SMS
@@ -36,34 +37,51 @@ global.sendAdbSMS = function (BODY) {
     // adb shell input keyevent 22
     // adb shell input keyevent 66
     var sshcommand = "adb shell am start -a android.intent.action.SENDTO -d sms:" + settings.credentials.adbSmsAlertsTo.value + " --es sms_body '" + BODY + "' --ez exit_on_sent true";
-    console.log(sshcommand);
-    execute(sshcommand, function (callback) {
-        console.log('SMS TO: ' + settings.credentials.adbSmsAlertsTo.value + ' Initiated [' + callback + ']');
-        var sshcommand22 = 'adb shell input keyevent 22';
-        console.log(sshcommand22);
-        execute(sshcommand22, function (callback) {
-            console.log('SMS TO: ' + settings.credentials.adbSmsAlertsTo.value + ' Initiated Key press 22 [' + callback + ']');
-            var sshcommand66 = 'adb shell input keyevent 66';
-            console.log(sshcommand66);
-            execute(sshcommand66, function (callback) {
-                console.log('SMS TO: ' + settings.credentials.adbSmsAlertsTo.value + ' Initiated Key press 66 [' + callback + ']');
-            });
-        });
-    });
+    var sshcommand22 = 'adb shell input keyevent 22';
+    var sshcommand66 = 'adb shell input keyevent 66';
 
+    sendAdbCommand(sshcommand);
+    setTimeout(sendAdbCommand, 1000, sshcommand22);
+    setTimeout(sendAdbCommand, 2000, sshcommand66);
 
+    // console.log(sshcommand);
+    // execute(sshcommand, function (callback) {
+    //     console.log('SMS TO: ' + settings.credentials.adbSmsAlertsTo.value + ' Initiated [' + callback + ']');
 
+    //     console.log(sshcommand22);
+    //     execute(sshcommand22, function (callback) {
+    //         console.log('SMS TO: ' + settings.credentials.adbSmsAlertsTo.value + ' Initiated Key press 22 [' + callback + ']');
+
+    //         console.log(sshcommand66);
+    //         execute(sshcommand66, function (callback) {
+    //             console.log('SMS TO: ' + settings.credentials.adbSmsAlertsTo.value + ' Initiated Key press 66 [' + callback + ']');
+    //         });
+    //     });
+    // });
 }
 
-global.startAdbCall = function () {
+exports.startAdbCall = function () {
     //startAdb();
 
     //adb shell am start -a android.intent.action.CALL -d tel:0745545150
     var sshcommand = 'adb shell am start -a android.intent.action.CALL -d tel:' + settings.credentials.adbCallsAlertsTo.value;
-    execute(sshcommand, function (callback) {
-        console.log('CALL TO: ' + settings.credentials.adbCallsAlertsTo.value + ' Initiated [' + callback + ']');
+    sendAdbCommand(sshcommand);
+
+    // execute(sshcommand, function (callback) {
+    //     console.log('CALL TO: ' + settings.credentials.adbCallsAlertsTo.value + ' Initiated [' + callback + ']');
+    // });
+}
+
+global.sendAdbCommand = function (command) {
+    console.info('ADB Command:' + command);
+    execute(command, function (callback) {
+        if ((callback.length > 1) && (callback.indexOf('error') != -1))
+            console.error('ADB Command Callback Message:[' + callback + '] for ADB Command:[' + command + '] is failed');
+        else
+            console.info('ADB Command Callback Message:[' + callback + '] for ADB Command:[' + command + '] is succesfull');
     });
 }
+
 
 // global.updateNodeMetric = function (node) {
 //     var dbNode = new Object();
@@ -173,7 +191,7 @@ global.getMINMetricInSourceNodes = function (node) {
         returnMetric.name = 'MIN' + returnMetric.name
         //console.log('getMINMetricInSourceNodes: [' + node.nodeId + '] the Node:' + JSON.stringify(dbNode));
         //console.log('getMINMetricInSourceNodes: [' + node.nodeId + ']' + JSON.stringify(returnMetric));
-        var fakeSerialMsg = '[' + dbNode._id + '] ' + returnMetric.name + ':' +  returnMetric.value;
+        var fakeSerialMsg = '[' + dbNode._id + '] ' + returnMetric.name + ':' + returnMetric.value;
         processSerialData(fakeSerialMsg);
         //updateNodeMetric({ nodeId: dbNode._id, metric: returnMetric });
         //return returnMetric;
@@ -238,12 +256,15 @@ exports.updateSourceNodesInNode = function (node) {
         if (dbNode.sourceNodes[node.sourceNodeId].metrics == undefined) dbNode.sourceNodes[node.sourceNodeId].metrics = new Object();
 
         //We need this to filter out unupdated nodes in a while
-        dbNode.sourceNodes[node.sourceNodeId].updated = dbNode.updated;
-        dbNode.sourceNodes[node.sourceNodeId].value = undefined;
-        dbNode.sourceNodes[node.sourceNodeId].unit = undefined;
+        // dbNode.sourceNodes[node.sourceNodeId].updated = dbNode.updated;
+        // dbNode.sourceNodes[node.sourceNodeId].value = undefined;
+        // dbNode.sourceNodes[node.sourceNodeId].unit = undefined;
 
-        dbNode.sourceNodes[node.sourceNodeId].metrics[node.metric.name] = new Object();
-        if (dbNode.sourceNodes[node.sourceNodeId].metrics[node.metric.name] == null) dbNode.sourceNodes[node.sourceNodeId].metrics[node.metric.name] = new Object();
+        // dbNode.sourceNodes[node.sourceNodeId].metrics[node.metric.name] = new Object();
+        if (dbNode.sourceNodes[node.sourceNodeId].metrics[node.metric.name] == null) 
+            dbNode.sourceNodes[node.sourceNodeId].metrics[node.metric.name] = new Object();
+        if (dbNode.sourceNodes[node.sourceNodeId].metrics[node.metric.name].updated == node.metric.updated)
+            { console.log(' [' + dbNode._id + ']  Source Node [' + node.sourceNodeId + ']  DUPLICATE, skipping...'); return; }
         dbNode.sourceNodes[node.sourceNodeId].metrics[node.metric.name] = node.metric;
         // console.log('Updating Node [' + dbNode._id + '] Surce Node [' + node.sourceNodeId + '] with metric :' + JSON.stringify(node.metric));
 
@@ -270,16 +291,16 @@ exports.updateSourceNodesInNode = function (node) {
 
 exports.deleteNodeMetric = function (nodeId, metricKey) {
     db.find({ _id: nodeId }, function (err, entries) {
-      if (entries.length == 1) {
-        var dbNode = entries[0];
-        dbNode.metrics[metricKey] = undefined; //TODO: use delete
-        db.update({ _id: dbNode._id }, { $set: dbNode }, {}, function (err, numReplaced) { console.log('DELETENODEMETRIC DB-Replaced:' + numReplaced); });
-        if (settings.general.keepMetricLogsOnDelete.value != 'true')
-          dbLog.removeMetricLog(path.join(__dirname, dbDir, dbLog.getLogName(dbNode._id, metricKey)));
-        io.sockets.emit('UPDATENODE', dbNode); //post it back to all clients to confirm UI changes
-      }
+        if (entries.length == 1) {
+            var dbNode = entries[0];
+            dbNode.metrics[metricKey] = undefined; //TODO: use delete
+            db.update({ _id: dbNode._id }, { $set: dbNode }, {}, function (err, numReplaced) { console.log('DELETENODEMETRIC DB-Replaced:' + numReplaced); });
+            if (settings.general.keepMetricLogsOnDelete.value != 'true')
+                dbLog.removeMetricLog(path.join(__dirname, dbDir, dbLog.getLogName(dbNode._id, metricKey)));
+            io.sockets.emit('UPDATENODE', dbNode); //post it back to all clients to confirm UI changes
+        }
     });
-  }
+}
 
 
 // global.sendTemperatureToNode = function (node) {

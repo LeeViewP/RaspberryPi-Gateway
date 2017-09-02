@@ -107,7 +107,7 @@ var transporter = nodemailer.createTransport({
   }
 });
 //Start ADB
-startAdb();
+ startAdb();
 // metricsDef.serverDataTime(Date.now());
 //global.LOG = function(data) { process.stdout.write(data || ''); }
 //global.LOGln = function(data) { process.stdout.write((data || '') + '\n'); }
