@@ -568,6 +568,11 @@ exports.thermostatTemperaturesProcess = function (currentTemperature, outsideTem
         + ' lHEAT[' + llimitHeatTemperature + ']  lCOOL[' + llimitCoolTemperature + ']'
         + ' Outside Temperature [' + outsideTemperature + ']'
     );
+    var message = 'Smart Thermostat Temperature Process: CurrentTemperature[' + currentTemperature + '] '
+    + ' hHEAT[' + hlimitHeatTemperature + ']  hCOOL[' + hlimitCoolTemperature + ']'
+    + ' lHEAT[' + llimitHeatTemperature + ']  lCOOL[' + llimitCoolTemperature + ']'
+    + ' Outside Temperature [' + outsideTemperature + ']';
+
     //check to see if is inside the interval
     if ((currentTemperature >= hlimitHeatTemperature) && (currentTemperature <= hlimitCoolTemperature)) {
         //Lets see if we are inside the smaller interval
@@ -577,14 +582,15 @@ exports.thermostatTemperaturesProcess = function (currentTemperature, outsideTem
             sendMessageToNode({ nodeId: settings.smartthermostat.heatNodeId.value, action: 'OFF' });
             sendMessageToNode({ nodeId: settings.smartthermostat.coolNodeId.value, action: 'OFF' });
             console.info('Smart Thermostat Temperature Process: Im Inside the interval kill all the heat/cool sources');
-            sendEmail('Smart Thermostat Functionality',
-                'Inside the temperature interval kill all the heat/cool sources: ' + 'CurrentTemperature[' + currentTemperature + '] between HEAT[' + llimitHeatTemperature + '] and COOL[' + llimitCoolTemperature + ']');
+            sendEmail('Smart Thermostat Functionality', message + ' ALL OFF');
+            // sendEmail('Smart Thermostat Functionality',
+            //     'Inside the temperature interval kill all the heat/cool sources: ' + 'CurrentTemperature[' + currentTemperature + '] between HEAT[' + llimitHeatTemperature + '] and COOL[' + llimitCoolTemperature + ']');
         }
         else {
             //We do nothing let the temperature reach the limit
-            console.info('Smart Thermostat Temperature Process: Outside lower interval but inside the higher interval; let the sources on.');
-            sendEmail('Smart Thermostat Functionality',
-                'Inside the temperature interval let heat/cool sources on: ' + 'CurrentTemperature[' + currentTemperature + '] between HEAT[' + hlimitHeatTemperature + '] and COOL[' + hlimitCoolTemperature + ']');
+            // console.info('Smart Thermostat Temperature Process: Outside lower interval but inside the higher interval; let the sources on.');
+            // sendEmail('Smart Thermostat Functionality',
+            //     'Inside the temperature interval let heat/cool sources on: ' + 'CurrentTemperature[' + currentTemperature + '] between HEAT[' + hlimitHeatTemperature + '] and COOL[' + hlimitCoolTemperature + ']');
         }
     }
     else {
@@ -597,20 +603,22 @@ exports.thermostatTemperaturesProcess = function (currentTemperature, outsideTem
                 // Outside temperature is greater then the set limit lets start cooling
                 sendMessageToNode({ nodeId: settings.smartthermostat.coolNodeId.value, action: 'ON' });
                 console.info('Smart Thermostat Temperature Process: Outside temperature is greater then the set limit lets start cooling');
-                sendEmail('Smart Thermostat Functionality',
-                    'Outside temperature is greater then the set limit lets start cooling: ' +
-                    'CurrentTemperature[' + currentTemperature + '] > COOL[' + hlimitCoolTemperature + '] and Outside Temperature [' + outsideTemperature + ']');
+                sendEmail('Smart Thermostat Functionality', message + ' COOL ON');
+                // sendEmail('Smart Thermostat Functionality',
+                //     'Outside temperature is greater then the set limit lets start cooling: ' +
+                //     'CurrentTemperature[' + currentTemperature + '] > COOL[' + hlimitCoolTemperature + '] and Outside Temperature [' + outsideTemperature + ']');
 
             }
             else {
                 //Outside Temperature < upper limit and Inside Temp > upper limit; i think i dont care let's kill the AC
                 //Outside is cooler than the cool limit and inside is hottter than the cool limit. maybe heat is gome bezerrk? lets kill all.
-                sendMessageToNode({ nodeId: settings.smartthermostat.coolNodeId.value, action: 'OFF' });
+                sendMessageToNode({ nodeId: settings.smartthermostat.coolNodeId.value, action: 'ON' });
                 sendMessageToNode({ nodeId: settings.smartthermostat.heatNodeId.value, action: 'OFF' });
                 console.info('Smart Thermostat Temperature Process: Outside Temperature < upper limit and Inside Temp > upper limit; i think i dont care lets kill the AC');
-                sendEmail('Smart Thermostat Functionality',
-                    'Outside Temperature < upper limit and Inside Temp > upper limit; I think i dont care lets kill the AC (open a window? or heater is gone crazy) Kill all: ' +
-                    'CurrentTemperature[' + currentTemperature + '] > COOL[' + hlimitCoolTemperature + '] and Outside Temperature [' + outsideTemperature + ']');
+                sendEmail('Smart Thermostat Functionality', message + ' HEAT OFF and COOL ON');
+                // sendEmail('Smart Thermostat Functionality',
+                //     'Outside Temperature < upper limit and Inside Temp > upper limit; I think i dont care lets kill the AC (open a window? or heater is gone crazy) Kill all: ' +
+                //     'CurrentTemperature[' + currentTemperature + '] > COOL[' + hlimitCoolTemperature + '] and Outside Temperature [' + outsideTemperature + ']');
             }
             //exit routine
             return;
@@ -622,10 +630,11 @@ exports.thermostatTemperaturesProcess = function (currentTemperature, outsideTem
             if (outsideTemperature > hlimitCoolTemperature) {
                 //Outside Temperature is hiher than higher set limit smthing is wrong Too much cool kill the AC ALERT!!!
                 sendMessageToNode({ nodeId: settings.smartthermostat.coolNodeId.value, action: 'OFF' });
+                sendEmail('Smart Thermostat Functionality', message + ' COOL OFF');
                 console.info('Smart Thermostat Temperature Process: Outside Temperature is hiher than higher set limit smthing is wrong Too much cool kill the AC ALERT!!!');
-                sendEmail('Smart Thermostat Functionality',
-                    'Outside Temperature is hiher than higher set limit something is wrong Too much cool kill the AC ALERT!!!: ' +
-                    'CurrentTemperature[' + currentTemperature + '] COOL[' + hlimitCoolTemperature + '] and Outside Temperature [' + outsideTemperature + ']');
+                // sendEmail('Smart Thermostat Functionality',
+                //     'Outside Temperature is hiher than higher set limit something is wrong Too much cool kill the AC ALERT!!!: ' +
+                //     'CurrentTemperature[' + currentTemperature + '] COOL[' + hlimitCoolTemperature + '] and Outside Temperature [' + outsideTemperature + ']');
             }
             else {
                 //Inside need heat and outside is smaller than the cooling limit set 
@@ -634,9 +643,10 @@ exports.thermostatTemperaturesProcess = function (currentTemperature, outsideTem
                 //Turn the heater on
                 sendMessageToNode({ nodeId: settings.smartthermostat.heatNodeId.value, action: 'ON' });
                 console.info('Smart Thermostat Temperature Process: Outside Temperature is lower than higher set limit  and our internal Temperature is the same Lets start some heater');
-                sendEmail('Smart Thermostat Functionality',
-                    'Outside Temperature is lower than higher set limit  and our internal Temperature is the same Lets start some heater: ' +
-                    'CurrentTemperature[' + currentTemperature + '] COOL[' + hlimitCoolTemperature + '] Outside Temperature [' + outsideTemperature + ']  HEAT[' + hlimitHeatTemperature + ']');
+                sendEmail('Smart Thermostat Functionality', message + ' HEAT ON');
+                // sendEmail('Smart Thermostat Functionality',
+                //     'Outside Temperature is lower than higher set limit  and our internal Temperature is the same Lets start some heater: ' +
+                //     'CurrentTemperature[' + currentTemperature + '] COOL[' + hlimitCoolTemperature + '] Outside Temperature [' + outsideTemperature + ']  HEAT[' + hlimitHeatTemperature + ']');
             }
             // if (outsideTemperature < heatTemperatureLimit) {
             //     //Outside Temperature is lower than lower set limit  and our internal Temperature is the same Let's start the heater

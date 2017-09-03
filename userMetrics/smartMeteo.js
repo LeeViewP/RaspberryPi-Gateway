@@ -10,7 +10,7 @@ exports.motes = {
   }
 };
 exports.metrics = {
-  FORECAST: { name: 'Forecast',regexp:/\bForecast\:("Brief Shower|Unchanged|Poor Weather|Approaching Storm|Good Weather|Clearing|Very Stormy|Stormy|Rain|Fair|Clear, Dry|Error)\b/i, value: '' },
+  FORECAST: { name: 'Forecast',regexp:/Forecast\:(Brief_Shower|Unchanged|Poor_Weather|Approaching_Storm|Good_Weather|Clearing|Very_Stormy|Stormy|Rain|Fair|Clear_Dry|Error)/i, value: '' },
   PT1: { name: 'PT1',regexp:/\bPT1\:([-\d\.]+)\b/i, value: '', graph: 1, graphOptions: { legendLbl: 'Pressure Trend 1h', lines: { lineWidth: 1 } } },
   PT6: { name: 'PT6',regexp:/\bPT6\:([-\d\.]+)\b/i, value: '', graph: 1, graphOptions: { legendLbl: 'Pressure Trend 6h', lines: { lineWidth: 1 } } },
   PT12: { name: 'PT12',regexp:/\bPT12\:([-\d\.]+)\b/i, value: '', graph: 1, graphOptions: { legendLbl: 'Pressure Trend 12h', lines: { lineWidth: 1 } } },
@@ -185,7 +185,7 @@ global.getForecast = function (nodeId, pressureChange1, pressureChange5) {
 
   // Sudden decrease, even if small, indicates a nearby disturbance; normally bringing wind, and short showers. 
   if (pressureChange1 <= pressureChangeType.FALLING_QUICKLY && pressureChange5 > pressureChangeType.FALLING) {
-    return "Brief Shower";
+    return "Brief_Shower";
   }
   // Moderate, slow fall in pressure indicates low pressure area is passing at a distance. Any marked change in weather unlikely.
   else if (pressureChange1 == pressureChangeType.FALLING_SLOWLY && pressureChange5 == pressureChangeType.FALLING_SLOWLY) {
@@ -194,16 +194,16 @@ global.getForecast = function (nodeId, pressureChange1, pressureChange5) {
   // Large, slow decrease indicates a long period of poor weather. Coming weather will be more pronounced if pressure started rising before dropping.
   else if ((pressureChange1 == pressureChangeType.FALLING_SLOWLY || pressureChange1 == pressureChangeType.FALLING) &&
     (pressureChange5 == pressureChangeType.FALLING_SLOWLY || pressureChange5 == pressureChangeType.FALLING)) {
-    return "Poor Weather";
+    return "Poor_Weather";
   }
   // Large pressure drop signals a coming storm in 5 to 6 hours.
   else if (pressureChange1 <= pressureChangeType.FALLING_QUICKLY && pressureChange5 <= pressureChangeType.FALLING) {
-    return "Approaching Storm";
+    return "Approaching_Storm";
   }
   // If pressure rise is large and prolonged, count on a many days of good weather ahead.
   else if ((pressureChange1 == pressureChangeType.RISING_SLOWLY || pressureChange1 == pressureChangeType.RISING) &&
     (pressureChange5 == pressureChangeType.RISING_SLOWLY || pressureChange5 == pressureChangeType.RISING)) {
-    return "Good Weather";
+    return "Good_Weather";
   }
   // If an upward and quick change, storminess is moving out and clearing may be coming in the very near future although it may be quite windy.
   else if (pressureChange1 >= pressureChangeType.RISING_QUICKLY && pressureChange5 >= pressureChangeType.RISING) {
@@ -211,7 +211,7 @@ global.getForecast = function (nodeId, pressureChange1, pressureChange5) {
   }
   // If the pressure is changing by more than 1 mb/hour and if the tendency is downward, expect more stormy weather on the way.
   else if (pressureChange1 == pressureChangeType.PLUMMETING) {
-    return "Very Stormy";
+    return "Very_Stormy";
   }
   else if (pressureChange1 == pressureChangeType.FALLING_QUICKLY) {
     return "Stormy";
@@ -226,7 +226,7 @@ global.getForecast = function (nodeId, pressureChange1, pressureChange5) {
     return "Fair";
   }
   else if (pressureChange1 == pressureChangeType.RISING_QUICKLY || pressureChange1 == pressureChangeType.SOARING) {
-    return "Clear, Dry";
+    return "Clear_Dry";
   }
   else {
     return "Error";

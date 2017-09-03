@@ -522,7 +522,7 @@ global.processSerialData = function (data) {
           //  console.log('Metric:' + metric + 'regexp: '+metricsDef.metrics[metric].regexp);
           if (metricsDef.metrics[metric].regexp.test(match[0])) {
             //found matching metric, add/update the node with it
-            //console.log('TOKEN MATCHED: ' + metricsDef.metrics[metric].regexp);
+            // console.log('TOKEN MATCHED: ' + metricsDef.metrics[metric].regexp);
             var tokenMatch = metricsDef.metrics[metric].regexp.exec(match[0]);
             matchingMetric = metricsDef.metrics[metric];
             if (existingNode.metrics[matchingMetric.name] == null) existingNode.metrics[matchingMetric.name] = new Object();
@@ -569,8 +569,8 @@ global.processSerialData = function (data) {
         sourceNodes: existingNode.sourceNodes != undefined ? Object.keys(existingNode.sourceNodes).length > 0 ? existingNode.sourceNodes : {} : undefined,
         events: Object.keys(existingNode.events).length > 0 ? existingNode.events : undefined
       };
-      if (entry._id == 400)
-        console.log('UPDATING ENTRY: ' + JSON.stringify(entry));
+      // if (entry._id == 400)
+      //   console.log('UPDATING ENTRY: ' + JSON.stringify(entry));
 
       //save to DB
       db.findOne({ _id: id }, function (err, doc) {

@@ -265,8 +265,11 @@ exports.updateSourceNodesInNode = function (node) {
             dbNode.sourceNodes[node.sourceNodeId].metrics[node.metric.name] = new Object();
         if (dbNode.sourceNodes[node.sourceNodeId].metrics[node.metric.name].updated == node.metric.updated)
             { console.log(' [' + dbNode._id + ']  Source Node [' + node.sourceNodeId + ']  DUPLICATE, skipping...'); return; }
+        // console.log('Updating Node [' + dbNode._id + '] Surce Node [' + node.sourceNodeId + ']metric ['+JSON.stringify(dbNode.sourceNodes[node.sourceNodeId].metrics[node.metric.name]) + '] with metric :' + JSON.stringify(node.metric));
         dbNode.sourceNodes[node.sourceNodeId].metrics[node.metric.name] = node.metric;
-        // console.log('Updating Node [' + dbNode._id + '] Surce Node [' + node.sourceNodeId + '] with metric :' + JSON.stringify(node.metric));
+        dbNode.sourceNodes[node.sourceNodeId].updated = dbNode.updated;
+
+        // 
 
         db.findOne({ _id: dbNode._id }, function (err, doc) {
             if (doc == null) {
