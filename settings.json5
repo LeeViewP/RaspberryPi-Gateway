@@ -118,7 +118,7 @@
         description: "temperature histeresis"
       },
       thermostatworkerofffset: {
-        value:60000
+        value:60000,
         description: "the thermostat worker will run after this many milis"
       },
       heatNodeId: {
@@ -146,6 +146,10 @@
       },
       alarmDelay:{
         value: 20000
+      },
+      autoarmperiod:{
+        value: 3600000,
+        description: "Smart alarm wil autoarm after this many milis"
       }
     }
     

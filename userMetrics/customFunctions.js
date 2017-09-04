@@ -178,7 +178,7 @@ global.getMINMetricInSourceNodes = function (node) {
                                 // console.log('Node [' + dbNode._id + '] [' + sourceNode + '] metrics [' + node.metric.name + '] defined');
                                 // console.log('Node [' + dbNode._id + '] [' + sourceNode + '] metrics [' + node.metric.name + '] value: ' + dbNode.sourceNodes[sourceNode].metrics[node.metric.name].value + '');
                                 if (minValue > dbNode.sourceNodes[sourceNode].metrics[node.metric.name].value) {
-                                    console.log('Node [' + dbNode._id + '] [' + sourceNode + '] metrics [' + node.metric.name + '] value: ' + dbNode.sourceNodes[sourceNode].metrics[node.metric.name].value + ' found < ' + minValue);
+                                    // console.log('Node [' + dbNode._id + '] [' + sourceNode + '] metrics [' + node.metric.name + '] value: ' + dbNode.sourceNodes[sourceNode].metrics[node.metric.name].value + ' found < ' + minValue);
                                     minValue = dbNode.sourceNodes[sourceNode].metrics[node.metric.name].value;
                                     returnMetric = dbNode.sourceNodes[sourceNode].metrics[node.metric.name]
                                 }
@@ -189,8 +189,9 @@ global.getMINMetricInSourceNodes = function (node) {
             }
         }
         returnMetric.name = 'MIN' + returnMetric.name
-        //console.log('getMINMetricInSourceNodes: [' + node.nodeId + '] the Node:' + JSON.stringify(dbNode));
-        //console.log('getMINMetricInSourceNodes: [' + node.nodeId + ']' + JSON.stringify(returnMetric));
+        if (dbNode.metrics[returnMetric.name] && dbNode.metrics[returnMetric.name].value == returnMetric.value)
+            return;
+        console.info('Node [' + dbNode._id + '] MIN metrics [' + returnMetric.name + '] value: ' + returnMetric.value + ' found ');
         var fakeSerialMsg = '[' + dbNode._id + '] ' + returnMetric.name + ':' + returnMetric.value;
         processSerialData(fakeSerialMsg);
         //updateNodeMetric({ nodeId: dbNode._id, metric: returnMetric });
@@ -215,7 +216,6 @@ global.getAVGMetricInSourceNodes = function (node) {
                     if ((Date.now() - new Date(dbNode.sourceNodes[sourceNode].updated).getTime() < 600000)) {
                         if (dbNode.sourceNodes[sourceNode].metrics != undefined) {
                             if (dbNode.sourceNodes[sourceNode].metrics[node.metric.name] != undefined) {
-
                                 avgValue += dbNode.sourceNodes[sourceNode].metrics[node.metric.name].value;
                                 avgItems++;
                                 returnMetric = dbNode.sourceNodes[sourceNode].metrics[node.metric.name]
@@ -228,8 +228,9 @@ global.getAVGMetricInSourceNodes = function (node) {
         }
         returnMetric.value = (avgValue / avgItems).toFixed(2);
         returnMetric.name = 'AVG' + returnMetric.name
+        if (dbNode.metrics[returnMetric.name] && dbNode.metrics[returnMetric.name].value == returnMetric.value)
+            return;
         console.info('Node [' + dbNode._id + '] AVG metrics [' + returnMetric.name + '] value: ' + returnMetric.value + ' found ');
-        //console.log(JSON.stringify(returnMetric));
         var fakeSerialMsg = '[' + dbNode._id + '] ' + returnMetric.name + ':' + returnMetric.value;
         processSerialData(fakeSerialMsg);
         //updateNodeMetric({ nodeId: dbNode._id, metric: returnMetric });
@@ -261,10 +262,10 @@ exports.updateSourceNodesInNode = function (node) {
         // dbNode.sourceNodes[node.sourceNodeId].unit = undefined;
 
         // dbNode.sourceNodes[node.sourceNodeId].metrics[node.metric.name] = new Object();
-        if (dbNode.sourceNodes[node.sourceNodeId].metrics[node.metric.name] == null) 
+        if (dbNode.sourceNodes[node.sourceNodeId].metrics[node.metric.name] == null)
             dbNode.sourceNodes[node.sourceNodeId].metrics[node.metric.name] = new Object();
         if (dbNode.sourceNodes[node.sourceNodeId].metrics[node.metric.name].updated == node.metric.updated)
-            { console.log(' [' + dbNode._id + ']  Source Node [' + node.sourceNodeId + ']  DUPLICATE, skipping...'); return; }
+        { console.log(' [' + dbNode._id + ']  Source Node [' + node.sourceNodeId + ']  DUPLICATE, skipping...'); return; }
         // console.log('Updating Node [' + dbNode._id + '] Surce Node [' + node.sourceNodeId + ']metric ['+JSON.stringify(dbNode.sourceNodes[node.sourceNodeId].metrics[node.metric.name]) + '] with metric :' + JSON.stringify(node.metric));
         dbNode.sourceNodes[node.sourceNodeId].metrics[node.metric.name] = node.metric;
         dbNode.sourceNodes[node.sourceNodeId].updated = dbNode.updated;

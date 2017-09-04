@@ -10,10 +10,10 @@ exports.motes = {
   }
 };
 exports.metrics = {
-  FORECAST: { name: 'Forecast',regexp:/Forecast\:(Brief_Shower|Unchanged|Poor_Weather|Approaching_Storm|Good_Weather|Clearing|Very_Stormy|Stormy|Rain|Fair|Clear_Dry|Error)/i, value: '' },
-  PT1: { name: 'PT1',regexp:/\bPT1\:([-\d\.]+)\b/i, value: '', graph: 1, graphOptions: { legendLbl: 'Pressure Trend 1h', lines: { lineWidth: 1 } } },
-  PT6: { name: 'PT6',regexp:/\bPT6\:([-\d\.]+)\b/i, value: '', graph: 1, graphOptions: { legendLbl: 'Pressure Trend 6h', lines: { lineWidth: 1 } } },
-  PT12: { name: 'PT12',regexp:/\bPT12\:([-\d\.]+)\b/i, value: '', graph: 1, graphOptions: { legendLbl: 'Pressure Trend 12h', lines: { lineWidth: 1 } } },
+  FORECAST: { name: 'Forecast', regexp: /Forecast\:(Brief_Shower|Unchanged|Poor_Weather|Approaching_Storm|Good_Weather|Clearing|Very_Stormy|Stormy|Rain|Fair|Clear_Dry|Error)/i, value: '' },
+  PT1: { name: 'PT1', regexp: /\bPT1\:([-\d\.]+)\b/i, value: '', graph: 1, graphOptions: { legendLbl: 'Pressure Trend 1h', lines: { lineWidth: 1 } } },
+  PT6: { name: 'PT6', regexp: /\bPT6\:([-\d\.]+)\b/i, value: '', graph: 1, graphOptions: { legendLbl: 'Pressure Trend 6h', lines: { lineWidth: 1 } } },
+  PT12: { name: 'PT12', regexp: /\bPT12\:([-\d\.]+)\b/i, value: '', graph: 1, graphOptions: { legendLbl: 'Pressure Trend 12h', lines: { lineWidth: 1 } } },
 };
 
 exports.events = {
@@ -81,12 +81,12 @@ exports.events = {
     icon: 'clock',
     descr: 'Smart Meteo Forecasting Functionality',
     condition: function (node) {
-      return node.metrics['AVGP'] && (Date.now() - new Date(node.metrics['AVGP'].updated).getTime() < 2000) 
+      return node.metrics['AVGP'] && (Date.now() - new Date(node.metrics['AVGP'].updated).getTime() < 2000)
       // &&
-        // node.metrics['Forecast'] && (Date.now() - new Date(node.metrics['Forecast'].updated).getTime() > 1000) && // anfd if forecast is not updated in the last second
-        // node.metrics['PT1'] && (Date.now() - new Date(node.metrics['PT1'].updated).getTime() > 1000) &&
-        // node.metrics['PT6'] && (Date.now() - new Date(node.metrics['PT6'].updated).getTime() > 1000) &&
-        // node.metrics['PT12'] && (Date.now() - new Date(node.metrics['PT12'].updated).getTime() > 1000)
+      // node.metrics['Forecast'] && (Date.now() - new Date(node.metrics['Forecast'].updated).getTime() > 1000) && // anfd if forecast is not updated in the last second
+      // node.metrics['PT1'] && (Date.now() - new Date(node.metrics['PT1'].updated).getTime() > 1000) &&
+      // node.metrics['PT6'] && (Date.now() - new Date(node.metrics['PT6'].updated).getTime() > 1000) &&
+      // node.metrics['PT12'] && (Date.now() - new Date(node.metrics['PT12'].updated).getTime() > 1000)
     },
     serverExecute: function (node) {
       console.info('Smart Meteo Start Executing');
@@ -94,21 +94,25 @@ exports.events = {
       var fakeSerialMsg = '[' + node._id + '] ';
       var metrictrend1 = getMetricTrend(node._id, "AVGP", 1, 1.3332239 * 100); //Average Pressure
       var pressureChange1 = getPressureChangeType(metrictrend1);
-      fakeSerialMsg += 'PT1:' + (pressureChange1) + ' ';
+      if (node.metrics['PT1'] && node.metrics['PT1'].value != pressureChange1)
+        fakeSerialMsg += 'PT1:' + (pressureChange1) + ' ';
 
       var metrictrend6 = getMetricTrend(node._id, "AVGP", 6, 1.3332239 * 100); //Average Pressure
       var pressureChange6 = getPressureChangeType(metrictrend6);
-      fakeSerialMsg += 'PT6:' + (pressureChange6) + ' ';
-
+      if (node.metrics['PT6'] && node.metrics['PT6'].value != pressureChange6)
+        fakeSerialMsg += 'PT6:' + (pressureChange6) + ' ';
 
       var metrictrend12 = getMetricTrend(node._id, "AVGP", 12, 1.3332239 * 100); //Average Pressure
       var pressureChange12 = getPressureChangeType(metrictrend12);
-      fakeSerialMsg += 'PT12:' + (pressureChange12) + ' ';
+      if (node.metrics['PT12'] && node.metrics['PT12'].value != pressureChange12)
+        fakeSerialMsg += 'PT12:' + (pressureChange12) + ' ';
 
       var forecast = getForecast(node._id, pressureChange1, pressureChange6);
-      fakeSerialMsg += 'Forecast:' + (forecast) + ' ';
+      if (node.metrics['Forecast'] && node.metrics['Forecast'].value != forecast)
+        fakeSerialMsg += 'Forecast:' + (forecast) + ' ';
 
       // console.info('Smart Meteo Metric :' + fakeSerialMsg);
+
       processSerialData(fakeSerialMsg);
 
 

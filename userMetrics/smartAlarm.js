@@ -132,8 +132,8 @@ exports.motes = {
 
 exports.metrics = {
     // ThC: { name: 'ThC', value: '', unit: '°', pin: 1, graph: 1, graphValSuffix: 'C', graphOptions: { legendLbl: 'Thermostat Target Temperature' } },
-    ALARM : { name:'ALARM', regexp:/ALARM\:(ON|OFF|AUTO)/i, value:''},
-    
+    ALARM: { name: 'ALARM', regexp: /ALARM\:(ON|OFF|AUTO)/i, value: '' },
+
 };
 
 exports.events = {
@@ -282,5 +282,39 @@ exports.events = {
             }
         }
     },
+    alarmAutoArm: {
+        label: 'Motion Alarm : Auto Arm',
+        icon: 'action',
+        descr: 'Auto Arm The Alarm ',
+        nextSchedule: function (node) { return 60000 }, //once per minute //settings.smartthermostat.thermostatworkerofffset.value
+        // condition: function (node) {
+        //     if (node.metrics['ALARM'] == undefined) return false;
+        //     if (node.metrics['ALARM'].value != 'OFF') return false;
+        //     return node.metrics['M'] && node.metrics['M'].value == 'MOTION' &&
+        //         (Date.now() - new Date(node.metrics['M'].updated).getTime() > 600000); //10 minutes
+        // },
+        // serverExecute: function (node) {
 
+        // },
+        scheduledExecute: function (sNode) {
+            var node = new Object();
+            db.find({ _id: sNode._id }, function (err, entries) {
+                if (entries.length == 1) {
+                    node = entries[0];
+                }
+                if (node.metrics['M'] && node.metrics['M'].value == 'MOTION' 
+                    && node.metrics['ALARM'] && node.metrics['ALARM'].value == 'OFF' 
+                    && (Date.now() - new Date(node.metrics['M'].updated).getTime() > settings.smartalarm.autoarmperiod.value)) //10 minutes
+                    {
+                        var fakeSerialMsg = '[' + node._id + '] ' + 'ALARM:' + 'ON';
+                        processSerialData(fakeSerialMsg);
+                        exports.sendAdbSMS('Alarm%s*Armed');
+                        sendEmail('SMART ALARM', 'AUTO ARMED');
+                    }
+                
+            });
+           
+        }
+
+    }
 };
