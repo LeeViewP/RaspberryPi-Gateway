@@ -48,11 +48,13 @@ serial = new serialport.SerialPort(settings.serial.port.value, { baudrate: setti
 serial.on('error', function serialErrorHandler(error) {
   //Send serial error messages to console. Better error handling needs to be here in the future.
   console.error('Serial Error:' + error.message);
+  sendEmail('Serial ERROR', error.message);
 });
 
 serial.on('close', function serialCloseHandler(error) {
   //Give user a sane error message and exit. Future possibilities could include sending message to front end via socket.io & setup timer to retry opening serial.
   console.error('Serial Close:' + error.message);
+  sendEmail('Serial CLOSE', error.message);
   process.exit(1);
 });
 
@@ -88,6 +90,7 @@ try {
           //console.info('USER METRICS MERGE RESULT FUNC: ' + metricsDef.secondsInOneDay.toString()); //verify that a custom function was loaded
         } catch (ex) {
           console.error('FAIL LOADING USER METRICS MODULE [' + file + ']: ' + ex.message);
+          sendEmail('ERROR LOADING USER METRICS MODULE', ex.message);
         }
       }
     });
@@ -95,6 +98,7 @@ try {
 }
 catch (ex) {
   console.error('FAIL ACCESSING USER METRICS: ' + ex.message);
+  sendEmail('ERROR ACCESSING USER METRICS', ex.message);
 }
 
 db.persistence.setAutocompactionInterval(settings.database.compactDBInterval.value); //compact the database every 24hrs
@@ -546,6 +550,7 @@ global.processSerialData = function (data) {
                 }
                 catch (err) {
                   console.error('   POST ERROR: ' + err.message);
+                  sendEmail('ERROR POST ERROR', err.message);
                   if (err.message.indexOf('EMFILE:') != -1)
                     process.exit();
                   /*console.log('   POST ERROR STACK TRACE: ' + err.stack); */
@@ -640,6 +645,7 @@ function runAndReschedule(functionToExecute, node, eventKey) {
   catch (ex) {
     var msg = 'Event ' + eventKey + ' execution failed: ' + ex.message;
     console.error(msg);
+    sendEmail('ERROR EVENT EXECUTION', msg);
     io.sockets.emit('LOG', msg);
   }
   schedule(node, eventKey);
