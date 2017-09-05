@@ -3,6 +3,3 @@ data/db/*
 !data/db
 data/secure/.htpasswd
 *.log
-.vscode
-www
-!www2
