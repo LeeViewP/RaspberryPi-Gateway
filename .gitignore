@@ -4,4 +4,5 @@ data/db/*
 data/secure/.htpasswd
 *.log
 .vscode
-www2
+www
+!www2
