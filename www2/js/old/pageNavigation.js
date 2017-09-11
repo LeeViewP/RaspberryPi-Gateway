@@ -2,9 +2,9 @@
 
 
 
-var PLMPages = {
+var pageNavigation = {
     self: null,
-    pageclass: 'plm-page',
+    pageclass: 'navigation-page',
     hash: null,
     pages: [],
     activepage: null,
@@ -19,7 +19,7 @@ var PLMPages = {
             window.location.hash = self.hash;
         }
         //hide all the pages
-        self.pages.forEach(function (page) { page.classList.add('plm-page-hidden') });
+        self.pages.forEach(function (page) { page.classList.add('navigation-page-hidden') });
         //Make hash page visible
         self.makePageVisible(self.hash)
 
@@ -30,7 +30,13 @@ var PLMPages = {
             }
         }, 100);
     },
-
+    hideDrawer: function () {
+        //trick to hide the drawer
+        var obofuscator = document.querySelector('.mdl-layout__obfuscator');
+        if (obofuscator != null)
+            if (obofuscator.classList.contains('is-visible'))
+                obofuscator.click();
+    },
     makePageVisible: function (id) {
         if (id != '') {
             //hide the old page
@@ -39,23 +45,19 @@ var PLMPages = {
             var newActivepage = document.querySelector(id);
 
             if (self.activepage != null && newActivepage != null) {
-                self.activepage.classList.add('plm-page-hidden');
-                self.activepage.classList.remove('plm-page-visible');
+                self.activepage.classList.add('navigation-page-hidden');
+                self.activepage.classList.remove('navigation-page-visible');
             }
 
             if (newActivepage != null) {
-                newActivepage.classList.remove('plm-page-hidden');
-                newActivepage.classList.add('plm-page-visible');
-                self.activepage = document.querySelector('.' + self.pageclass + '.plm-page-visible');
+                newActivepage.classList.remove('navigation-page-hidden');
+                newActivepage.classList.add('navigation-page-visible');
+                self.activepage = document.querySelector('.' + self.pageclass + '.navigation-page-visible');
             }
 
             // var layout = document.querySelector('.mdl-layout');
             // var material = layout.MaterialLayout;
-            //trick to hide the drawer
-            var obofuscator = document.querySelector('.mdl-layout__obfuscator');
-            if (obofuscator != null)
-                if (obofuscator.classList.contains('is-visible'))
-                    obofuscator.click();
+            self.hideDrawer();
             self.hash = window.location.hash;
         }
 
@@ -63,5 +65,5 @@ var PLMPages = {
 
 }
 
-PLMPages.init();
+pageNavigation.init();
 // var PLMPages = function PLMPages(){this.init();}
