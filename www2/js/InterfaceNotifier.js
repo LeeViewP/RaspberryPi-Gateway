@@ -304,13 +304,16 @@ InterfaceNotifier.prototype.createSensorCard_ = function (node) {
         var divCard = document.createElement('div');
         divCard.classList.add('mdl-card', 'mdl-shadow--2dp', 'mdl-cell', 'mdl-cell--4-col', 'mdl-cell--4-col-tablet');//'demo-updates', 
         divCard.id = 'sensor' + node._id;
+        
+        var divCardMedia = this.createCardMedia_(node);
+        componentHandler.upgradeElement(divCardMedia);
+        divCard.appendChild(divCardMedia);
+
         var divCardTitle = this.createCardTitle_(node);
         componentHandler.upgradeElement(divCardTitle);
         divCard.appendChild(divCardTitle);
 
-        var divCardMedia = this.createCardMedia_(node);
-        componentHandler.upgradeElement(divCardMedia);
-        divCard.appendChild(divCardMedia);
+
 
         var divCardSupportingText = this.createCardSupportingText_(node);
         componentHandler.upgradeElement(divCardSupportingText);
@@ -320,16 +323,17 @@ InterfaceNotifier.prototype.createSensorCard_ = function (node) {
         componentHandler.upgradeElement(divCardActions);
         divCard.appendChild(divCardActions);
 
-        var divCardMenuButton = this.createCardMenuButton_(node);
-        componentHandler.upgradeElement(divCardMenuButton);
-        divCard.appendChild(divCardMenuButton);
-
         var divCardMenu = this.createCardMenu_(node);
         // componentHandler.upgradeElement(divCardMenu);
         divCard.appendChild(divCardMenu);
         componentHandler.upgradeElement(divCardMenu);
 
         componentHandler.upgradeElement(divCard);
+
+        var divCardMenuButton = this.createCardMenuButton_(node);
+        componentHandler.upgradeElement(divCardMenuButton);
+        divCard.appendChild(divCardMenuButton);
+
 
         return divCard;
         // //Card Title Alarma
@@ -609,25 +613,9 @@ InterfaceNotifier.prototype.createCardTitle_ = function (node) {
 
     //Card Title
     var divCardTitle = document.createElement('div');
-    divCardTitle.classList.add('mdl-card__title', 'mdl-color--accent', 'mdl-color-text--white'); //, 'mdl-card--expand'
+    divCardTitle.classList.add('mdl-card__title'); //, 'mdl-card--expand' , 'mdl-color--accent', 'mdl-color-text--white'
 
-    var svgCardTitle = document.createElementNS('http://www.w3.org/2000/svg', 'svg');// document.createElement('svg');
-    svgCardTitle.setAttribute('fill', 'currentColor');
-    svgCardTitle.setAttribute('viewBox', '0 0 76 76');
-    svgCardTitle.setAttribute('width', '76');
-    svgCardTitle.setAttribute('height', '76');
-    // svgCardTitle.setAttribute('xmlns:xlink','http://www.w3.org/1999/xlink');
 
-    var svgUseCardTitle = document.createElementNS('http://www.w3.org/2000/svg', 'use');// document.createElement('use');
-    svgUseCardTitle.setAttributeNS(
-        'http://www.w3.org/1999/xlink', // xlink NS URI
-        'href',                         // attribute (no 'xlink:')
-        '#' + this.Definitions_.motesDef[node.type].icon);
-
-    componentHandler.upgradeElement(svgCardTitle);
-    componentHandler.upgradeElement(svgUseCardTitle);
-    svgCardTitle.appendChild(svgUseCardTitle);
-    divCardTitle.appendChild(svgCardTitle);
 
 
     var h2CardTitle = document.createElement('h3');
@@ -667,6 +655,29 @@ InterfaceNotifier.prototype.createCardTitle_ = function (node) {
     componentHandler.upgradeElement(h2CardTitle);
     divCardTitle.appendChild(h2CardTitle)
 
+    var separatorTitle = document.createElement('div');
+    separatorTitle.classList.add('mdl-layout-spacer');
+    componentHandler.upgradeElement(separatorTitle);
+    divCardTitle.appendChild(separatorTitle);
+
+    var svgCardTitle = document.createElementNS('http://www.w3.org/2000/svg', 'svg');// document.createElement('svg');
+    svgCardTitle.setAttribute('fill', 'currentColor');
+    svgCardTitle.setAttribute('viewBox', '0 0 76 76');
+    svgCardTitle.setAttribute('width', '76');
+    svgCardTitle.setAttribute('height', '76');
+    // svgCardTitle.setAttribute('xmlns:xlink','http://www.w3.org/1999/xlink');
+
+    var svgUseCardTitle = document.createElementNS('http://www.w3.org/2000/svg', 'use');// document.createElement('use');
+    svgUseCardTitle.setAttributeNS(
+        'http://www.w3.org/1999/xlink', // xlink NS URI
+        'href',                         // attribute (no 'xlink:')
+        '#' + this.Definitions_.motesDef[node.type].icon);
+
+    componentHandler.upgradeElement(svgCardTitle);
+    componentHandler.upgradeElement(svgUseCardTitle);
+    svgCardTitle.appendChild(svgUseCardTitle);
+    divCardTitle.appendChild(svgCardTitle);
+
     // var svgCardTitle = document.createElementNS('http://www.w3.org/2000/svg', 'svg');// document.createElement('svg');
     // svgCardTitle.setAttribute('fill', 'currentColor');
     // svgCardTitle.setAttribute('viewBox', '0 0 76 76');
@@ -693,53 +704,53 @@ InterfaceNotifier.prototype.createCardTitle_ = function (node) {
 
 InterfaceNotifier.prototype.createCardMedia_ = function (node) {
     var divCardMedia = document.createElement('div')
-    divCardMedia.classList.add('mdl-card__media', 'mdl-card--expand');
+    divCardMedia.classList.add('mdl-card__media', 'mdl-card--expand', 'mdl-color--white', 'mdl-color-text--grey-600');//, 'mdl-color-text--white'
 
 
     for (var key in node.metrics) {
 
         var metric = node.metrics[key];
         if (metric.pin == '1' || node.metrics.length == 1) {
-            var metricValue = (metric.unit) ? (metric.value + (metric.unit || '')) : ((metric.descr || metric.name || '') + metric.value);
+            // var metricValue = (metric.unit) ? (metric.value + (metric.unit || '')) : ((metric.descr || metric.name || '') + metric.value);
+            var metricValue = (metric.unit) ? (metric.value ) : ((metric.descr || metric.name || '') + metric.value);
+            var metricUnit = metric.unit || ''
             var svgMetric = document.createElementNS('http://www.w3.org/2000/svg', 'svg');// document.createElement('svg');
             svgMetric.setAttribute('fill', 'currentColor');
-            svgMetric.setAttribute('viewBox', '0 0 76 76');
-            svgMetric.setAttribute('width', '76');
-            svgMetric.setAttribute('height', '76');
+            svgMetric.setAttribute('viewBox', '0 0 1 1');
+            svgMetric.setAttribute('width', '100');
+            svgMetric.setAttribute('height', '100');
             // svgCardTitle.setAttribute('xmlns:xlink','http://www.w3.org/1999/xlink');
 
             var svgUseMetric = document.createElementNS('http://www.w3.org/2000/svg', 'use');// document.createElement('use');
             svgUseMetric.setAttributeNS(
                 'http://www.w3.org/1999/xlink', // xlink NS URI
                 'href',                         // attribute (no 'xlink:')
-                '#piechart');
-            svgUseMetric.setAttributeNS(
-                'http://www.w3.org/1999/xlink', // xlink NS URI
-                'mask',                         // attribute (no 'xlink:')
-                'url(#piemask)');
+                '#circle');
+            svgUseMetric.style.mask = "url(#piemask)"
 
             svgText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-            svgText.setAttributeNS(
-                'http://www.w3.org/1999/xlink', // xlink NS URI
+            svgText.setAttribute(
                 'x',                         // attribute (no 'xlink:')
                 '0.5');
-            svgText.setAttributeNS(
-                'http://www.w3.org/1999/xlink', // xlink NS URI
+            svgText.setAttribute(
                 'y',                         // attribute (no 'xlink:')
                 '0.5');
-            svgText.setAttributeNS(
-                'http://www.w3.org/1999/xlink', // xlink NS URI
+            svgText.setAttribute(
                 'font-size',                         // attribute (no 'xlink:')
-                '0.3');
-            svgText.setAttributeNS(
-                'http://www.w3.org/1999/xlink', // xlink NS URI
+                '0.2');
+            svgText.setAttribute(
                 'text-anchor',                         // attribute (no 'xlink:')
                 'middle');
-            svgText.setAttributeNS(
-                'http://www.w3.org/1999/xlink', // xlink NS URI
-                'dy',                         // attribute (no 'xlink:')
-                '0.1');
+            svgText.setAttribute('dy', '0.1');
             svgText.textContent = metricValue;
+            
+            svgTspan = document.createElementNS('http://www.w3.org/2000/svg', 'tspan');
+            svgTspan.setAttribute('dy','-0.07');
+            svgTspan.setAttribute('font-size',metricUnit.length<2?'-0.2':'-0.9');
+            svgTspan.textContent = metricUnit.length<2?metricUnit:'';
+            componentHandler.upgradeElement(svgTspan);
+            svgText.appendChild(svgTspan);
+
             //     <text x="0.5" y="0.5" font-family="Roboto" font-size="0.3" fill="#888" text-anchor="middle" dy="0.1">82
             //     <tspan dy="-0.07" font-size="0.2">%</tspan>
             //   </text>

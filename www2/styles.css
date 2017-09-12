@@ -185,9 +185,9 @@ _:-ms-input-placeholder, :root .demo-graph {
 .demo-updates .mdl-card__actions {
     display: flex;
 }
-.mdl-card__media {
+/* .mdl-card__media {
   background-color: white;
-}
+} */
 
 
 .blink {
