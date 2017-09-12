@@ -98,9 +98,6 @@ html, body {
 .demo-chart:nth-child(4) {
   color: #EF3C79;
 }
-#dashboardclone>.demo-chart:nth-child(1) {
-  color: #Ab2340;
-}
 
 .demo-graphs {
   padding: 16px 32px;
@@ -151,15 +148,11 @@ _:-ms-input-placeholder, :root .demo-graph {
   background-repeat: no-repeat;
 }
 .demo-updates .mdl-card__title svg {
-  float:right;
+  /*color: #BA65C9;*/
 }
 
-.demo-updates .mdl-card__title svg ​path {
-  fill: blue;
-}​
-
 .demo-cards .mdl-card__actions a {
-  color: #00BCD4;
+  /*color: #00BCD4;*/
   text-decoration: none;
 }
 
@@ -185,3 +178,30 @@ _:-ms-input-placeholder, :root .demo-graph {
   box-sizing: border-box;
   align-items: center;
 }
+
+.mdl-card__supporting_text_metrics {
+    display: flex;
+}
+.demo-updates .mdl-card__actions {
+    display: flex;
+}
+.mdl-card__media {
+  background-color: white;
+}
+
+
+.blink {
+  animation: blink-animation 1s steps(5, start) infinite;
+  -webkit-animation: blink-animation 1s steps(5, start) infinite;
+}
+@keyframes blink-animation {
+  to {
+    visibility: hidden;
+  }
+}
+@-webkit-keyframes blink-animation {
+  to {
+    visibility: hidden;
+  }
+}
+
