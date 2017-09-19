@@ -6,6 +6,22 @@ NodeList.prototype.contains = function (elem) {
     return false;
 }
 
+NodeList.prototype.find = function (elem) {
+    for (var i in this) {
+        if ('#' + this[i].id == elem)
+            return this[i];
+    }
+    return undefined;
+}
+
+if (window.NodeList && !NodeList.prototype.forEach) {
+    NodeList.prototype.forEach = function (callback, thisArg) {
+        thisArg = thisArg || window;
+        for (var i = 0; i < this.length; i++) {
+            callback.call(thisArg, this[i], i, this);
+        }
+    };
+}
 
 function NavigationPage() {
     'use strict';
@@ -31,13 +47,23 @@ NavigationPage.prototype.activepage_ = null;
 
 NavigationPage.prototype.pages_ = [];
 
+NavigationPage.prototype.dialogs_ = [];
 
-NavigationPage.prototype.locknavigation_  =false;
+NavigationPage.prototype.locknavigation_ = false;
 
 NavigationPage.prototype.init = function () {
+    //handling dialogs
+    this.dialogs_ = document.querySelectorAll('dialog');
+    this.dialogs_.forEach(function (dialog) {
+        if (!dialog.showModal) {
+            dialogPolyfill.registerDialog(dialog);
+        }
+        dialog.querySelector('.close').addEventListener('click', function () {
+            dialog.close();
+        });
+    });
 
     this.pages_ = document.querySelectorAll('.' + this.CssClasses_.PAGE);
-
     this.hash = window.location.hash != '' ? window.location.hash : '#' + this.pages_[0].id;
     //Set window hash to the first page if there is no hash
     if (window.location.hash == '') {
@@ -50,14 +76,24 @@ NavigationPage.prototype.init = function () {
     );
 
     //Make hash page visible
-    this.makePageVisible(this.hash)
+    // this.makePageVisible(this.hash)
+    this.navigate(this.hash);
 
 };
 
 NavigationPage.prototype.navigate = function (id) {
     if (this.locknavigation_) return;
-    if (id != '' && this.pages_.contains(id))
+    if (id == '') return;
+    if (this.pages_.contains(id)) {
         window.location.hash = id;
+        this.makePageVisible_(id);
+        return;
+    }
+    if (this.dialogs_.contains(id)) {
+        this.dialogs_.find(id).showModal();
+        window.history.back();
+    }
+
 };
 
 NavigationPage.prototype.locknavigation = function (value) {
@@ -74,15 +110,21 @@ NavigationPage.prototype.hideDrawer_ = function () {
 };
 
 
-NavigationPage.prototype.makePageVisible = function (id) {
+NavigationPage.prototype.makePageVisible_ = function (id) {
 
     if (id != '' && !this.locknavigation_) {
         var newActivepage = document.querySelector(id);
 
         if (this.activepage_ != null && newActivepage != null) {
-            this.activepage_.classList.add(this.CssClasses_.HIDE);
             this.activepage_.classList.remove(this.CssClasses_.SHOW);
+            this.activepage_.classList.add(this.CssClasses_.HIDE);
         }
+        //hide all the pages
+        // this.pages_.forEach(function (page) {
+        //     page.classList.remove(this.CssClasses_.SHOW);
+        //     page.classList.add(this.CssClasses_.HIDE)
+        // }, this
+        // );
 
         if (newActivepage != null) {
             newActivepage.classList.remove(this.CssClasses_.HIDE);
@@ -93,7 +135,7 @@ NavigationPage.prototype.makePageVisible = function (id) {
         this.hash = window.location.hash;
     }
     else
-     window.location.hash = this.hash;
+        window.location.hash = this.hash;
 
 }
 
@@ -102,6 +144,20 @@ var navigationPage = new NavigationPage();
 window.setInterval(function () {
     if (window.location.hash != navigationPage.hash) {
         navigationPage.hash = window.location.hash != '' && !navigationPage.locknavigation_ ? window.location.hash : navigationPage.hash;
-        navigationPage.makePageVisible(navigationPage.hash);
+        if (window.location.hash == '')
+            window.location.hash = navigationPage.hash
+        else
+            navigationPage.navigate(navigationPage.hash);
     }
 }, 100);
+
+document.onclick = function (evt) {
+    var tgt = (evt && evt.target) || event.srcElement;
+
+    if ((tgt.tagName == "A" && tgt.href.slice(-1) == "#"))
+        return false;
+    if (tgt.offsetParent != null)
+        if ((tgt.offsetParent.tagName == "A" && tgt.offsetParent.href.slice(-1) == "#"))
+            return false;
+
+}

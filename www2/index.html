@@ -14,6 +14,16 @@
   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
   See the License for the specific language governing permissions and
   limitations under the License
+
+
+  try to use only 
+????????????????????????????????????????????????????????????
+mdl-color--primary
+mdl-color--primary-dark
+mdl-color--accent
+mdl-color--primary-contrast
+mdl-color--accent-contrast
+
 -->
 <html lang="en">
 
@@ -47,11 +57,13 @@
 
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:regular,bold,italic,thin,light,bolditalic,black,medium&amp;lang=en">
   <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
-  <link rel="stylesheet" href="https://code.getmdl.io/1.3.0/material.cyan-light_blue.min.css">
+  <!--<link rel="stylesheet" href="https://code.getmdl.io/1.3.0/material.cyan-light_blue.min.css">-->
+  <link rel="stylesheet" href=" https://code.getmdl.io/1.3.0/material.green-deep_orange.min.css">
+  <link rel="stylesheet" type="text/css" href="css/dialog-polyfill.css" />
   <link rel="stylesheet" href="styles.css">
   <link rel="stylesheet" href="css/pageNavigation.css">
   <style>
-    #view-source {
+    /*#view-source {
       position: fixed;
       display: block;
       right: 0;
@@ -59,7 +71,7 @@
       margin-right: 40px;
       margin-bottom: 40px;
       z-index: 900;
-    }
+    }*/
 
     #apploader {
       position: fixed;
@@ -75,8 +87,37 @@
 </head>
 
 <body>
+      <!-- DIALOGS -->
+      <dialog class="mdl-dialog" id="processExit">
+          <h4 class="mdl-dialog__title">Restart the application?</h4>
+          <div class="mdl-dialog__content">
+            <p>
+                This command will actually execute a process.exit() which stops the gateway app.<br/>
+                If the gateway service (systemctl) is running it should automatically restart it.
+            </p>
+          </div>
+          <div class="mdl-dialog__actions">
+            <button type="button" class="mdl-button action">Agree</button>
+            <button type="button" class="mdl-button close">Disagree</button>
+          </div>
+      </dialog>
+      
+      <dialog class="mdl-dialog" id="piReboot">
+          <h4 class="mdl-dialog__title">Restart the system?</h4>
+          <div class="mdl-dialog__content">
+            <p>
+                This command will actually restart the system.<br/>
+                You will have to wait for the system to start.
+            </p>
+          </div>
+          <div class="mdl-dialog__actions">
+            <button type="button" class="mdl-button action">Agree</button>
+            <button type="button" class="mdl-button close">Disagree</button>
+          </div>
+      </dialog>
+      
   <div class="demo-layout mdl-layout mdl-js-layout mdl-layout--fixed-drawer mdl-layout--fixed-header">
-    <header class="demo-header mdl-layout__header">
+    <header class="demo-header mdl-layout__header  mdl-color--primary-dark">
       <!-- mdl-color--grey-100 mdl-color-text--grey-600-->
       <div class="mdl-layout__header-row">
         <span class="mdl-layout-title">AiHome</span>
@@ -100,9 +141,14 @@
         </ul>
       </div>
     </header>
-    <div class="demo-drawer mdl-layout__drawer mdl-color--blue-grey-900 mdl-color-text--blue-grey-50">
+    <div class="demo-drawer mdl-layout__drawer mdl-color--primary-contrast">
       <header class="demo-drawer-header">
-        <img src="images/user.jpg" class="demo-avatar">
+
+        <svg fill="currentColor" width="50" height="50" viewBox="0 0 512 512" class="demo-avatar mdl-color-text--primary-contrast mdl-color--primary">
+          <!--demo-avatar mdl-color--accent mdl-color-text--primary-->
+          <use xlink:href="#appbar.home.logo.512.svg" />
+        </svg>
+        <!--<img src="images/user.jpg" class="demo-avatar">-->
         <div class="demo-avatar-dropdown">
           <span>lee.view.zone@gmail.com</span>
           <div class="mdl-layout-spacer"></div>
@@ -117,27 +163,34 @@
           </ul>
         </div>
       </header>
-      <nav class="demo-navigation mdl-navigation mdl-color--blue-grey-800">
-        <a class="mdl-navigation__link" href="#loading"><i class="mdl-color-text--blue-grey-400 material-icons" role="presentation">home</i>Home</a>
-        <!--<a class="mdl-navigation__link" href="#dashboardclone"><i class="mdl-color-text--blue-grey-400 material-icons" role="presentation">inbox</i>Inbox</a>-->
-        <!--<a class="mdl-navigation__link" href="#nodashboard"><i class="mdl-color-text--blue-grey-400 material-icons" role="presentation">delete</i>Trash</a>-->
-        <a class="mdl-navigation__link" href="#dashboard"><i class="mdl-color-text--blue-grey-400 material-icons" role="presentation">dashboard</i>Dashboard</a>
-        <a class="mdl-navigation__link" href="#sensorspage"><i class="mdl-color-text--blue-grey-400 material-icons" role="presentation">developer_board</i>Sensors</a>
-        <!--<a class="mdl-navigation__link" href=""><i class="mdl-color-text--blue-grey-400 material-icons" role="presentation">flag</i>Updates</a>
-        <a class="mdl-navigation__link" href=""><i class="mdl-color-text--blue-grey-400 material-icons" role="presentation">local_offer</i>Promos</a>-->
+      <nav class="demo-navigation mdl-navigation mdl-color--accent-contrast">
+        <a class="mdl-navigation__link" href="#loading"><i class="material-icons" role="presentation">home</i>Home</a>
+        <!--<a class="mdl-navigation__link" href="#dashboardclone"><i class="material-icons" role="presentation">inbox</i>Inbox</a>-->
+        <!--<a class="mdl-navigation__link" href="#nodashboard"><i class="material-icons" role="presentation">delete</i>Trash</a>-->
+        <a class="mdl-navigation__link" href="#dashboard"><i class="material-icons" role="presentation">dashboard</i>Dashboard</a>
+        <a class="mdl-navigation__link" href="#sensorspage"><i class="material-icons" role="presentation">developer_board</i>Sensors</a>
+        <!--<a class="mdl-navigation__link" href=""><i class="material-icons" role="presentation">flag</i>Updates</a>
+        <a class="mdl-navigation__link" href=""><i class="material-icons" role="presentation">local_offer</i>Promos</a>-->
         <div class="mdl-layout-spacer"></div>
-        <a class="mdl-navigation__link" href="#logpage"><i class="mdl-color-text--blue-grey-400 material-icons" role="presentation">keyboard</i>Log / Terminal</a>
-        <a class="mdl-navigation__link" href="#settingspage"><i class="mdl-color-text--blue-grey-400 material-icons" role="presentation">settings</i>Settings</a>
+        <a class="mdl-navigation__link" href="#logpage"><i class="material-icons" role="presentation">keyboard</i>Log / Terminal</a>
+        <a class="mdl-navigation__link" href="#settingspage"><i class="material-icons" role="presentation">settings</i>Settings</a>
         <div class="mdl-layout-spacer"></div>
-        <a class="mdl-navigation__link" href="#restart"><i class="mdl-color-text--blue-grey-400 material-icons" role="presentation">refresh</i>Restart Gateway</a>
-        <a class="mdl-navigation__link" href="#reboot"><i class="mdl-color-text--blue-grey-400 material-icons" role="presentation">power_settings_new</i>Restart System</a>
+        <a class="mdl-navigation__link" href="#processExit"><i class="material-icons" role="presentation">refresh</i>Restart Gateway</a>
+        <a class="mdl-navigation__link" href="#piReboot"><i class="material-icons" role="presentation">power_settings_new</i>Restart System</a>
         <div class="mdl-layout-spacer"></div>
-        <a class="mdl-navigation__link" href=""><i class="mdl-color-text--blue-grey-400 material-icons" role="presentation">help_outline</i><span class="visuallyhidden">Help</span></a>
+        <a class="mdl-navigation__link" href=""><i class="material-icons" role="presentation">help_outline</i><span class="visuallyhidden">Help</span></a>
       </nav>
     </div>
     <main class="mdl-layout__content mdl-color--grey-100">
       <div class="demo-cards mdl-tabs__panel mdl-grid demo-content navigation-page" id="loading">
-        <div id="apploader" class="mdl-progress mdl-js-progress mdl-progress__indeterminate"></div>
+        <div class ='mdl-grid'>
+          <div class='mdl-cell mdl-cell--4-col mdl-cell--8-col-tablet mdl-cell--12-col-desktop  mdl-cell--stretch mdl-cell--middle'>
+            <svg fill="currentColor" width="256" height="256" viewBox="0 0 512 512" class="demo-logo mdl-color-text--primary-contrast mdl-color--primary">
+                <use xlink:href="#appbar.home.logo.512.svg" />
+            </svg>
+            <div class="demo-spinner mdl-spinner mdl-js-spinner is-active"></div>
+          </div>
+        </div>
       </div>
       <div class="mdl-tabs__panel mdl-grid demo-content navigation-page" id="dashboard">
         <div class="demo-charts mdl-color--white mdl-shadow--2dp mdl-cell mdl-cell--12-col mdl-grid">
@@ -188,7 +241,7 @@
           </div>
           <div class="demo-separator mdl-cell--1-col"></div>
           <div class="demo-options mdl-card mdl-color--deep-purple-500 mdl-shadow--2dp mdl-cell mdl-cell--4-col mdl-cell--3-col-tablet mdl-cell--12-col-desktop">
-            <div class="mdl-card__supporting-text mdl-color-text--blue-grey-50">
+            <div class="mdl-card__supporting-text">
               <h3>View options</h3>
               <ul>
                 <li>
@@ -225,8 +278,9 @@
           </div>
         </div>
       </div>
-       <div class="mdl-tabs__panel mdl-grid demo-content navigation-page" id="sensorspage"><!-- demo-cards  -->
-        <div class="demo-updates mdl-card mdl-shadow--2dp mdl-cell mdl-cell--4-col mdl-cell--4-col-tablet " id='sensorx2'>
+      <div class="mdl-tabs__panel mdl-grid demo-content navigation-page" id="sensorspage">
+        <!-- demo-cards  -->
+        <div class="demo-updates mdl-card mdl-shadow--2dp mdl-cell mdl-cell--4-col mdl-cell--4-col-tablet " id='sensor2'>
           <div class="mdl-card__title mdl-card--expand mdl-color--cyan-300">
             <h2 class="mdl-card__title-text">Updates Cloned</h2>
           </div>
@@ -237,23 +291,105 @@
             <a href="#" class="mdl-button mdl-js-button mdl-js-ripple-effect">Read More</a>
           </div>
           <div class="mdl-card__menu">
-            <button class="mdl-button mdl-button--icon mdl-js-button mdl-js-ripple-effect" id='sensorx2menu'>
+            <button class="mdl-button mdl-button--icon mdl-js-button mdl-js-ripple-effect" id='sensor2menu'>
               <i class="material-icons">share</i>
             </button>
           </div>
-          <ul class="mdl-menu mdl-js-menu mdl-js-ripple-effect mdl-menu--bottom-right" for="sensorx2menu">
+          <ul class="mdl-menu mdl-js-menu mdl-js-ripple-effect mdl-menu--bottom-right" for="sensor2menu">
             <li class="mdl-menu__item">Edit Sensor</li>
           </ul>
         </div>
       </div>
+      <div class="mdl-tabs__panel mdl-grid demo-content navigation-page" id="settingspage">
 
+      </div>
+      <div class="mdl-tabs__panel mdl-grid demo-content navigation-page" id="sensordetails">     
+          <div class="mdl-grid" id="sensordetailscontainer"/>
+      </div>
     </main>
+    <section id ="templates" style="display: none;">
+
+      <div class="mdl-card mdl-shadow--2dp mdl-cell mdl-cell--12-col" id="sensordetailstemplate"> 
+        <div class="mdl-card__title">
+            <h3>
+              <div id = 'sensordetailtitle'class="mdl-card__title-text mdl-color-text--primary-contrast"></div>
+            </h3>
+            <div class="mdl-layout-spacer"></div>
+            <svg fill="currentColor" viewBox="0 0 76 76" width="76" height="76" class="mdl-color-text--primary" id ="sensordetailsvg"> </svg>
+        </div>
+        <div class="mdl-card__supporting-text mdl-card--expand mdl-color-text--primary-contrast">
+          <div class="mdl-card__supporting_text_metrics">
+              <div class="mdl-layout-spacer"></div>
+              <span>updated: </span>
+              <span class="updateAgo" id="sensordetailupdated"></span>
+              
+          </div>
+          <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+            <select class="mdl-textfield__input" id="nodeMoteType" ></select>
+            <label class="mdl-textfield__label" for="nodeMoteType">Type</label>
+          </div>
+          <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+              <input class="mdl-textfield__input" type="text" id="nodelabel">
+              <label class="mdl-textfield__label" for="nodelabel">Label</label>
+          </div>
+          <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+              <input class="mdl-textfield__input" type="text" id="nodedescr">
+              <label class="mdl-textfield__label" for="nodedescr">Description/Location</label>
+          </div>
+        </div>
+
+        <div class="mdl-card__actions mdl-card--border">
+            <a href="#" class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-color-text--primary">Save</a>
+            <div class="mdl-layout-spacer"></div>
+            <a href="#" class="mdl-button mdl-js-button mdl-button--icon mdl-button--colored"><i class="material-icons">remove_red_eye</i></a>
+            <a href="#" class="mdl-button mdl-js-button mdl-button--icon mdl-button--colored"><i class="material-icons">cloud_download</i></a>
+            <a href="#" class="mdl-button mdl-js-button mdl-button--icon mdl-button--colored"><i class="material-icons">delete</i></a>
+        </div>
+      </div>
+
+      <div class="mdl-card mdl-shadow--2dp mdl-cell mdl-cell--4-col" id ="sensormetrictemplate">
+        <!--<div class="mdl-card__title">
+          <h3>
+            <div id = "sensormetrictitle" class="mdl-card__title-text mdl-color-text--primary-contrast"></div>
+          </h3>
+          </svg>
+        </div>-->
+        <div class="mdl-card__supporting-text mdl-card--expand mdl-color-text--primary-contrast">
+          <div class="mdl-card__supporting_text_metrics">
+              <div class="mdl-layout-spacer"></div>
+              <span>updated: </span>
+              <span class="updateAgo" id="sensormetricupdated"></span>
+              
+          </div>
+          <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+            <input class="mdl-textfield__input" type="text" id="sensormetriclabel">
+            <label class="mdl-textfield__label" for="sensormetriclabel">Label</label>
+          </div>
+          <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+            <input class="mdl-textfield__input" type="text" id="sensormetricvalue">
+            <label class="mdl-textfield__label" for="sensormetricvalue">Last value</label>
+          </div>
+        </div>
+
+        <div class="mdl-card__actions mdl-card--border">
+          <a href="#" class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-color-text--primary ">Save</a>
+          <div class="mdl-layout-spacer"></div>
+          <a href="#" class="mdl-button mdl-js-button mdl-button--icon mdl-button--colored"><i class="material-icons">location_on</i></a>
+          <a href="#" class="mdl-button mdl-js-button mdl-button--icon mdl-button--colored"><i class="material-icons">insert_chart</i></a>
+          <a href="#" class="mdl-button mdl-js-button mdl-button--icon mdl-button--colored"><i class="material-icons">delete</i></a>
+        </div>
+        </div>
+    </section>
   </div>
 <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" style="position: fixed; left: -1000px; height: -1000px;">
   <defs>
     <mask id="piemask" maskContentUnits="objectBoundingBox">
       <circle cx=0.5 cy=0.5 r=0.49 fill="white" />
       <circle cx=0.5 cy=0.5 r=0.40 fill="black" />
+    </mask>
+    <mask id="circlemask" maskContentUnits="objectBoundingBox">
+      <circle cx=0.5 cy=0.5 r=0.49 fill="white" />
+      <circle cx=0.5 cy=0.5 r=0.45 fill="black" />
     </mask>
     <g id="piechart">
       <circle cx=0.5 cy=0.5 r=0.5 />
@@ -286,116 +422,118 @@
       </g>
       <g id="Layer_5">
         <polygon opacity="0.36" stroke-miterlimit="10" points="0,223.3 48,138.5 154.7,169 211,88.5
-                294.5,80.5 380,165.2 437,75.5 469.5,223.3 	" />
+                  294.5,80.5 380,165.2 437,75.5 469.5,223.3 	" />
       </g>
       <g id="Layer_4">
         <polygon stroke-miterlimit="10" points="469.3,222.7 1,222.7 48.7,166.7 155.7,188.3 212,132.7
-                296.7,128 380.7,184.3 436.7,125 	" />
+                  296.7,128 380.7,184.3 436.7,125 	" />
       </g>
     </g>
   </defs>
 </svg>
 <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" style="position: fixed; left: -1000px; height: -1000px;">
   <defs>
-      <g id ="appbar.thermometer.digital.svg">
-          <path stroke="none" d="M 38,19C 48.4934,19 57,27.5066 57,38C 57,48.4934 48.4934,57 38,57C 27.5066,57 19,48.4934 19,38C 19,27.5066 27.5066,19 38,19 Z M 29.96,32.48L 29.96,34.4L 34.785,34.4L 30.4575,43.4025L 32.305,44.32L 37.48,33.5525L 37.48,32.48L 29.96,32.48 Z M 43.3825,32.16L 38.28,39.6125L 38.28,41.6L 43.4,41.6L 43.4,44L 45.48,44L 45.48,41.6L 46.44,41.6L 46.44,39.68L 45.48,39.68L 45.48,32.16L 43.3825,32.16 Z M 43.4,39.68L 40.72,39.68L 43.4,35.765L 43.4,39.68 Z M 38,21L 36.9537,21.0317L 37.3202,24.0162L 38,24L 38.1914,24.0013L 38.4534,21.0059L 38,21 Z M 52.3348,28.8576L 49.9022,30.625L 50.3388,31.3796L 53.0863,30.1564L 52.3348,28.8576 Z M 53.9247,32.0367L 51.1772,33.26L 51.4465,34.0895L 54.3882,33.4642L 53.9247,32.0367 Z M 54.8142,35.4785L 51.8726,36.1037L 51.9627,36.9706L 54.9693,36.9706L 54.8142,35.4785 Z M 54.9693,39.0294L 51.9627,39.0294L 51.8726,39.8963L 54.8142,40.5216L 54.9693,39.0294 Z M 54.3881,42.5358L 51.4465,41.9106L 51.1772,42.7401L 53.9247,43.9633L 54.3881,42.5358 Z M 53.0862,45.8437L 50.3388,44.6204L 49.9022,45.3751L 52.3348,47.1425L 53.0862,45.8437 Z M 23.6651,47.1425L 26.0978,45.375L 25.6612,44.6205L 22.9137,45.8437L 23.6651,47.1425 Z M 22.0753,43.9633L 24.8228,42.7401L 24.5534,41.9106L 21.6118,42.5359L 22.0753,43.9633 Z M 21.1857,40.5216L 24.1273,39.8963L 24.0372,39.0294L 21.0306,39.0294L 21.1857,40.5216 Z M 21.0306,36.9706L 24.0372,36.9706L 24.1273,36.1037L 21.1857,35.4785L 21.0306,36.9706 Z M 21.6118,33.4642L 24.5534,34.0895L 24.8228,33.26L 22.0753,32.0367L 21.6118,33.4642 Z M 22.9137,30.1564L 25.6612,31.3796L 26.0978,30.625L 23.6651,28.8576L 22.9137,30.1564 Z M 24.8766,27.1929L 27.3092,28.9603L 27.725,28.4907L 25.6745,26.2918L 24.8766,27.1929 Z M 27.1799,24.8874L 29.2305,27.0863L 29.9261,26.5613L 28.3773,23.9837L 27.1799,24.8874 Z M 30.1411,22.9217L 31.6899,25.4993L 32.4799,25.1303L 31.5007,22.2866L 30.1411,22.9217 Z M 33.4474,21.6165L 34.4266,24.4602L 35.2764,24.2648L 34.9099,21.2802L 33.4474,21.6165 Z M 40.328,21.1568L 39.9174,24.1291C 43.3715,24.6021 46.4408,26.3414 48.6218,28.8773L 50.8976,26.9226C 48.2493,23.8432 44.5223,21.7312 40.328,21.1568 Z "/>
+    <g id="appbar.thermometer.digital.svg">
+      <path stroke="none" d="M 38,19C 48.4934,19 57,27.5066 57,38C 57,48.4934 48.4934,57 38,57C 27.5066,57 19,48.4934 19,38C 19,27.5066 27.5066,19 38,19 Z M 29.96,32.48L 29.96,34.4L 34.785,34.4L 30.4575,43.4025L 32.305,44.32L 37.48,33.5525L 37.48,32.48L 29.96,32.48 Z M 43.3825,32.16L 38.28,39.6125L 38.28,41.6L 43.4,41.6L 43.4,44L 45.48,44L 45.48,41.6L 46.44,41.6L 46.44,39.68L 45.48,39.68L 45.48,32.16L 43.3825,32.16 Z M 43.4,39.68L 40.72,39.68L 43.4,35.765L 43.4,39.68 Z M 38,21L 36.9537,21.0317L 37.3202,24.0162L 38,24L 38.1914,24.0013L 38.4534,21.0059L 38,21 Z M 52.3348,28.8576L 49.9022,30.625L 50.3388,31.3796L 53.0863,30.1564L 52.3348,28.8576 Z M 53.9247,32.0367L 51.1772,33.26L 51.4465,34.0895L 54.3882,33.4642L 53.9247,32.0367 Z M 54.8142,35.4785L 51.8726,36.1037L 51.9627,36.9706L 54.9693,36.9706L 54.8142,35.4785 Z M 54.9693,39.0294L 51.9627,39.0294L 51.8726,39.8963L 54.8142,40.5216L 54.9693,39.0294 Z M 54.3881,42.5358L 51.4465,41.9106L 51.1772,42.7401L 53.9247,43.9633L 54.3881,42.5358 Z M 53.0862,45.8437L 50.3388,44.6204L 49.9022,45.3751L 52.3348,47.1425L 53.0862,45.8437 Z M 23.6651,47.1425L 26.0978,45.375L 25.6612,44.6205L 22.9137,45.8437L 23.6651,47.1425 Z M 22.0753,43.9633L 24.8228,42.7401L 24.5534,41.9106L 21.6118,42.5359L 22.0753,43.9633 Z M 21.1857,40.5216L 24.1273,39.8963L 24.0372,39.0294L 21.0306,39.0294L 21.1857,40.5216 Z M 21.0306,36.9706L 24.0372,36.9706L 24.1273,36.1037L 21.1857,35.4785L 21.0306,36.9706 Z M 21.6118,33.4642L 24.5534,34.0895L 24.8228,33.26L 22.0753,32.0367L 21.6118,33.4642 Z M 22.9137,30.1564L 25.6612,31.3796L 26.0978,30.625L 23.6651,28.8576L 22.9137,30.1564 Z M 24.8766,27.1929L 27.3092,28.9603L 27.725,28.4907L 25.6745,26.2918L 24.8766,27.1929 Z M 27.1799,24.8874L 29.2305,27.0863L 29.9261,26.5613L 28.3773,23.9837L 27.1799,24.8874 Z M 30.1411,22.9217L 31.6899,25.4993L 32.4799,25.1303L 31.5007,22.2866L 30.1411,22.9217 Z M 33.4474,21.6165L 34.4266,24.4602L 35.2764,24.2648L 34.9099,21.2802L 33.4474,21.6165 Z M 40.328,21.1568L 39.9174,24.1291C 43.3715,24.6021 46.4408,26.3414 48.6218,28.8773L 50.8976,26.9226C 48.2493,23.8432 44.5223,21.7312 40.328,21.1568 Z "
+      />
+    </g>
+    <g id="appbar.weather.symbol.svg">
+      <path stroke="none" d="M 17.4167,31.6667C 19.1656,31.6667 20.5833,33.0844 20.5833,34.8333C 20.5833,36.5822 19.1656,38 17.4167,38C 15.6678,38 14.25,36.5822 14.25,34.8333C 14.25,33.0844 15.6678,31.6667 17.4167,31.6667 Z M 12.6667,39.5834C 14.4156,39.5834 15.8333,41.0011 15.8333,42.75C 15.8333,44.4989 14.4156,45.9167 12.6667,45.9167C 10.9178,45.9167 9.49999,44.4989 9.49999,42.75C 9.49999,41.0011 10.9178,39.5834 12.6667,39.5834 Z M 23.75,39.5834C 25.4989,39.5834 26.9166,41.0011 26.9166,42.75C 26.9166,44.4989 25.4989,45.9167 23.75,45.9167C 22.0011,45.9167 20.5833,44.4989 20.5833,42.75C 20.5833,41.0011 22.0011,39.5834 23.75,39.5834 Z M 23.8485,49.2153L 23.8485,51.3581L 19.6944,51.3581L 19.458,52.9479L 20.1673,52.915L 21.7021,53.0975C 22.1946,53.2209 22.6256,53.417 22.995,53.6858C 23.3932,53.9555 23.7039,54.3186 23.927,54.775C 24.1501,55.2315 24.2635,55.7868 24.2672,56.4408C 24.2581,57.513 23.8576,58.4205 23.0654,59.1632C 22.2733,59.906 21.144,60.2932 19.6775,60.325L 17.8766,60.1333L 16.6205,59.7014L 17.0934,57.7679L 18.13,58.1342L 19.5593,58.3195C 20.1163,58.3227 20.6153,58.187 21.0562,57.9123C 21.4971,57.6376 21.73,57.2046 21.755,56.6132C 21.7634,56.0304 21.5227,55.5758 21.0329,55.2494C 20.5431,54.923 19.7535,54.7571 18.6641,54.7517L 17.8661,54.7776L 17.1947,54.8552L 17.9041,49.2153L 23.8485,49.2153 Z M 33.0734,49.0306L 33.0734,51.0024L 32.1109,51.0361C 30.9489,51.1443 30.076,51.4394 29.4922,51.9215C 28.9084,52.4035 28.5472,52.9676 28.4086,53.6138L 28.4614,53.6138C 29.025,53.0564 29.8351,52.7693 30.8918,52.7524C 31.8355,52.7583 32.622,53.0716 33.2514,53.6921C 33.8806,54.3127 34.2074,55.2049 34.2316,56.3687C 34.2142,57.504 33.8453,58.4407 33.1249,59.1787C 32.4045,59.9167 31.437,60.2988 30.2226,60.325C 28.7261,60.2919 27.6154,59.8257 26.8904,58.9263C 26.1654,58.0269 25.8047,56.893 25.8083,55.5243C 25.8149,54.48 25.9889,53.5446 26.3303,52.7181C 26.6717,51.8916 27.141,51.2017 27.7383,50.6485C 28.8564,49.6597 30.3031,49.126 32.0783,49.0474L 33.0734,49.0306 Z M 30.1874,58.4883C 30.6596,58.4769 31.0316,58.2887 31.3034,57.924C 31.5753,57.5592 31.7139,57.0868 31.7194,56.5066C 31.7198,55.9738 31.5782,55.5229 31.2946,55.1538C 31.011,54.7847 30.5832,54.5923 30.0112,54.5765C 29.6454,54.583 29.3248,54.6778 29.0492,54.8609C 28.7737,55.044 28.5719,55.2766 28.4438,55.5588L 28.3205,56.2309C 28.3444,56.8451 28.508,57.37 28.8115,57.8055C 29.1149,58.241 29.5735,58.4686 30.1874,58.4883 Z M 22.2652,17.5486L 22.2652,19.6914L 18.1111,19.6914L 17.8746,21.2813L 18.584,21.2484L 20.1188,21.4308C 20.6113,21.5542 21.0422,21.7503 21.4117,22.0192C 21.8099,22.2888 22.1206,22.6519 22.3437,23.1084C 22.5668,23.5649 22.6802,24.1201 22.6839,24.7742C 22.6748,25.8464 22.2742,26.7538 21.4821,27.4966C 20.69,28.2393 19.5607,28.6266 18.0942,28.6584L 16.2933,28.4666L 15.0371,28.0348L 15.51,26.1013L 16.5467,26.4675L 17.976,26.6528C 18.533,26.656 19.0319,26.5203 19.4728,26.2456C 19.9137,25.9709 20.1467,25.5379 20.1717,24.9465C 20.1801,24.3637 19.9394,23.9091 19.4496,23.5827C 18.9598,23.2563 18.1702,23.0904 17.0808,23.085L 16.2828,23.1109L 15.6114,23.1885L 16.3208,17.5486L 22.2652,17.5486 Z M 24.5628,17.5486L 32.3105,17.5486L 32.3105,19.1943L 27.7868,28.4895L 25.0692,28.4895L 29.5929,19.7248L 29.5929,19.6914L 24.5628,19.6914L 24.5628,17.5486 Z M 46.8081,41.7758C 46.4057,42.7237 45.8675,43.5724 45.2257,44.3088L 55.1921,55.7738L 52.8022,57.8513L 49.2173,60.9676L 47.1398,58.5777L 50.7246,55.4614L 42.7734,46.3146C 40.2864,47.7319 37.1898,48.0135 34.3513,46.8086C 29.5217,44.7586 27.2684,39.1815 29.3185,34.3519C 31.3685,29.5223 36.9456,27.269 41.7752,29.319C 46.6048,31.3691 48.8581,36.9462 46.8081,41.7758 Z M 44.6219,40.8478C 46.1594,37.2256 44.4695,33.0428 40.8472,31.5052C 37.225,29.9677 33.0422,31.6577 31.5047,35.2799C 29.9672,38.9021 31.6571,43.0849 35.2793,44.6224C 38.9015,46.16 43.0843,44.47 44.6219,40.8478 Z M 51.1839,38.3167L 55.5539,38.3167L 55.5539,39.9845L 51.1839,39.9845L 51.1839,38.3167 Z M 63.8534,32.4056L 63.8534,34.3774L 62.8909,34.4111C 61.7289,34.5193 60.856,34.8144 60.2722,35.2965C 59.6884,35.7785 59.3272,36.3426 59.1886,36.9888L 59.2414,36.9888C 59.805,36.4314 60.6151,36.1443 61.6718,36.1274C 62.6155,36.1333 63.4021,36.4466 64.0314,37.0671C 64.6607,37.6877 64.9874,38.5799 65.0117,39.7437C 64.9942,40.879 64.6253,41.8156 63.9049,42.5537C 63.1845,43.2917 62.217,43.6738 61.0026,43.7C 59.5061,43.6669 58.3954,43.2007 57.6704,42.3013C 56.9454,41.4019 56.5847,40.2679 56.5883,38.8993C 56.5949,37.855 56.7689,36.9196 57.1103,36.0931C 57.4517,35.2666 57.921,34.5767 58.5183,34.0235C 59.6364,33.0347 61.0831,32.501 62.8583,32.4224L 63.8534,32.4056 Z M 60.9674,41.8633C 61.4396,41.8519 61.8116,41.6637 62.0834,41.299C 62.3553,40.9342 62.4939,40.4618 62.4994,39.8816C 62.4998,39.3488 62.3582,38.8979 62.0746,38.5288C 61.791,38.1597 61.3633,37.9673 60.7912,37.9515C 60.4254,37.958 60.1048,38.0528 59.8292,38.2359C 59.5537,38.419 59.3519,38.6516 59.2238,38.9338L 59.1005,39.6059C 59.1244,40.2201 59.288,40.745 59.5915,41.1805C 59.8949,41.616 60.3535,41.8436 60.9674,41.8633 Z M 45.0404,28.6584L 45.0404,26.8217L 45.5271,26.8392L 46.1385,26.8217L 47.3267,26.6052L 48.3616,26.1073C 48.7398,25.8444 49.0499,25.5307 49.292,25.1662C 49.5341,24.8017 49.7038,24.4099 49.801,23.9907L 49.766,23.9739C 49.2628,24.4918 48.4962,24.7564 47.4663,24.7677C 46.5032,24.7594 45.7007,24.455 45.0588,23.8544C 44.4168,23.2538 44.0835,22.4064 44.0588,21.3123C 44.0782,20.195 44.4637,19.2647 45.2155,18.5214C 45.9673,17.7782 46.9692,17.3924 48.2212,17.364C 49.6254,17.3983 50.6599,17.8617 51.3247,18.7543C 51.9895,19.647 52.319,20.7629 52.3133,22.1022C 52.3082,23.2583 52.1452,24.2671 51.8241,25.1285C 51.503,25.9898 51.0541,26.6995 50.4774,27.2575C 49.9587,27.6933 49.3345,28.028 48.6046,28.2615C 47.8748,28.495 47.0694,28.6273 46.1884,28.6584L 45.5645,28.6774L 45.0404,28.6584 Z M 48.1159,19.2006C 47.6598,19.2092 47.2904,19.3894 47.0077,19.7414C 46.725,20.0933 46.5795,20.5654 46.571,21.1578C 46.5714,21.6529 46.7067,22.0707 46.977,22.4113C 47.2473,22.7518 47.6503,22.9293 48.1861,22.9436C 48.5555,22.9382 48.8656,22.8674 49.1165,22.7311C 49.3674,22.5948 49.5546,22.4252 49.6782,22.2224L 49.801,21.5527C 49.8158,20.9364 49.6927,20.3963 49.4319,19.9324C 49.1711,19.4685 48.7324,19.2246 48.1159,19.2006 Z M 55.553,22.8169L 55.553,22.7832C 55.0407,22.5001 54.6576,22.1496 54.4037,21.7318C 54.1497,21.314 54.0229,20.8626 54.0233,20.3776C 54.0444,19.4507 54.4049,18.7195 55.1047,18.1839C 55.8044,17.6484 56.7165,17.375 57.841,17.364C 59.1107,17.3958 60.0294,17.6883 60.5971,18.2413C 61.1649,18.7944 61.4436,19.4167 61.4333,20.1084C 61.436,20.5871 61.3076,21.0386 61.048,21.4626C 60.7884,21.8867 60.3811,22.2372 59.8261,22.5141L 59.8261,22.5645C 60.3609,22.7668 60.8147,23.0941 61.1875,23.5466C 61.5603,23.999 61.7548,24.5745 61.771,25.273C 61.7584,26.2859 61.3825,27.0968 60.6434,27.7056C 59.9042,28.3145 58.8776,28.6268 57.5636,28.6426C 56.1633,28.6069 55.1369,28.2785 54.4844,27.6576C 53.8319,27.0366 53.5093,26.3371 53.5166,25.559C 53.5419,24.2496 54.2207,23.3356 55.553,22.8169 Z M 57.6707,26.8376C 58.1506,26.8292 58.5336,26.6988 58.8194,26.4464C 59.1053,26.1941 59.2518,25.8702 59.2588,25.4749C 59.2488,24.9972 59.077,24.611 58.7436,24.3162C 58.4101,24.0215 57.9751,23.8077 57.4387,23.6749C 56.9895,23.7965 56.643,23.999 56.3991,24.2826C 56.1552,24.5661 56.0318,24.9075 56.0288,25.3067C 56.0265,25.7164 56.1709,26.0704 56.4622,26.3686C 56.7534,26.6669 57.1562,26.8232 57.6707,26.8376 Z M 57.7196,19.0317C 57.2686,19.0422 56.9303,19.1684 56.7048,19.4102C 56.4794,19.6521 56.3666,19.9465 56.3666,20.2935C 56.376,20.6622 56.5263,20.9678 56.8176,21.2103C 57.1089,21.4528 57.4847,21.6407 57.9451,21.7739C 58.2584,21.6848 58.5251,21.518 58.7452,21.2734C 58.9653,21.0287 59.0802,20.7358 59.0899,20.3944C 59.0935,20.0358 58.9866,19.7225 58.769,19.4544C 58.5515,19.1863 58.2017,19.0454 57.7196,19.0317 Z "
+      />
+    </g>
+    <g id="appbar.weather.station.svg">
+      <path stroke="none" d="M 49.0833,20.5834C 53.4555,20.5834 57,24.1279 57,28.5001C 57,32.8723 53.4557,36.4166 49.0511,36.4167L 22.9583,36.4168C 20.7722,36.4167 19,34.6445 19,32.4584C 19,30.5201 20.3931,28.9072 22.2328,28.5664L 22.1667,27.7083C 22.1667,24.7327 24.5123,22.3047 27.4553,22.1723C 28.7579,18.4796 32.2783,15.8333 36.4167,15.8333C 40.3459,15.8333 43.7179,18.2187 45.1637,21.6203C 46.3193,20.9604 47.6573,20.5834 49.0833,20.5834 Z M 20.5833,58.5833L 20.5833,44.3333L 34.8333,42.75L 34.8333,58.5833L 20.5833,58.5833 Z M 23.75,55.4167L 26.9166,55.4167L 26.9166,52.25L 23.75,52.25L 23.75,55.4167 Z M 28.5,55.4167L 31.6667,55.4167L 31.6667,52.25L 28.5,52.25L 28.5,55.4167 Z M 23.75,50.6667L 26.9167,50.6667L 26.9167,47.5L 23.75,47.5L 23.75,50.6667 Z M 28.5,50.6667L 31.6667,50.6667L 31.6667,47.5L 28.5,47.5L 28.5,50.6667 Z M 36.4167,45.9167L 41.1667,47.3417L 41.1667,39.5833L 42.75,39.5833L 42.75,47.8167L 52.25,50.6667L 52.25,58.5833L 36.4167,58.5833L 36.4167,45.9167 Z M 39.5833,55.4167L 42.75,55.4167L 42.75,52.25L 39.5833,52.25L 39.5833,55.4167 Z M 44.3333,55.4167L 47.5,55.4167L 47.5,52.25L 44.3333,52.25L 44.3333,55.4167 Z M 49.0833,39.5834L 55.4166,41.9584L 49.0833,44.3334L 44.3333,44.3333L 44.3333,39.5833L 49.0833,39.5834 Z "
+      />
+    </g>
+    <g id="appbar.shield.alert.svg">
+      <path stroke="none" d="M 54.8392,24.4749C 55.3507,24.2457 55.8111,24.1311 56.2202,24.1311C 56.6172,24.1311 56.966,24.2232 57.2668,24.4073C 57.5675,24.5915 57.8171,24.8339 58.0156,25.1347L 58.4575,26.1536L 58.6017,27.2737C 58.6017,29.6143 58.4667,31.8014 58.1966,33.8351C 57.9266,35.8688 57.5522,37.7644 57.0734,39.5218C 56.5947,41.2793 56.0289,42.8997 55.3763,44.383C 54.7236,45.8663 54.0167,47.232 53.2556,48.4801C 52.4946,49.7281 51.6925,50.8636 50.8496,51.8866C 50.0067,52.9095 49.1556,53.8302 48.2963,54.6486C 45.2682,57.5252 41.8351,59.6285 37.9969,60.9583C 34.1505,59.6285 30.7174,57.5252 27.6976,54.6486C 26.4086,53.421 25.1463,51.9633 23.9105,50.2754C 22.6748,48.5875 21.5751,46.6244 20.6114,44.3861C 19.6478,42.1478 18.8713,39.616 18.2821,36.7905C 17.6929,33.965 17.3982,30.7928 17.3982,27.2737L 17.5609,26.1413L 18.0397,25.1439C 18.2504,24.8493 18.5123,24.613 18.8253,24.435C 19.1383,24.257 19.4933,24.168 19.8902,24.168C 20.2871,24.168 20.7106,24.2703 21.1608,24.4749C 22.196,24.9495 23.1484,25.2851 24.0179,25.4815C 24.8875,25.6779 25.6925,25.7761 26.4332,25.7761C 27.4193,25.7761 28.3052,25.6298 29.0909,25.3372C 29.8765,25.0447 30.5987,24.6743 31.2575,24.2263L 33.0805,22.787L 34.7009,21.3476L 36.2906,20.2336C 36.8266,19.939 37.3954,19.7917 37.9969,19.7917C 38.6107,19.7917 39.1866,19.939 39.7247,20.2336L 41.3175,21.3476L 42.9471,22.787L 44.7701,24.2263C 45.4227,24.6743 46.1419,25.0447 46.9275,25.3372C 47.7132,25.6298 48.5991,25.7761 49.5852,25.7761C 50.3258,25.7761 51.1279,25.6779 51.9913,25.4815C 52.8546,25.2851 53.804,24.9495 54.8392,24.4749 Z M 40.0101,45.5339L 41.1088,30.0726L 34.9096,30.0726L 36.0021,45.5339L 40.0101,45.5339 Z M 38,49.0444C 36.0857,49.0444 34.9672,50.5962 34.9672,52.5105C 34.9672,54.4247 36.0857,55.9766 38,55.9766C 39.9143,55.9766 41.0328,54.4247 41.0328,52.5105C 41.0328,50.5962 39.9143,49.0444 38,49.0444 Z "
+      />
+    </g>
+    <g id="appbar.man.sensor.svg">
+      <path stroke="none" d="M 44.4519,19C 47.6019,19 50.1556,21.5536 50.1556,24.7037C 50.1556,27.8538 47.6019,30.4074 44.4519,30.4074C 41.3018,30.4074 38.7482,27.8538 38.7482,24.7037C 38.7482,21.5536 41.3018,19 44.4519,19 Z M 38.7482,38.3926C 37.9877,38.7728 36.4667,41.8148 36.4667,41.8148C 36.4667,41.8148 35.7062,42.9555 35.3259,47.5185L 31.9037,46.3777L 33.0445,40.6741C 33.0445,40.6741 35.3259,32.6889 39.8889,32.689L 49.0147,32.689C 53.5778,32.6889 55.8593,40.6741 55.8593,40.6741L 57,46.3778L 53.5778,47.5185C 53.1975,42.9556 52.4371,41.8148 52.4371,41.8148C 52.4371,41.8148 50.9161,38.7728 50.1556,38.3926L 50.6165,48.7524C 48.8824,49.4288 46.9957,49.8 45.0222,49.8C 42.6167,49.8 40.3399,49.2485 38.3116,48.2649L 38.7482,38.3926 Z M 24,37L 23,37.0328L 23,35.0289L 24,35C 27.1225,35 30.0483,35.8418 32.563,37.3109L 31.9148,39.2557C 29.6174,37.8259 26.9051,37 24,37 Z M 38.9672,53L 39,52L 38.9368,50.614L 40.0688,50.9929L 40.8955,53L 38.9672,53 Z M 26,57L 19,57L 19,50L 23,50C 24.6568,50 26,51.3432 26,53L 26,57 Z M 23.5,45C 27.6421,45 31,48.3579 31,52.5L 30.9836,53L 28.9775,53L 28.9999,52.5001C 28.9999,49.4625 26.5375,47.0001 23.4999,47.0001L 23,47.0225L 23,45.0164L 23.5,45 Z M 24,40C 26.6829,40 29.1603,40.8805 31.1588,42.3684L 30.9932,44.852C 29.19,43.0876 26.722,42 24,42L 23,42.0494L 23,40.0411L 24,40 Z M 36,52L 35.9589,53L 33.9506,53L 34,52C 34,50.9105 33.8257,49.8616 33.5035,48.8798L 35.6663,49.1781C 35.8844,50.0831 36,51.0281 36,52 Z "
+      />
+      <!-- <path stroke="none" d="M 26,57L 19,57L 19,50L 23,50C 24.6568,50 26,51.3432 26,53L 26,57 Z M 23.5,45C 27.6421,45 31,48.3579 31,52.5L 30.9836,53L 28.9776,53L 29,52.5C 29,49.4625 26.5375,47 23.5,47L 23,47.0224L 23,45.0164L 23.5,45 Z M 43.5,19C 45.433,19 47,20.567 47,22.5C 47,24.433 45.433,26 43.5,26C 41.567,26 40,24.433 40,22.5C 40,20.567 41.567,19 43.5,19 Z M 36.75,55.2209L 38.4647,47.154C 38.5041,46.9684 38.8109,46.0471 39.0207,45.797L 44.23,39.5889L 42.7531,32.7419L 41.5158,35.3954C 41.1532,36.1029 40.9041,36.3981 40.5494,36.5486L 35.6391,38.633C 35.0036,38.9027 34.2698,38.6062 34,37.9708C 33.7303,37.3353 34.0268,36.6015 34.6623,36.3317L 39.2256,34.3947L 39.25,34.3389L 42.0009,28.4396C 42.25,27 43.6744,26.2501 45.375,26.2501C 46.3083,26.2501 47.6237,26.9014 47.6984,26.9412L 54.4861,30.5655C 54.9024,30.7878 55.2031,31.8095 55.2193,31.8935L 56.25,37.2419C 56.3807,37.9198 55.937,38.5752 55.2592,38.7058C 54.5813,38.8365 53.9258,38.3929 53.7952,37.715L 52.7889,32.4934L 49.0335,30.4882C 50.0263,34.7979 50.6748,37.8357 50.7209,38.1631L 51.7517,46.3058L 57,54.4163C 57.4512,55.1111 57.2537,56.0401 56.5589,56.4913C 55.8642,56.9425 54.9352,56.745 54.484,56.0502L 49.4543,48.3053C 49.309,48.0815 48.8287,47.0638 48.7809,46.7234L 47.9905,41.0999L 46.5403,41.5027L 41.4263,47.5974L 41.3991,47.7778L 39.6845,55.8446C 39.5122,56.655 38.7157,57.1722 37.9054,57C 37.0951,56.8277 36.5778,56.0312 36.75,55.2209 Z M 24,40C 30.6274,40 36,45.3726 36,52L 35.9589,53L 33.9506,53L 34,52C 34,46.4772 29.5228,42 24,42L 23,42.0494L 23,40.0411L 24,40 Z M 24,37L 23,37.0328L 23,35.0289L 24,35C 26.7823,35 29.4086,35.6684 31.7269,36.8535C 31.5807,37.2067 31.5,37.5939 31.5,38C 31.5,38.4031 31.5795,38.7876 31.7237,39.1387C 29.4676,37.7809 26.825,37 24,37 Z M 38.8398,43.7003L 37.4761,45.4049C 36.6559,43.7321 35.5335,42.2345 34.1799,40.9831L 34.5,41C 35.2089,41 35.8605,40.7541 36.3739,40.3429C 37.3261,41.3533 38.156,42.4804 38.8398,43.7003 Z "/> -->
+    </g>
+    <g id="appbar.battery.0.svg">
+      <path stroke="null" d="m32.1629,2.3277l16.00903,0l0,5.52121l12.00678,0l0,66.2545l-40.02258,0l0,-66.2545l12.00678,0l0,-5.52121l-0.00001,0zm-4.00226,64.4141l24.01355,0l0,-51.53128l-24.01355,0l0,51.53128z"
+      />
+    </g>
+    <g id="appbar.battery.1.svg">
+      <path stroke="null" d="m32.175,2.14719l15.9,0l0,5.53504l11.925,0l0,66.42056l-39.75,0l0,-66.42056l11.925,0l0,-5.53504zm-3.975,64.57555l23.85,0l0,-51.66043l-23.85,0l0,51.66043zm21.8625,-1.84501l-19.875,0l0,-9.22507l19.875,-9.22507l0,18.45016l0,-0.00001z"
+      />
+    </g>
+    <g id="appbar.battery.2.svg">
+      <path stroke="null" d="m32.1875,2.35922l15.75,0l0,5.50826l11.8125,0l0,66.09921l-39.375,0l0,-66.09921l11.8125,0l0,-5.50826zm-3.9375,64.26313l23.625,0l0,-51.41049l-23.625,0l0,51.41049zm21.65625,-1.83608l-19.6875,0l0,-9.18044l19.6875,-9.18044l0,18.36089l0,-0.00001zm-19.6875,-11.93458l0,-14.68872l19.6875,-9.18044l0,14.68872l-19.6875,9.18044z"
+      />
+    </g>
+    <g id="appbar.battery.3.svg">
+      <path stroke="null" d="m31.9625,2.125l15.95,0l0,5.52749l11.9625,0l0,66.32982l-39.875,0l0,-66.32982l11.9625,0l0,-5.52749zm-3.9875,64.48734l23.925,0l0,-51.58987l-23.925,0l0,51.58987zm21.93125,-1.8425l-19.9375,0l0,-9.21248l19.9375,-9.21248l0,18.42495l0,0.00001zm-19.9375,-11.97622l0,-14.73996l19.9375,-9.21248l0,14.73996l-19.9375,9.21248zm0,-35.92866l19.9375,0l0,9.21248l-19.9375,9.21248l0,-18.42495l0,-0.00001z"
+      />
+    </g>
+    <g id="appbar.battery.charging.svg">
+      <path stroke="null" d="m43.34477,37.09038l16.53023,0l0,7.36113l-16.53023,0l0,3.68057c0,3.04916 -2.22018,5.52085 -4.95907,5.52085l-11.57116,0l0,-5.52085l-6.61209,0l0,-5.52085l6.61209,0l0,-3.68057l-6.61209,0l0,-5.52085l6.61209,0l0,-5.52085l11.57116,0c2.73889,0 4.95907,2.47187 4.95907,5.52085l0,3.68057zm-6.61209,-34.96538l13.22419,0l0,5.52085l9.91814,0l0,27.60424l-6.61209,0l0,-20.24311l-19.83628,0l0,11.0417l-6.61209,0l0,-18.40283l9.91814,0l0,-5.52085l-0.00001,-0.00001zm-3.30605,64.40991l19.83628,0l0,-20.24311l6.61209,0l0,27.60424l-33.06047,0l0,-18.40283l6.61209,0l0,11.0417l0.00001,-0.00001z"
+      />
+    </g>
+    <g id="appbar.connection.quality.extremelylow.svg">
+      <path fill-opacity="0.40392" d="m2.08092,73.81897l0,-11.4061l11.50094,0l0,11.4061l-11.50094,0zm72.83929,-72.23862l0,72.23862l-11.50094,0l0,-72.23862l11.50094,0zm-15.33459,15.20813l0,57.03049l-11.50094,0l0,-57.03049l11.50094,0zm-15.33459,15.20813l0,41.82236l-11.50094,0l0,-41.82236l11.50094,0zm-15.33459,17.10915l0,24.71321l-11.50094,0l0,-24.71321l11.50094,0z"
+      />
+    </g>
+    <g id="appbar.connection.quality.high.svg">
+      <path d="m43.83829,32.10551l0,42.2474l-11.54309,0l0,-42.2474l11.54309,0zm-15.39079,17.28303l0,24.96437l-11.54309,0l0,-24.96437l11.54309,0zm-26.93389,24.96437l0,-11.52202l11.54309,0l0,11.52202l-11.54309,0zm57.71547,-57.61009l0,57.61009l-11.54309,0l0,-57.61009l11.54309,0z"
+      />
+      <path sfill-opacity="0.40392" d="m74.61987,1.38013l0,72.97278l-11.54309,0l0,-72.97278l11.54309,0z" />
+    </g>
+    <g id="appbar.connection.quality.low.svg">
+      <path stroke="null" fill-opacity="0.40392" d="m75.22055,0.77945l0,74.34099l-11.73805,0l0,-74.34099l11.73805,0zm-15.65073,15.65073l0,58.69025l-11.73805,0l0,-58.69025l11.73805,0zm-15.65073,15.65073l0,43.03952l-11.73805,0l0,-43.03952l11.73805,0z"
+      />
+      <path stroke="null" d="m0.87956,75.12044l0,-11.73805l11.73805,0l0,11.73805l-11.73805,0zm27.38878,-25.43244l0,25.43244l-11.73805,0l0,-25.43244l11.73805,0z"
+      />
+    </g>
+    <g id="appbar.connection.quality.medium.svg">
+      <path stroke="null" fill-opacity="0.40392" d="m75.32066,0.87956l0,74.24087l-11.73805,0l0,-74.24087l11.73805,0zm-15.65073,15.62966l0,58.61122l-11.73805,0l0,-58.61122l11.73805,0z"
+      />
+      <path stroke="null" d="m28.36846,49.72224l0,25.39819l-11.73805,0l0,-25.39819l11.73805,0zm-27.38878,25.39819l0,-11.72224l11.73805,0l0,11.72224l-11.73805,0zm43.03952,-42.98156l0,42.98156l-11.73805,0l0,-42.98156l11.73805,0z"
+      />
+    </g>
+    <g id="appbar.connection.quality.veryhigh.svg">
+      <path stroke="null" d="m43.88747,32.21265l0,42.80768l-11.67482,0l0,-42.80768l11.67482,0zm-15.56643,17.51223l0,25.29545l-11.67482,0l0,-25.29545l11.67482,0zm-27.24125,25.29545l0,-11.67482l11.67482,0l0,11.67482l-11.67482,0zm73.94053,-73.94053l0,73.94053l-11.67482,0l0,-73.94053l11.67482,0zm-15.56643,15.56643l0,58.37411l-11.67482,0l0,-58.37411l11.67482,0z"
+      />
+    </g>
+    <g id="appbar.connection.quality.verylow.svg">
+      <path stroke="null" d="m0.77945,75.12044l0,-11.73805l11.73805,0l0,11.73805l-11.73805,0z" />
+      <path stroke="null" fill-opacity="0.40392" d="m75.12044,0.77945l0,74.34099l-11.73805,0l0,-74.34099l11.73805,0zm-15.65073,15.65073l0,58.69025l-11.73805,0l0,-58.69025l11.73805,0zm-15.65073,15.65073l0,43.03952l-11.73805,0l0,-43.03952l11.73805,0zm-15.65073,17.60708l0,25.43244l-11.73805,0l0,-25.43244l11.73805,0z"
+      />
+    </g>
+    <g id="appbar.home.logo.512.svg">
+      <title>Avatar</title>
+      <g stroke="null" id="svg_4">
+        <path stroke="null" id="svg_1" d="m116.39746,431.07461l0,-186.07461l-19.94228,20.67518l-29.91443,-51.68744l189.45874,-155.06235l189.45975,155.06235l-29.91542,51.68744l-19.94228,-20.67518l0,186.07461l-279.20408,0zm139.60203,-300.64865l-109.6866,93.89885l0,175.73757l219.37321,0l0,-175.73757l-109.6866,-93.89885l-0.00001,0z"
+        />
+        <path stroke="null" id="svg_2" d="m243.31341,180.17206c29.46012,0 53.34205,14.90451 53.34205,33.29067c0,11.65955 -9.60466,21.91931 -24.14564,27.8655c3.09995,6.03416 8.54217,12.67057 13.98433,21.02921c-11.31744,-3.98104 -28.2388,-7.83049 -38.28008,-15.74281l-4.90066,0.13875c-29.45977,0 -53.3417,-14.90478 -53.3417,-33.29067c0,-18.38617 23.88193,-33.29067 53.3417,-33.29067l0,0.00002zm12.70045,79.38514c0,15.5575 -18.19558,28.1692 -40.64123,28.1692l-3.08908,-0.08023c-8.26174,7.70922 -19.72743,15.44525 -32.4722,15.44525c2.96777,-5.98437 9.40351,-11.96841 13.22916,-19.99525c-11.02999,-5.03704 -18.30947,-13.69876 -18.30947,-23.53903c0,-9.83607 7.27401,-18.49482 18.29696,-23.5332c9.4356,9.37745 26.15421,15.61088 45.20599,15.61088l4.90066,-0.13875c3.59463,2.83288 8.07152,5.14473 12.85736,7.12868l0.02181,0.93242l0.00005,0.00005l-0.00002,0l0.00001,-0.00002z"
+        />
+        <path stroke="null" id="svg_3" d="m340.74081,358.23995c7.48737,0 13.55734,6.51749 13.55734,14.55688c0,8.03939 -6.06993,14.55688 -13.55734,14.55688c-7.48737,0 -13.55734,-6.51749 -13.55734,-14.55688c0,-8.03939 6.06993,-14.55688 13.55734,-14.55688zm13.55734,-90.98042c-61.77194,0 -111.84792,53.76796 -111.84792,120.09411l-16.94666,0c0,-76.3755 57.66337,-138.2902 128.79458,-138.2902l0,18.19609zm0,36.39214c-43.05334,0 -77.95461,37.47483 -77.95461,83.70199l-16.94666,0c0,-56.27684 42.48866,-101.89808 94.90127,-101.89808l0,18.19609zm0,36.39214c-24.33437,0 -44.0613,21.18134 -44.0613,47.30978l-16.94666,0c0,-36.17783 27.31426,-65.50587 61.00795,-65.50587l0,18.19609l0.00002,0l-0.00001,0z"
+        />
       </g>
-      <g id ="appbar.weather.symbol.svg">
-          <path stroke="none"  d="M 17.4167,31.6667C 19.1656,31.6667 20.5833,33.0844 20.5833,34.8333C 20.5833,36.5822 19.1656,38 17.4167,38C 15.6678,38 14.25,36.5822 14.25,34.8333C 14.25,33.0844 15.6678,31.6667 17.4167,31.6667 Z M 12.6667,39.5834C 14.4156,39.5834 15.8333,41.0011 15.8333,42.75C 15.8333,44.4989 14.4156,45.9167 12.6667,45.9167C 10.9178,45.9167 9.49999,44.4989 9.49999,42.75C 9.49999,41.0011 10.9178,39.5834 12.6667,39.5834 Z M 23.75,39.5834C 25.4989,39.5834 26.9166,41.0011 26.9166,42.75C 26.9166,44.4989 25.4989,45.9167 23.75,45.9167C 22.0011,45.9167 20.5833,44.4989 20.5833,42.75C 20.5833,41.0011 22.0011,39.5834 23.75,39.5834 Z M 23.8485,49.2153L 23.8485,51.3581L 19.6944,51.3581L 19.458,52.9479L 20.1673,52.915L 21.7021,53.0975C 22.1946,53.2209 22.6256,53.417 22.995,53.6858C 23.3932,53.9555 23.7039,54.3186 23.927,54.775C 24.1501,55.2315 24.2635,55.7868 24.2672,56.4408C 24.2581,57.513 23.8576,58.4205 23.0654,59.1632C 22.2733,59.906 21.144,60.2932 19.6775,60.325L 17.8766,60.1333L 16.6205,59.7014L 17.0934,57.7679L 18.13,58.1342L 19.5593,58.3195C 20.1163,58.3227 20.6153,58.187 21.0562,57.9123C 21.4971,57.6376 21.73,57.2046 21.755,56.6132C 21.7634,56.0304 21.5227,55.5758 21.0329,55.2494C 20.5431,54.923 19.7535,54.7571 18.6641,54.7517L 17.8661,54.7776L 17.1947,54.8552L 17.9041,49.2153L 23.8485,49.2153 Z M 33.0734,49.0306L 33.0734,51.0024L 32.1109,51.0361C 30.9489,51.1443 30.076,51.4394 29.4922,51.9215C 28.9084,52.4035 28.5472,52.9676 28.4086,53.6138L 28.4614,53.6138C 29.025,53.0564 29.8351,52.7693 30.8918,52.7524C 31.8355,52.7583 32.622,53.0716 33.2514,53.6921C 33.8806,54.3127 34.2074,55.2049 34.2316,56.3687C 34.2142,57.504 33.8453,58.4407 33.1249,59.1787C 32.4045,59.9167 31.437,60.2988 30.2226,60.325C 28.7261,60.2919 27.6154,59.8257 26.8904,58.9263C 26.1654,58.0269 25.8047,56.893 25.8083,55.5243C 25.8149,54.48 25.9889,53.5446 26.3303,52.7181C 26.6717,51.8916 27.141,51.2017 27.7383,50.6485C 28.8564,49.6597 30.3031,49.126 32.0783,49.0474L 33.0734,49.0306 Z M 30.1874,58.4883C 30.6596,58.4769 31.0316,58.2887 31.3034,57.924C 31.5753,57.5592 31.7139,57.0868 31.7194,56.5066C 31.7198,55.9738 31.5782,55.5229 31.2946,55.1538C 31.011,54.7847 30.5832,54.5923 30.0112,54.5765C 29.6454,54.583 29.3248,54.6778 29.0492,54.8609C 28.7737,55.044 28.5719,55.2766 28.4438,55.5588L 28.3205,56.2309C 28.3444,56.8451 28.508,57.37 28.8115,57.8055C 29.1149,58.241 29.5735,58.4686 30.1874,58.4883 Z M 22.2652,17.5486L 22.2652,19.6914L 18.1111,19.6914L 17.8746,21.2813L 18.584,21.2484L 20.1188,21.4308C 20.6113,21.5542 21.0422,21.7503 21.4117,22.0192C 21.8099,22.2888 22.1206,22.6519 22.3437,23.1084C 22.5668,23.5649 22.6802,24.1201 22.6839,24.7742C 22.6748,25.8464 22.2742,26.7538 21.4821,27.4966C 20.69,28.2393 19.5607,28.6266 18.0942,28.6584L 16.2933,28.4666L 15.0371,28.0348L 15.51,26.1013L 16.5467,26.4675L 17.976,26.6528C 18.533,26.656 19.0319,26.5203 19.4728,26.2456C 19.9137,25.9709 20.1467,25.5379 20.1717,24.9465C 20.1801,24.3637 19.9394,23.9091 19.4496,23.5827C 18.9598,23.2563 18.1702,23.0904 17.0808,23.085L 16.2828,23.1109L 15.6114,23.1885L 16.3208,17.5486L 22.2652,17.5486 Z M 24.5628,17.5486L 32.3105,17.5486L 32.3105,19.1943L 27.7868,28.4895L 25.0692,28.4895L 29.5929,19.7248L 29.5929,19.6914L 24.5628,19.6914L 24.5628,17.5486 Z M 46.8081,41.7758C 46.4057,42.7237 45.8675,43.5724 45.2257,44.3088L 55.1921,55.7738L 52.8022,57.8513L 49.2173,60.9676L 47.1398,58.5777L 50.7246,55.4614L 42.7734,46.3146C 40.2864,47.7319 37.1898,48.0135 34.3513,46.8086C 29.5217,44.7586 27.2684,39.1815 29.3185,34.3519C 31.3685,29.5223 36.9456,27.269 41.7752,29.319C 46.6048,31.3691 48.8581,36.9462 46.8081,41.7758 Z M 44.6219,40.8478C 46.1594,37.2256 44.4695,33.0428 40.8472,31.5052C 37.225,29.9677 33.0422,31.6577 31.5047,35.2799C 29.9672,38.9021 31.6571,43.0849 35.2793,44.6224C 38.9015,46.16 43.0843,44.47 44.6219,40.8478 Z M 51.1839,38.3167L 55.5539,38.3167L 55.5539,39.9845L 51.1839,39.9845L 51.1839,38.3167 Z M 63.8534,32.4056L 63.8534,34.3774L 62.8909,34.4111C 61.7289,34.5193 60.856,34.8144 60.2722,35.2965C 59.6884,35.7785 59.3272,36.3426 59.1886,36.9888L 59.2414,36.9888C 59.805,36.4314 60.6151,36.1443 61.6718,36.1274C 62.6155,36.1333 63.4021,36.4466 64.0314,37.0671C 64.6607,37.6877 64.9874,38.5799 65.0117,39.7437C 64.9942,40.879 64.6253,41.8156 63.9049,42.5537C 63.1845,43.2917 62.217,43.6738 61.0026,43.7C 59.5061,43.6669 58.3954,43.2007 57.6704,42.3013C 56.9454,41.4019 56.5847,40.2679 56.5883,38.8993C 56.5949,37.855 56.7689,36.9196 57.1103,36.0931C 57.4517,35.2666 57.921,34.5767 58.5183,34.0235C 59.6364,33.0347 61.0831,32.501 62.8583,32.4224L 63.8534,32.4056 Z M 60.9674,41.8633C 61.4396,41.8519 61.8116,41.6637 62.0834,41.299C 62.3553,40.9342 62.4939,40.4618 62.4994,39.8816C 62.4998,39.3488 62.3582,38.8979 62.0746,38.5288C 61.791,38.1597 61.3633,37.9673 60.7912,37.9515C 60.4254,37.958 60.1048,38.0528 59.8292,38.2359C 59.5537,38.419 59.3519,38.6516 59.2238,38.9338L 59.1005,39.6059C 59.1244,40.2201 59.288,40.745 59.5915,41.1805C 59.8949,41.616 60.3535,41.8436 60.9674,41.8633 Z M 45.0404,28.6584L 45.0404,26.8217L 45.5271,26.8392L 46.1385,26.8217L 47.3267,26.6052L 48.3616,26.1073C 48.7398,25.8444 49.0499,25.5307 49.292,25.1662C 49.5341,24.8017 49.7038,24.4099 49.801,23.9907L 49.766,23.9739C 49.2628,24.4918 48.4962,24.7564 47.4663,24.7677C 46.5032,24.7594 45.7007,24.455 45.0588,23.8544C 44.4168,23.2538 44.0835,22.4064 44.0588,21.3123C 44.0782,20.195 44.4637,19.2647 45.2155,18.5214C 45.9673,17.7782 46.9692,17.3924 48.2212,17.364C 49.6254,17.3983 50.6599,17.8617 51.3247,18.7543C 51.9895,19.647 52.319,20.7629 52.3133,22.1022C 52.3082,23.2583 52.1452,24.2671 51.8241,25.1285C 51.503,25.9898 51.0541,26.6995 50.4774,27.2575C 49.9587,27.6933 49.3345,28.028 48.6046,28.2615C 47.8748,28.495 47.0694,28.6273 46.1884,28.6584L 45.5645,28.6774L 45.0404,28.6584 Z M 48.1159,19.2006C 47.6598,19.2092 47.2904,19.3894 47.0077,19.7414C 46.725,20.0933 46.5795,20.5654 46.571,21.1578C 46.5714,21.6529 46.7067,22.0707 46.977,22.4113C 47.2473,22.7518 47.6503,22.9293 48.1861,22.9436C 48.5555,22.9382 48.8656,22.8674 49.1165,22.7311C 49.3674,22.5948 49.5546,22.4252 49.6782,22.2224L 49.801,21.5527C 49.8158,20.9364 49.6927,20.3963 49.4319,19.9324C 49.1711,19.4685 48.7324,19.2246 48.1159,19.2006 Z M 55.553,22.8169L 55.553,22.7832C 55.0407,22.5001 54.6576,22.1496 54.4037,21.7318C 54.1497,21.314 54.0229,20.8626 54.0233,20.3776C 54.0444,19.4507 54.4049,18.7195 55.1047,18.1839C 55.8044,17.6484 56.7165,17.375 57.841,17.364C 59.1107,17.3958 60.0294,17.6883 60.5971,18.2413C 61.1649,18.7944 61.4436,19.4167 61.4333,20.1084C 61.436,20.5871 61.3076,21.0386 61.048,21.4626C 60.7884,21.8867 60.3811,22.2372 59.8261,22.5141L 59.8261,22.5645C 60.3609,22.7668 60.8147,23.0941 61.1875,23.5466C 61.5603,23.999 61.7548,24.5745 61.771,25.273C 61.7584,26.2859 61.3825,27.0968 60.6434,27.7056C 59.9042,28.3145 58.8776,28.6268 57.5636,28.6426C 56.1633,28.6069 55.1369,28.2785 54.4844,27.6576C 53.8319,27.0366 53.5093,26.3371 53.5166,25.559C 53.5419,24.2496 54.2207,23.3356 55.553,22.8169 Z M 57.6707,26.8376C 58.1506,26.8292 58.5336,26.6988 58.8194,26.4464C 59.1053,26.1941 59.2518,25.8702 59.2588,25.4749C 59.2488,24.9972 59.077,24.611 58.7436,24.3162C 58.4101,24.0215 57.9751,23.8077 57.4387,23.6749C 56.9895,23.7965 56.643,23.999 56.3991,24.2826C 56.1552,24.5661 56.0318,24.9075 56.0288,25.3067C 56.0265,25.7164 56.1709,26.0704 56.4622,26.3686C 56.7534,26.6669 57.1562,26.8232 57.6707,26.8376 Z M 57.7196,19.0317C 57.2686,19.0422 56.9303,19.1684 56.7048,19.4102C 56.4794,19.6521 56.3666,19.9465 56.3666,20.2935C 56.376,20.6622 56.5263,20.9678 56.8176,21.2103C 57.1089,21.4528 57.4847,21.6407 57.9451,21.7739C 58.2584,21.6848 58.5251,21.518 58.7452,21.2734C 58.9653,21.0287 59.0802,20.7358 59.0899,20.3944C 59.0935,20.0358 58.9866,19.7225 58.769,19.4544C 58.5515,19.1863 58.2017,19.0454 57.7196,19.0317 Z "/>
-      </g>
-      <g id ="appbar.weather.station.svg">
-          <path stroke="none" d="M 49.0833,20.5834C 53.4555,20.5834 57,24.1279 57,28.5001C 57,32.8723 53.4557,36.4166 49.0511,36.4167L 22.9583,36.4168C 20.7722,36.4167 19,34.6445 19,32.4584C 19,30.5201 20.3931,28.9072 22.2328,28.5664L 22.1667,27.7083C 22.1667,24.7327 24.5123,22.3047 27.4553,22.1723C 28.7579,18.4796 32.2783,15.8333 36.4167,15.8333C 40.3459,15.8333 43.7179,18.2187 45.1637,21.6203C 46.3193,20.9604 47.6573,20.5834 49.0833,20.5834 Z M 20.5833,58.5833L 20.5833,44.3333L 34.8333,42.75L 34.8333,58.5833L 20.5833,58.5833 Z M 23.75,55.4167L 26.9166,55.4167L 26.9166,52.25L 23.75,52.25L 23.75,55.4167 Z M 28.5,55.4167L 31.6667,55.4167L 31.6667,52.25L 28.5,52.25L 28.5,55.4167 Z M 23.75,50.6667L 26.9167,50.6667L 26.9167,47.5L 23.75,47.5L 23.75,50.6667 Z M 28.5,50.6667L 31.6667,50.6667L 31.6667,47.5L 28.5,47.5L 28.5,50.6667 Z M 36.4167,45.9167L 41.1667,47.3417L 41.1667,39.5833L 42.75,39.5833L 42.75,47.8167L 52.25,50.6667L 52.25,58.5833L 36.4167,58.5833L 36.4167,45.9167 Z M 39.5833,55.4167L 42.75,55.4167L 42.75,52.25L 39.5833,52.25L 39.5833,55.4167 Z M 44.3333,55.4167L 47.5,55.4167L 47.5,52.25L 44.3333,52.25L 44.3333,55.4167 Z M 49.0833,39.5834L 55.4166,41.9584L 49.0833,44.3334L 44.3333,44.3333L 44.3333,39.5833L 49.0833,39.5834 Z "/>
-      </g>
-      <g id ="appbar.shield.alert.svg">
-        <path stroke="none" d="M 54.8392,24.4749C 55.3507,24.2457 55.8111,24.1311 56.2202,24.1311C 56.6172,24.1311 56.966,24.2232 57.2668,24.4073C 57.5675,24.5915 57.8171,24.8339 58.0156,25.1347L 58.4575,26.1536L 58.6017,27.2737C 58.6017,29.6143 58.4667,31.8014 58.1966,33.8351C 57.9266,35.8688 57.5522,37.7644 57.0734,39.5218C 56.5947,41.2793 56.0289,42.8997 55.3763,44.383C 54.7236,45.8663 54.0167,47.232 53.2556,48.4801C 52.4946,49.7281 51.6925,50.8636 50.8496,51.8866C 50.0067,52.9095 49.1556,53.8302 48.2963,54.6486C 45.2682,57.5252 41.8351,59.6285 37.9969,60.9583C 34.1505,59.6285 30.7174,57.5252 27.6976,54.6486C 26.4086,53.421 25.1463,51.9633 23.9105,50.2754C 22.6748,48.5875 21.5751,46.6244 20.6114,44.3861C 19.6478,42.1478 18.8713,39.616 18.2821,36.7905C 17.6929,33.965 17.3982,30.7928 17.3982,27.2737L 17.5609,26.1413L 18.0397,25.1439C 18.2504,24.8493 18.5123,24.613 18.8253,24.435C 19.1383,24.257 19.4933,24.168 19.8902,24.168C 20.2871,24.168 20.7106,24.2703 21.1608,24.4749C 22.196,24.9495 23.1484,25.2851 24.0179,25.4815C 24.8875,25.6779 25.6925,25.7761 26.4332,25.7761C 27.4193,25.7761 28.3052,25.6298 29.0909,25.3372C 29.8765,25.0447 30.5987,24.6743 31.2575,24.2263L 33.0805,22.787L 34.7009,21.3476L 36.2906,20.2336C 36.8266,19.939 37.3954,19.7917 37.9969,19.7917C 38.6107,19.7917 39.1866,19.939 39.7247,20.2336L 41.3175,21.3476L 42.9471,22.787L 44.7701,24.2263C 45.4227,24.6743 46.1419,25.0447 46.9275,25.3372C 47.7132,25.6298 48.5991,25.7761 49.5852,25.7761C 50.3258,25.7761 51.1279,25.6779 51.9913,25.4815C 52.8546,25.2851 53.804,24.9495 54.8392,24.4749 Z M 40.0101,45.5339L 41.1088,30.0726L 34.9096,30.0726L 36.0021,45.5339L 40.0101,45.5339 Z M 38,49.0444C 36.0857,49.0444 34.9672,50.5962 34.9672,52.5105C 34.9672,54.4247 36.0857,55.9766 38,55.9766C 39.9143,55.9766 41.0328,54.4247 41.0328,52.5105C 41.0328,50.5962 39.9143,49.0444 38,49.0444 Z "/>
-      </g>
-      <g id ="appbar.man.sensor.svg">
-          <path stroke="none" d="M 44.4519,19C 47.6019,19 50.1556,21.5536 50.1556,24.7037C 50.1556,27.8538 47.6019,30.4074 44.4519,30.4074C 41.3018,30.4074 38.7482,27.8538 38.7482,24.7037C 38.7482,21.5536 41.3018,19 44.4519,19 Z M 38.7482,38.3926C 37.9877,38.7728 36.4667,41.8148 36.4667,41.8148C 36.4667,41.8148 35.7062,42.9555 35.3259,47.5185L 31.9037,46.3777L 33.0445,40.6741C 33.0445,40.6741 35.3259,32.6889 39.8889,32.689L 49.0147,32.689C 53.5778,32.6889 55.8593,40.6741 55.8593,40.6741L 57,46.3778L 53.5778,47.5185C 53.1975,42.9556 52.4371,41.8148 52.4371,41.8148C 52.4371,41.8148 50.9161,38.7728 50.1556,38.3926L 50.6165,48.7524C 48.8824,49.4288 46.9957,49.8 45.0222,49.8C 42.6167,49.8 40.3399,49.2485 38.3116,48.2649L 38.7482,38.3926 Z M 24,37L 23,37.0328L 23,35.0289L 24,35C 27.1225,35 30.0483,35.8418 32.563,37.3109L 31.9148,39.2557C 29.6174,37.8259 26.9051,37 24,37 Z M 38.9672,53L 39,52L 38.9368,50.614L 40.0688,50.9929L 40.8955,53L 38.9672,53 Z M 26,57L 19,57L 19,50L 23,50C 24.6568,50 26,51.3432 26,53L 26,57 Z M 23.5,45C 27.6421,45 31,48.3579 31,52.5L 30.9836,53L 28.9775,53L 28.9999,52.5001C 28.9999,49.4625 26.5375,47.0001 23.4999,47.0001L 23,47.0225L 23,45.0164L 23.5,45 Z M 24,40C 26.6829,40 29.1603,40.8805 31.1588,42.3684L 30.9932,44.852C 29.19,43.0876 26.722,42 24,42L 23,42.0494L 23,40.0411L 24,40 Z M 36,52L 35.9589,53L 33.9506,53L 34,52C 34,50.9105 33.8257,49.8616 33.5035,48.8798L 35.6663,49.1781C 35.8844,50.0831 36,51.0281 36,52 Z "/>
-          <!-- <path stroke="none" d="M 26,57L 19,57L 19,50L 23,50C 24.6568,50 26,51.3432 26,53L 26,57 Z M 23.5,45C 27.6421,45 31,48.3579 31,52.5L 30.9836,53L 28.9776,53L 29,52.5C 29,49.4625 26.5375,47 23.5,47L 23,47.0224L 23,45.0164L 23.5,45 Z M 43.5,19C 45.433,19 47,20.567 47,22.5C 47,24.433 45.433,26 43.5,26C 41.567,26 40,24.433 40,22.5C 40,20.567 41.567,19 43.5,19 Z M 36.75,55.2209L 38.4647,47.154C 38.5041,46.9684 38.8109,46.0471 39.0207,45.797L 44.23,39.5889L 42.7531,32.7419L 41.5158,35.3954C 41.1532,36.1029 40.9041,36.3981 40.5494,36.5486L 35.6391,38.633C 35.0036,38.9027 34.2698,38.6062 34,37.9708C 33.7303,37.3353 34.0268,36.6015 34.6623,36.3317L 39.2256,34.3947L 39.25,34.3389L 42.0009,28.4396C 42.25,27 43.6744,26.2501 45.375,26.2501C 46.3083,26.2501 47.6237,26.9014 47.6984,26.9412L 54.4861,30.5655C 54.9024,30.7878 55.2031,31.8095 55.2193,31.8935L 56.25,37.2419C 56.3807,37.9198 55.937,38.5752 55.2592,38.7058C 54.5813,38.8365 53.9258,38.3929 53.7952,37.715L 52.7889,32.4934L 49.0335,30.4882C 50.0263,34.7979 50.6748,37.8357 50.7209,38.1631L 51.7517,46.3058L 57,54.4163C 57.4512,55.1111 57.2537,56.0401 56.5589,56.4913C 55.8642,56.9425 54.9352,56.745 54.484,56.0502L 49.4543,48.3053C 49.309,48.0815 48.8287,47.0638 48.7809,46.7234L 47.9905,41.0999L 46.5403,41.5027L 41.4263,47.5974L 41.3991,47.7778L 39.6845,55.8446C 39.5122,56.655 38.7157,57.1722 37.9054,57C 37.0951,56.8277 36.5778,56.0312 36.75,55.2209 Z M 24,40C 30.6274,40 36,45.3726 36,52L 35.9589,53L 33.9506,53L 34,52C 34,46.4772 29.5228,42 24,42L 23,42.0494L 23,40.0411L 24,40 Z M 24,37L 23,37.0328L 23,35.0289L 24,35C 26.7823,35 29.4086,35.6684 31.7269,36.8535C 31.5807,37.2067 31.5,37.5939 31.5,38C 31.5,38.4031 31.5795,38.7876 31.7237,39.1387C 29.4676,37.7809 26.825,37 24,37 Z M 38.8398,43.7003L 37.4761,45.4049C 36.6559,43.7321 35.5335,42.2345 34.1799,40.9831L 34.5,41C 35.2089,41 35.8605,40.7541 36.3739,40.3429C 37.3261,41.3533 38.156,42.4804 38.8398,43.7003 Z "/> -->
-      </g>
-      <g id ="appbar.battery.0.svg">
-         <path stroke="null"  d="m32.1629,2.3277l16.00903,0l0,5.52121l12.00678,0l0,66.2545l-40.02258,0l0,-66.2545l12.00678,0l0,-5.52121l-0.00001,0zm-4.00226,64.4141l24.01355,0l0,-51.53128l-24.01355,0l0,51.53128z"/>
-      </g>
-      <g id ="appbar.battery.1.svg">
-          <path stroke="null" d="m32.175,2.14719l15.9,0l0,5.53504l11.925,0l0,66.42056l-39.75,0l0,-66.42056l11.925,0l0,-5.53504zm-3.975,64.57555l23.85,0l0,-51.66043l-23.85,0l0,51.66043zm21.8625,-1.84501l-19.875,0l0,-9.22507l19.875,-9.22507l0,18.45016l0,-0.00001z"/>
-      </g>
-      <g id ="appbar.battery.2.svg">
-          <path stroke="null" d="m32.1875,2.35922l15.75,0l0,5.50826l11.8125,0l0,66.09921l-39.375,0l0,-66.09921l11.8125,0l0,-5.50826zm-3.9375,64.26313l23.625,0l0,-51.41049l-23.625,0l0,51.41049zm21.65625,-1.83608l-19.6875,0l0,-9.18044l19.6875,-9.18044l0,18.36089l0,-0.00001zm-19.6875,-11.93458l0,-14.68872l19.6875,-9.18044l0,14.68872l-19.6875,9.18044z"/>
-      </g>
-      <g id ="appbar.battery.3.svg">
-          <path stroke="null" d="m31.9625,2.125l15.95,0l0,5.52749l11.9625,0l0,66.32982l-39.875,0l0,-66.32982l11.9625,0l0,-5.52749zm-3.9875,64.48734l23.925,0l0,-51.58987l-23.925,0l0,51.58987zm21.93125,-1.8425l-19.9375,0l0,-9.21248l19.9375,-9.21248l0,18.42495l0,0.00001zm-19.9375,-11.97622l0,-14.73996l19.9375,-9.21248l0,14.73996l-19.9375,9.21248zm0,-35.92866l19.9375,0l0,9.21248l-19.9375,9.21248l0,-18.42495l0,-0.00001z"/>
-      </g>
-      <g id ="appbar.battery.charging.svg">
-          <path stroke="null" d="m43.34477,37.09038l16.53023,0l0,7.36113l-16.53023,0l0,3.68057c0,3.04916 -2.22018,5.52085 -4.95907,5.52085l-11.57116,0l0,-5.52085l-6.61209,0l0,-5.52085l6.61209,0l0,-3.68057l-6.61209,0l0,-5.52085l6.61209,0l0,-5.52085l11.57116,0c2.73889,0 4.95907,2.47187 4.95907,5.52085l0,3.68057zm-6.61209,-34.96538l13.22419,0l0,5.52085l9.91814,0l0,27.60424l-6.61209,0l0,-20.24311l-19.83628,0l0,11.0417l-6.61209,0l0,-18.40283l9.91814,0l0,-5.52085l-0.00001,-0.00001zm-3.30605,64.40991l19.83628,0l0,-20.24311l6.61209,0l0,27.60424l-33.06047,0l0,-18.40283l6.61209,0l0,11.0417l0.00001,-0.00001z"/>
-      </g>
-      <g id ="appbar.connection.quality.extremelylow.svg">
-          <path fill-opacity="0.40392"  d="m2.08092,73.81897l0,-11.4061l11.50094,0l0,11.4061l-11.50094,0zm72.83929,-72.23862l0,72.23862l-11.50094,0l0,-72.23862l11.50094,0zm-15.33459,15.20813l0,57.03049l-11.50094,0l0,-57.03049l11.50094,0zm-15.33459,15.20813l0,41.82236l-11.50094,0l0,-41.82236l11.50094,0zm-15.33459,17.10915l0,24.71321l-11.50094,0l0,-24.71321l11.50094,0z"/>
-      </g>
-      <g id ="appbar.connection.quality.high.svg">
-          <path  d="m43.83829,32.10551l0,42.2474l-11.54309,0l0,-42.2474l11.54309,0zm-15.39079,17.28303l0,24.96437l-11.54309,0l0,-24.96437l11.54309,0zm-26.93389,24.96437l0,-11.52202l11.54309,0l0,11.52202l-11.54309,0zm57.71547,-57.61009l0,57.61009l-11.54309,0l0,-57.61009l11.54309,0z"/>
-          <path sfill-opacity="0.40392" d="m74.61987,1.38013l0,72.97278l-11.54309,0l0,-72.97278l11.54309,0z"/>
-      </g>
-      <g id ="appbar.connection.quality.low.svg">
-          <path stroke="null" fill-opacity="0.40392" d="m75.22055,0.77945l0,74.34099l-11.73805,0l0,-74.34099l11.73805,0zm-15.65073,15.65073l0,58.69025l-11.73805,0l0,-58.69025l11.73805,0zm-15.65073,15.65073l0,43.03952l-11.73805,0l0,-43.03952l11.73805,0z"/>
-          <path stroke="null"  d="m0.87956,75.12044l0,-11.73805l11.73805,0l0,11.73805l-11.73805,0zm27.38878,-25.43244l0,25.43244l-11.73805,0l0,-25.43244l11.73805,0z"/>
-      </g>
-      <g id ="appbar.connection.quality.medium.svg">
-          <path stroke="null" fill-opacity="0.40392" d="m75.32066,0.87956l0,74.24087l-11.73805,0l0,-74.24087l11.73805,0zm-15.65073,15.62966l0,58.61122l-11.73805,0l0,-58.61122l11.73805,0z"/>
-          <path stroke="null"  d="m28.36846,49.72224l0,25.39819l-11.73805,0l0,-25.39819l11.73805,0zm-27.38878,25.39819l0,-11.72224l11.73805,0l0,11.72224l-11.73805,0zm43.03952,-42.98156l0,42.98156l-11.73805,0l0,-42.98156l11.73805,0z"/>
-      </g>
-      <g id ="appbar.connection.quality.veryhigh.svg">
-          <path stroke="null"  d="m43.88747,32.21265l0,42.80768l-11.67482,0l0,-42.80768l11.67482,0zm-15.56643,17.51223l0,25.29545l-11.67482,0l0,-25.29545l11.67482,0zm-27.24125,25.29545l0,-11.67482l11.67482,0l0,11.67482l-11.67482,0zm73.94053,-73.94053l0,73.94053l-11.67482,0l0,-73.94053l11.67482,0zm-15.56643,15.56643l0,58.37411l-11.67482,0l0,-58.37411l11.67482,0z" />
-      </g>
-      <g id ="appbar.connection.quality.verylow.svg">
-          <path stroke="null"  d="m0.77945,75.12044l0,-11.73805l11.73805,0l0,11.73805l-11.73805,0z" />
-          <path stroke="null" fill-opacity="0.40392" d="m75.12044,0.77945l0,74.34099l-11.73805,0l0,-74.34099l11.73805,0zm-15.65073,15.65073l0,58.69025l-11.73805,0l0,-58.69025l11.73805,0zm-15.65073,15.65073l0,43.03952l-11.73805,0l0,-43.03952l11.73805,0zm-15.65073,17.60708l0,25.43244l-11.73805,0l0,-25.43244l11.73805,0z" />
-      </g>
-      <g id =".svg">
-      
-      </g>
+    </g>
+    <g id="atmosfericpressure">
+      <path d="M 6.53125 2.125 C 6.42825 2.18 4 3.505 4 7.25 C 4 9.07 4.26725 10.2115 4.53125 11.3125 C 4.76925 12.3015 5 13.2325 5 14.6875 C 5 16.6465 4.255 18.039 3.75 18.75 L 2 17 L 2 22 L 7 22 L 5.15625 20.15625 C 5.83025 19.28425 7 17.4035 7 14.6875 C 7 12.9955 6.72275 11.90275 6.46875 10.84375 C 6.22075 9.81175 6 8.834 6 7.25 C 6 4.755 7.42175 3.902 7.46875 3.875 L 6.53125 2.125 z M 12.53125 2.125 C 12.42825 2.18 10 3.505 10 7.25 C 10 9.07 10.26725 10.2115 10.53125 11.3125 C 10.76925 12.3015 11 13.2325 11 14.6875 C 11 16.6465 10.255 18.039 9.75 18.75 L 8 17 L 8 22 L 13 22 L 11.15625 20.15625 C 11.83025 19.28425 13 17.4035 13 14.6875 C 13 12.9955 12.72275 11.90275 12.46875 10.84375 C 12.22075 9.81175 12 8.834 12 7.25 C 12 4.755 13.42175 3.902 13.46875 3.875 L 12.53125 2.125 z M 17 3 L 17 5 L 20 5 L 20 7 L 18 7 L 18 9 L 20 9 L 20 11 L 17 11 L 17 13 L 20 13 L 20 15 L 18 15 L 18 17 L 20 17 L 20 19 L 17 19 L 17 21 L 20 21 L 21 21 L 22 21 L 22 3 L 21 3 L 20 3 L 17 3 z"
+      />
+    </g>
   </defs>
 </svg>
 
-<!--<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 500 250" style="position: fixed; left: -1000px; height: -1000px;">
-  <defs>
-    <g id="chart">
-      <g id="Gridlines">
-        <line fill="#888888" stroke="#888888" stroke-miterlimit="10" x1="0" y1="27.3" x2="468.3" y2="27.3" />
-        <line fill="#888888" stroke="#888888" stroke-miterlimit="10" x1="0" y1="66.7" x2="468.3" y2="66.7" />
-        <line fill="#888888" stroke="#888888" stroke-miterlimit="10" x1="0" y1="105.3" x2="468.3" y2="105.3" />
-        <line fill="#888888" stroke="#888888" stroke-miterlimit="10" x1="0" y1="144.7" x2="468.3" y2="144.7" />
-        <line fill="#888888" stroke="#888888" stroke-miterlimit="10" x1="0" y1="184.3" x2="468.3" y2="184.3" />
-      </g>
-      <g id="Numbers">
-        <text transform="matrix(1 0 0 1 485 29.3333)" fill="#888888" font-family="'Roboto'" font-size="9">500</text>
-        <text transform="matrix(1 0 0 1 485 69)" fill="#888888" font-family="'Roboto'" font-size="9">400</text>
-        <text transform="matrix(1 0 0 1 485 109.3333)" fill="#888888" font-family="'Roboto'" font-size="9">300</text>
-        <text transform="matrix(1 0 0 1 485 149)" fill="#888888" font-family="'Roboto'" font-size="9">200</text>
-        <text transform="matrix(1 0 0 1 485 188.3333)" fill="#888888" font-family="'Roboto'" font-size="9">100</text>
-        <text transform="matrix(1 0 0 1 0 249.0003)" fill="#888888" font-family="'Roboto'" font-size="9">1</text>
-        <text transform="matrix(1 0 0 1 78 249.0003)" fill="#888888" font-family="'Roboto'" font-size="9">2</text>
-        <text transform="matrix(1 0 0 1 154.6667 249.0003)" fill="#888888" font-family="'Roboto'" font-size="9">3</text>
-        <text transform="matrix(1 0 0 1 232.1667 249.0003)" fill="#888888" font-family="'Roboto'" font-size="9">4</text>
-        <text transform="matrix(1 0 0 1 309 249.0003)" fill="#888888" font-family="'Roboto'" font-size="9">5</text>
-        <text transform="matrix(1 0 0 1 386.6667 249.0003)" fill="#888888" font-family="'Roboto'" font-size="9">6</text>
-        <text transform="matrix(1 0 0 1 464.3333 249.0003)" fill="#888888" font-family="'Roboto'" font-size="9">7</text>
-      </g>
-      <g id="Layer_5">
-        <polygon opacity="0.36" stroke-miterlimit="10" points="0,223.3 48,138.5 154.7,169 211,88.5
-                294.5,80.5 380,165.2 437,75.5 469.5,223.3 	" />
-      </g>
-      <g id="Layer_4">
-        <polygon stroke-miterlimit="10" points="469.3,222.7 1,222.7 48.7,166.7 155.7,188.3 212,132.7
-                296.7,128 380.7,184.3 436.7,125 	" />
-      </g>
-    </g>
-  </defs>
-</svg>-->
+<div aria-live="assertive" aria-atomic="true" aria-relevant="text" class="mdl-snackbar mdl-js-snackbar">
+    <div class="mdl-snackbar__text"></div>
+    <button type="button" class="mdl-snackbar__action"></button>
+</div>
 
-<a href="https://github.com/google/material-design-lite/blob/mdl-1.x/templates/dashboard/" target="_blank" id="view-source"
-  class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent mdl-color-text--white">View Source</a>
+
+
+<!-- <a href="https://github.com/google/material-design-lite/blob/mdl-1.x/templates/dashboard/" target="_blank" id="view-source"
+  class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent mdl-color-text--white">View Source</a> -->
 <!--mdl-button--colored-->
 <script src="https://code.getmdl.io/1.3.0/material.min.js"></script>
+<script src="/js/dialog-polyfill.js"></script>
 <script src="/js/navigationPage.js"></script>
 <script language="javascript" type="text/javascript" src="js/bind.1.0.1.min.js"></script>
 <script src="/socket.io/socket.io.js"></script>

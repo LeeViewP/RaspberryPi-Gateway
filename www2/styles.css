@@ -22,6 +22,18 @@ html, body {
   height: 48px;
   border-radius: 24px;
 }
+
+.demo-logo {
+  border-radius: 128px;
+  position: fixed;
+}
+.demo-spinner{
+  width: 256px;
+  height: 256px;
+  
+  /*display: block;*/
+}
+
 .demo-layout .mdl-layout__header .mdl-layout__drawer-button {
   color: rgba(0, 0, 0, 0.54);
 }
@@ -57,6 +69,7 @@ html, body {
   flex-direction: row;
   align-items: center;
   width: 100%;
+  color: rgba(255, 255, 255, 0.56);
 }
 
 .demo-navigation {
@@ -69,10 +82,10 @@ html, body {
   color: rgba(255, 255, 255, 0.56);
   font-weight: 500;
 }
-.demo-layout .demo-navigation .mdl-navigation__link:hover {
+/*.demo-layout .demo-navigation .mdl-navigation__link:hover {
   background-color: #00BCD4;
   color: #37474F;
-}
+}*/
 .demo-navigation .mdl-navigation__link .material-icons {
   font-size: 24px;
   color: rgba(255, 255, 255, 0.56);
@@ -147,9 +160,9 @@ _:-ms-input-placeholder, :root .demo-graph {
   background-position: 90% 100%;
   background-repeat: no-repeat;
 }
-.demo-updates .mdl-card__title svg {
-  /*color: #BA65C9;*/
-}
+/* .demo-updates .mdl-card__title svg {
+  color: #BA65C9;
+} */
 
 .demo-cards .mdl-card__actions a {
   /*color: #00BCD4;*/
@@ -182,17 +195,58 @@ _:-ms-input-placeholder, :root .demo-graph {
 .mdl-card__supporting_text_metrics {
     display: flex;
 }
-.demo-updates .mdl-card__actions {
+.mdl-card__actions {
+    display: -webkit-flex;
     display: flex;
+    -webkit-flex-wrap: wrap;
+    flex-wrap: wrap;
+    box-sizing:border-box;
+    align-items: center;
+    align-content: center;
 }
-/* .mdl-card__media {
-  background-color: white;
-} */
 
+
+.mdl-card__media svg {
+  color:greenyellow;
+  padding:4px;
+}
+.mdl-card__media svg:first-child {
+  padding-left:8px;
+}
+.mdl-card__media svg:last-child {
+  padding-right:8px;
+}
+
+.mdl-card__media svg text{
+  color:gray;
+}
+
+.mdl-card__title h3 {
+      margin: 24px 0 0 0;
+}
+
+.mdl-dialog {
+  width:fit-content;
+}
+
+.updateAgo{
+  padding-left: 4px;
+}
+
+.float-button {
+    position: fixed;
+    display: block;
+    right: 0;
+    bottom: 0;
+    margin-right: 40px;
+    margin-bottom: 40px;
+    z-index: 900;
+}
 
 .blink {
   animation: blink-animation 1s steps(5, start) infinite;
   -webkit-animation: blink-animation 1s steps(5, start) infinite;
+  color:darkred;
 }
 @keyframes blink-animation {
   to {
