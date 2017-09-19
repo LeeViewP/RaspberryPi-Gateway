@@ -753,7 +753,7 @@ InterfaceNotifier.prototype.createCardActions_ = function (node) {
     divCardActions.appendChild(this.createSpacer_());
 
     if (this.Definitions_.motesDef[node.type] && this.Definitions_.motesDef[node.type].controls) {
-        var linkContainer = undefined;
+        // var linkContainer = undefined;
         for (var cKey in this.Definitions_.motesDef[node.type].controls) {
             var control = this.Definitions_.motesDef[node.type].controls[cKey];
             // i++;
@@ -763,25 +763,9 @@ InterfaceNotifier.prototype.createCardActions_ = function (node) {
             }
 
             var linkControl = this.createActionControl(node, control, cKey);
-            // if (i >= 3) {
-            //     // continue;
-            //     if (i == 3) {
-            //         linkContainer = document.createElement('div');
-            //         // linkContainer.classList.add('mdl-card__actions')
-            //         // divCardActions.appendChild(this.createSpacer_());
-            //     }
-            //     linkContainer.appendChild(linkControl);
-            // }
-            // else
             divCardActions.appendChild(linkControl);
         }
-        // var linkControl = this.createActionControl(node, control, cKey);
-        // if (linkContainer != null) {
-        //     componentHandler.upgradeElement(linkContainer);
-        //     divCardActions.appendChild(linkContainer);
-        // }
     }
-    // divCardActions.appendChild(this.createSpacer_());
     return divCardActions;
 }
 InterfaceNotifier.prototype.reinitialixeTextFieldMDL = function (component) {
@@ -963,8 +947,6 @@ InterfaceNotifier.prototype.createActionControl = function (node, control, cKey)
         }
         // if (state.icon)
         //     link.classList.add(state.icon);
-
-        // var socket = this.socketExtender;
         var objEvent = {
             handleEvent: function () {
                 aiController.ControlClick(this.data);
@@ -1075,12 +1057,12 @@ InterfaceNotifier.prototype.createSensorEditCard_ = function (node) {
     nodelabel.value = node.label || '';
     componentHandler.upgradeElement(nodelabel);
     this.reinitialixeTextFieldMDL(nodelabel.parentNode);
-    
+
     var agoObject = ago(node.updated);
     var nodeupdated = detailCard.querySelector('#sensordetailupdated');
     nodeupdated.textContent = agoObject.text;
     nodeupdated.style.color = agoObject.color;
-    nodeupdated.setAttribute('data-time',node.updated)
+    nodeupdated.setAttribute('data-time', node.updated)
 
     var nodedescr = detailCard.querySelector('#nodedescr');
     nodedescr.value = node.descr || '';
@@ -1104,41 +1086,89 @@ InterfaceNotifier.prototype.createSensorEditCard_ = function (node) {
     var nodeIcon = detailCard.querySelector('#sensordetailsvg');
     nodeIcon.appendChild(svgUseCardTitle);
 
+    if (this.Definitions_.motesDef[node.type] && this.Definitions_.motesDef[node.type].controls) {
+        var nodeCommands = document.createElement('div');
+        nodeCommands.classList.add('mdl-card__actions');
+        for (var cKey in this.Definitions_.motesDef[node.type].controls) {
+            var control = this.Definitions_.motesDef[node.type].controls[cKey];
+            if (control.showCondition) {
+                var f = eval('(' + control.showCondition + ')'); //using eval is generally a bad idea but there is no way to pass functions in JSON via websockets so we pass them as strings instead
+                if (!f(node)) continue;
+            }
+            var linkControl = this.createActionControl(node, control, cKey);
+            nodeCommands.appendChild(linkControl);
+        }
+        componentHandler.upgradeElement(nodeCommands);
+        detailCard.appendChild(nodeCommands);
+    }
+
     componentHandler.upgradeElement(detailCard);
     container.appendChild(detailCard)
 
     var metricTemplate = document.querySelector('section#templates #sensormetrictemplate');
+    if (node.metrics != null) {
+        var metricseparator = document.createElement('div');
+        metricseparator.classList.add('mdl-cell--12-col');
+        container.appendChild(metricseparator);
 
-    for (var key in node.metrics) {
-        var metric = node.metrics[key];
-        var metricCard = metricTemplate.cloneNode(true);
-        metricCard.id = 'sensormetric-' + key;
-        // var title = metricCard.querySelector('#sensormetrictitle')
-        // title.textContent = metric.label || 'Metric details';
-        // title.id = 'sensormetrictitle-' + key;
-        var agoMetricObject = ago(metric.updated);
-        var metricupdated = metricCard.querySelector('#sensormetricupdated');
-        metricupdated.id= 'sensormetricupdated-'+ key;
-        metricupdated.textContent = agoMetricObject.text;
-        metricupdated.style.color = agoMetricObject.color;
-        metricupdated.setAttribute('data-time',metric.updated)
 
-        var label = metricCard.querySelector('#sensormetriclabel');
-        label.value = metric.label || '';
-        label.id = 'sensormetriclabel-' + key;
-        componentHandler.upgradeElement(label);
-        this.reinitialixeTextFieldMDL(label.parentNode);
+        for (var key in node.metrics) {
+            var metric = node.metrics[key];
+            var metricCard = metricTemplate.cloneNode(true);
+            metricCard.id = 'sensormetric-' + key;
+            // var title = metricCard.querySelector('#sensormetrictitle')
+            // title.textContent = metric.label || 'Metric details';
+            // title.id = 'sensormetrictitle-' + key;
+            var agoMetricObject = ago(metric.updated);
+            var metricupdated = metricCard.querySelector('#sensormetricupdated');
+            metricupdated.id = 'sensormetricupdated-' + key;
+            metricupdated.textContent = agoMetricObject.text;
+            metricupdated.style.color = agoMetricObject.color;
+            metricupdated.setAttribute('data-time', metric.updated)
 
-        var value = metricCard.querySelector('#sensormetricvalue');
-        value.value = metric.value + (metric.unit || '');
-        value.id = 'sensormetricvalue-' + key
-        componentHandler.upgradeElement(value);
-        value.setAttribute('disabled', 'disabled');
-        this.reinitialixeTextFieldMDL(value.parentNode);
+            var label = metricCard.querySelector('#sensormetriclabel');
+            label.value = metric.label || '';
+            label.id = 'sensormetriclabel-' + key;
+            componentHandler.upgradeElement(label);
+            this.reinitialixeTextFieldMDL(label.parentNode);
 
-        componentHandler.upgradeElement(metricCard);
+            var value = metricCard.querySelector('#sensormetricvalue');
+            value.value = metric.value + (metric.unit || '');
+            value.id = 'sensormetricvalue-' + key
+            componentHandler.upgradeElement(value);
+            value.setAttribute('disabled', 'disabled');
+            this.reinitialixeTextFieldMDL(value.parentNode);
 
-        container.appendChild(metricCard);
+            componentHandler.upgradeElement(metricCard);
+
+            container.appendChild(metricCard);
+        }
+    }
+
+    if (node.events != null) {
+        var eventsseparator = document.createElement('div');
+        eventsseparator.classList.add('mdl-cell--12-col');
+        container.appendChild(eventsseparator);
+        var eventTemplate = document.querySelector('section#templates #sensoreventtemplate');
+        for (var key in node.events) {
+            var evt = this.Definitions_.eventsDef[key];
+            var enabled = node.events[key];
+            if (!evt) continue;
+            var eventCard = eventTemplate.cloneNode(true);
+            eventCard.id = 'sensorevent-' + key;
+            var evtTitle = eventCard.querySelector('#sensoreventtitle');
+            evtTitle.textContent = evt.label;
+            var evtSubTitle = eventCard.querySelector('#sensoreventsubtitle');
+            evtSubTitle.textContent = evt.descr || '&nbsp;';
+            componentHandler.upgradeElement(eventCard);
+
+            container.appendChild(eventCard);
+            // var newLI = $('<li><a data-icon="delete" event-id="' + key + '" href="#" class="eventEnableDisable" style="padding-top:0;padding-bottom:0;padding-left:0"><span class="ui-btn-icon-notext ui-icon-' + (enabled ? (evt.icon ? evt.icon : 'action') : 'minus') + '" style="position:relative;float:left;padding:15px 10px;background-color:' + (enabled ? '#2d0' : '#d00') + '"></span><h2 style="padding-left:10px">' + evt.label + '</h2><p style="padding-left:10px">' + (evt.descr || '&nbsp;') + '</p>' + '</a><a event-id="' + key + '" href="#" class="eventDelete" data-transition="pop" data-icon="delete"></a></li>');
+            // var existingNode = $('#eventList li#evt_' + key);
+            // if (existingNode.length)
+            //   existingNode.replaceWith(newLI);
+            // else $('#eventList').append(newLI);
+        }
     }
 };
 
