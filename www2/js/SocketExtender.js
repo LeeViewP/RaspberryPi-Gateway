@@ -75,3 +75,24 @@ SocketExtender.prototype.DialogAction = function (action) {
 SocketExtender.prototype.UpdateSettings = function (boundSettings) {
     this.Socket.emit('UPDATESETTINGSDEF', boundSettings);
 };
+
+SocketExtender.prototype.EnableEvent = function (event) {
+    this.Socket.emit('EDITNODEEVENT', event.nodeId, event.key, event.enabled, event.remove);
+};
+
+SocketExtender.prototype.UpdateMetric = function (metricObject) {
+    this.Socket.emit('UPDATEMETRICSETTINGS', metricObject.nodeId, metricObject.key, metricObject.metric);
+};
+
+SocketExtender.prototype.DeleteMetric = function (nodeObject) {
+    this.Socket.emit('DELETENODEMETRIC', nodeObject.nodeId, nodeObject.key);
+};
+
+SocketExtender.prototype.UpdateNode = function (nodeObject) {
+    this.Socket.emit('UPDATENODESETTINGS', nodeObject);
+};
+
+SocketExtender.prototype.DeleteNode = function (nodeObject) {
+    this.Socket.emit('DELETENODE', nodeObject.nodeId);
+};
+

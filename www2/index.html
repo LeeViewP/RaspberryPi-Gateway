@@ -62,59 +62,48 @@ mdl-color--accent-contrast
   <link rel="stylesheet" type="text/css" href="css/dialog-polyfill.css" />
   <link rel="stylesheet" href="styles.css">
   <link rel="stylesheet" href="css/pageNavigation.css">
-  <style>
-    /*#view-source {
-      position: fixed;
-      display: block;
-      right: 0;
-      bottom: 0;
-      margin-right: 40px;
-      margin-bottom: 40px;
-      z-index: 900;
-    }*/
-
-    #apploader {
-      position: fixed;
-      display: block;
-      width:100%;
-      right: 0;
-      bottom: 0;
-      /*margin-right: 10px;*/
-      margin-bottom: 10px;
-      z-index: 900;
-    }
-    </style>
 </head>
 
 <body>
       <!-- DIALOGS -->
-      <dialog class="mdl-dialog" id="processExit">
-          <h4 class="mdl-dialog__title">Restart the application?</h4>
-          <div class="mdl-dialog__content">
-            <p>
-                This command will actually execute a process.exit() which stops the gateway app.<br/>
-                If the gateway service (systemctl) is running it should automatically restart it.
-            </p>
-          </div>
-          <div class="mdl-dialog__actions">
-            <button type="button" class="mdl-button action">Agree</button>
-            <button type="button" class="mdl-button close">Disagree</button>
-          </div>
-      </dialog>
-      
-      <dialog class="mdl-dialog" id="piReboot">
-          <h4 class="mdl-dialog__title">Restart the system?</h4>
-          <div class="mdl-dialog__content">
-            <p>
-                This command will actually restart the system.<br/>
-                You will have to wait for the system to start.
-            </p>
-          </div>
-          <div class="mdl-dialog__actions">
-            <button type="button" class="mdl-button action">Agree</button>
-            <button type="button" class="mdl-button close">Disagree</button>
-          </div>
-      </dialog>
+  <dialog class="mdl-dialog" id="processExit">
+      <h4 class="mdl-dialog__title">Restart the application?</h4>
+      <div class="mdl-dialog__content">
+        <p>
+            This command will actually execute a process.exit() which stops the gateway app.<br/>
+            If the gateway service (systemctl) is running it should automatically restart it.
+        </p>
+      </div>
+      <div class="mdl-dialog__actions">
+        <button type="button" class="mdl-button action">Agree</button>
+        <button type="button" class="mdl-button close">Disagree</button>
+      </div>
+  </dialog>
+
+  <dialog class="mdl-dialog" id="piReboot">
+      <h4 class="mdl-dialog__title">Restart the system?</h4>
+      <div class="mdl-dialog__content">
+        <p>
+            This command will actually restart the system.<br/>
+            You will have to wait for the system to start.
+        </p>
+      </div>
+      <div class="mdl-dialog__actions">
+        <button type="button" class="mdl-button action">Agree</button>
+        <button type="button" class="mdl-button close">Disagree</button>
+      </div>
+  </dialog>
+
+  <dialog class="mdl-dialog" id="editEvents">
+      <h4 class="mdl-dialog__title">Edit Node Events</h4>
+      <div class="mdl-dialog__content" >
+        <ul id ="eventsList" class="mdl-list"  style="overflow: auto; height: 500px;"></ul>
+      </div>
+      <div class="mdl-dialog__actions">
+        <!--<button type="button" class="mdl-button action">Agree</button>-->
+        <button type="button" class="mdl-button close">Close</button>
+      </div>
+  </dialog>
       
   <div class="demo-layout mdl-layout mdl-js-layout mdl-layout--fixed-drawer mdl-layout--fixed-header">
     <header class="demo-header mdl-layout__header  mdl-color--primary-dark">
@@ -306,6 +295,9 @@ mdl-color--accent-contrast
       <div class="mdl-tabs__panel mdl-grid demo-content navigation-page" id="sensordetails">     
           <div class="mdl-grid" id="sensordetailscontainer"/>
       </div>
+      <div class="mdl-tabs__panel mdl-grid demo-content navigation-page" id="thermostatschedule">
+
+      </div>
     </main>
     <section id ="templates" style="display: none;">
 
@@ -339,11 +331,14 @@ mdl-color--accent-contrast
         </div>
 
         <div class="mdl-card__actions mdl-card--border">
-            <a href="#" class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-color-text--primary">Save</a>
+            <a id="nodeSave" href="#sensorspage" class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-color-text--primary">Save</a>
             <div class="mdl-layout-spacer"></div>
-            <a href="#" class="mdl-button mdl-js-button mdl-button--icon mdl-button--colored"><i class="material-icons">remove_red_eye</i></a>
-            <a href="#" class="mdl-button mdl-js-button mdl-button--icon mdl-button--colored"><i class="material-icons">cloud_download</i></a>
-            <a href="#" class="mdl-button mdl-js-button mdl-button--icon mdl-button--colored"><i class="material-icons">delete</i></a>
+            <a id="nodeHidden" href="#" class="mdl-button mdl-js-button mdl-button--icon mdl-button--colored"><i class="material-icons">remove_red_eye</i></a>
+            <div class="mdl-tooltip" data-mdl-for="nodeHidden">Hide node</div>
+            <a id="nodeDownloadCSV" href="#" class="mdl-button mdl-js-button mdl-button--icon mdl-button--colored"><i class="material-icons">cloud_download</i></a>
+            <div class="mdl-tooltip" data-mdl-for="nodeDownloadCSV">Download CSV data</div>
+            <a id="nodeDelete" href="#sensorspage" class="mdl-button mdl-js-button mdl-button--icon mdl-button--colored"><i class="material-icons">delete</i></a>
+            <div class="mdl-tooltip" data-mdl-for="nodeDelete">Delete nodea</div>
         </div>
       </div>
 
@@ -372,28 +367,70 @@ mdl-color--accent-contrast
         </div>
 
         <div class="mdl-card__actions mdl-card--border">
-          <a href="#" class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-color-text--primary ">Save</a>
+          <a id ="metricSave" href="#" class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-color-text--primary ">Save</a>
           <div class="mdl-layout-spacer"></div>
-          <a href="#" class="mdl-button mdl-js-button mdl-button--icon mdl-button--colored"><i class="material-icons">location_on</i></a>
-          <a href="#" class="mdl-button mdl-js-button mdl-button--icon mdl-button--colored"><i class="material-icons">insert_chart</i></a>
-          <a href="#" class="mdl-button mdl-js-button mdl-button--icon mdl-button--colored"><i class="material-icons">delete</i></a>
+          <a id ="metricPin" href="#" class="mdl-button mdl-js-button mdl-button--icon mdl-button--colored"><i class="material-icons">location_on</i></a>
+          <a id ="metricGraph" href="#" class="mdl-button mdl-js-button mdl-button--icon mdl-button--colored"><i class="material-icons">insert_chart</i></a>
+          <a id ="metricDelete" href="#" class="mdl-button mdl-js-button mdl-button--icon mdl-button--colored"><i class="material-icons">delete</i></a>
         </div>
       </div>
 
-      <div class="mdl-card mdl-shadow--2dp mdl-cell mdl-cell--4-col" id ="sensoreventtemplate">
-          <div class="mdl-card__title">
-            <h3>
-              <div id = "sensoreventtitle" class="mdl-card__title-text mdl-color-text--primary-contrast"></div>
-              <div id = "sensoreventsubtitle" class="mdl-card__subtitle-text mdl-color-text--primary-contrast"></div>
-            </h3>
-            </svg>
+      <!--<div class="mdl-card mdl-shadow--2dp mdl-cell mdl-cell--4-col" id ="sensoreventtemplate">
+          <div class="mdl-card__supporting-text mdl-card--expand mdl-color-text--primary-contrast">
+            <div>
+              <div id = "sensoreventtitle" class="mdl-color-text--primary-contrast"></div>
+              <div id = "sensoreventsubtitle" class="mdl-color-text--primary-contrast"></div>
+            </div>
           </div>
           <div class="mdl-card__actions mdl-card--border">
             <div class="mdl-layout-spacer"></div>
             <a href="#" class="mdl-button mdl-js-button mdl-button--icon mdl-button--colored"><i class="material-icons">highlight_off</i></a>
             <a href="#" class="mdl-button mdl-js-button mdl-button--icon mdl-button--colored"><i class="material-icons">delete</i></a>
           </div>
+        </div>-->
+
+        <div class="mdl-card mdl-shadow--2dp mdl-cell mdl-cell--12-col" id ="sensorevensttemplate">
+          <div class="mdl-card__title">
+            <h3 class="mdl-card__title-text mdl-color-text--primary-contrast">Events</h3>
+          </div>
+          <div class="mdl-card__supporting-text mdl-card--expand mdl-color-text--primary-contrast">
+           <ul class="mdl-list"></ul>
+          </div>
+          <div class="mdl-card__actions mdl-card--border">
+            <div class="mdl-layout-spacer"></div>
+            <a href="#editEvents" class="mdl-button mdl-js-button mdl-button--icon mdl-button--colored"><i class="material-icons">edit</i></a>
+          </div>
         </div>
+
+          <li class="mdl-list__item mdl-list__item--two-line" id="eventTemplate">
+     
+            <span class="mdl-list__item-primary-content">
+              
+              <span id="eventLabel"></span>
+              <span id="eventDescription" class="mdl-list__item-sub-title"></span>
+            </span>
+            <span class="mdl-list__item-secondary-action">
+                <label class="mdl-switch mdl-js-switch mdl-js-ripple-effect" for="eventEnable">
+                  <input type="checkbox" id="eventEnable" class="mdl-switch__input" />
+              </label>
+              <!--<a id="eventDelete" class="mdl-list__item-secondary-action" href="#"><i class="material-icons">delete</i></a>-->
+            </span>
+          </li>
+          <li class="mdl-list__item mdl-list__item--two-line" id="eventDefTemplate">
+     
+            <span class="mdl-list__item-primary-content">
+              
+              <span id="eventDefLabel"></span>
+              <span id="eventDefDescription" class="mdl-list__item-sub-title"></span>
+            </span>
+            <span class="mdl-list__item-secondary-action">
+                <label class="mdl-checkbox mdl-js-checkbox mdl-js-ripple-effect" for="eventDefEnable">
+                  <input type="checkbox" id="eventDefEnable" class="mdl-checkbox__input" />
+              </label>
+              <!--<a id="eventDelete" class="mdl-list__item-secondary-action" href="#"><i class="material-icons">delete</i></a>-->
+            </span>
+          </li>
+
     </section>
   </div>
 <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" style="position: fixed; left: -1000px; height: -1000px;">

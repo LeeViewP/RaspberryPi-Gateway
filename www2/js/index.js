@@ -59,8 +59,32 @@ AiController.prototype.UpdateSettings = function (boundSettings) {
     this.socket.UpdateSettings(boundSettings);
 };
 
-var aiController = new AiController();
+AiController.prototype.EnableEvent = function (event) {
+    this.socket.EnableEvent(event);
+};
 
+AiController.prototype.UpdateMetric = function (metricObject) {
+    this.socket.UpdateMetric(metricObject);
+};
+
+AiController.prototype.DeleteMetric = function (node) {
+    this.socket.DeleteMetric(node);
+};
+
+AiController.prototype.UpdateNode = function (nodeObject) {
+    this.socket.UpdateNode(nodeObject);
+};
+
+AiController.prototype.DeleteNode = function (nodeObject) {
+    this.socket.DeleteNode(nodeObject);
+};
+
+
+try {
+    var aiController = new AiController();
+}
+catch (err)
+{ alert ('Error:'+err.message)}
 
 //refresh "updated X ago" indicators
 var updateAgosTimer = setInterval(updateAgos, 3000);

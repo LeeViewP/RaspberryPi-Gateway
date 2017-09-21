@@ -1,4 +1,62 @@
 // Place your settings in this file to overwrite default and user settings.
 {
-    "git.path": "D:\\P\\GitPortable\\App\\Git\\bin\\git.exe"
+    "git.path": "D:\\P\\GitPortable\\App\\Git\\bin\\git.exe",
+    "deploy": {
+        "packages": [
+            {
+                "name": "Gateway",
+                "description": "Raspberry Pi Gateway ",
+                "button": {
+                    "text": "Deploy to 'Gateway'",
+                    "tooltip": "Click here to deploy to the Raspberry Pi Gateway",
+
+                    "targets": [ "My SFTP PI" ]
+                },
+                "syncWhenOpen":  "My SFTP PI",   
+                
+                // "files": [
+                //     "**/*.css",
+                //     "**/*.js",
+                //     "**/*.html",
+                //     "**/*.jpeg",
+                //     "**/*.png",
+                //     "**/*.json5",
+                //     "/*.json"
+                // ],
+                "exclude": [
+                    "data/**"
+                ],
+                "deployOnSave": true
+            },
+            {
+                "name": "Version 2.3.5 (anything)",
+                "description": "Package version 2.3.5"
+            }
+        ],
+
+        "targets": [
+            {
+                "type": "sftp",
+                "name": "My SFTP PI",
+                "description": "A SFTP folder",
+                 "mappings": [
+                    {
+                        "source": "D:\\P\\git\\gateway\\RaspberryPi-Gateway",
+                        "target": "/home/pi/gateway"
+                    }
+                ],
+
+                "dir": "/home/pi/gateway",
+                "host": "perecrestov.go.ro", "port": 22,
+                "user": "pi", "password": "misicamitraPi1",
+                "checkBeforeDeploy": true
+               
+                
+                
+            }
+        ]
+
+        
+    }
+
 }

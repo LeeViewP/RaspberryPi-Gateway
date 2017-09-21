@@ -22,7 +22,7 @@ exports.motes = {
                         serverExecute: function (node) {
                             var fakeSerialMsg = '[' + node._id + '] ' + 'ALARM:' + 'ON';
                             processSerialData(fakeSerialMsg);
-                            exports.sendAdbSMS('Alarm%s*Armed');
+                            exports.sendAdbSMS('Alarm%sARMED');
                             // updateNodeMetric({ nodeId: node._id, metric: { name: 'ALARMMODE', value: 'ARMED' } });
                             return;
                         },
@@ -45,33 +45,33 @@ exports.motes = {
                             var fakeSerialMsg = '[' + node._id + '] ' + 'ALARM:' + 'OFF';
                             processSerialData(fakeSerialMsg);
                             // updateNodeMetric({ nodeId: node._id, metric: { name: 'ALARMMODE', value: 'DISARMED' } });
-                            exports.sendAdbSMS('Alarm%s*Disarmed');
+                            exports.sendAdbSMS('Alarm%sDISARMED');
                             return;
                         },
                     },
                 ]
             },
-            autostatus: {
-                states: [
-                    {
-                        label: 'Auto',
-                        icon: 'fa-unlock',
-                        css: 'background-color:#9BFFBE',
-                        condition: '' + function (node) { if (node.metrics != null) if (node.metrics['ALARM']) return node.metrics['ALARM'].value == 'AUTO'; else return false; else return true; }
-                    },
-                    {
-                        label: 'Auto',
-                        icon: 'fa-unlock',
-                        condition: '' + function (node) { if (node.metrics != null) if (node.metrics['ALARM']) return node.metrics['ALARM'].value != 'AUTO'; else return true; else return true; },
-                        serverExecute: function (node) {
-                            var fakeSerialMsg = '[' + node._id + '] ' + 'ALARM:' + 'AUTO';
-                            processSerialData(fakeSerialMsg);
-                            // updateNodeMetric({ nodeId: node._id, metric: { name: 'ALARMMODE', value: 'DISARMED' } });
-                            return;
-                        },
-                    },
-                ]
-            }
+            // autostatus: {
+            //     states: [
+            //         {
+            //             label: 'Auto',
+            //             icon: 'fa-unlock',
+            //             css: 'background-color:#9BFFBE',
+            //             condition: '' + function (node) { if (node.metrics != null) if (node.metrics['ALARM']) return node.metrics['ALARM'].value == 'AUTO'; else return false; else return true; }
+            //         },
+            //         {
+            //             label: 'Auto',
+            //             icon: 'fa-unlock',
+            //             condition: '' + function (node) { if (node.metrics != null) if (node.metrics['ALARM']) return node.metrics['ALARM'].value != 'AUTO'; else return true; else return true; },
+            //             serverExecute: function (node) {
+            //                 var fakeSerialMsg = '[' + node._id + '] ' + 'ALARM:' + 'AUTO';
+            //                 processSerialData(fakeSerialMsg);
+            //                 // updateNodeMetric({ nodeId: node._id, metric: { name: 'ALARMMODE', value: 'DISARMED' } });
+            //                 return;
+            //             },
+            //         },
+            //     ]
+            // }
             // status: {
             //     states: [
             //         {
@@ -308,7 +308,7 @@ exports.events = {
                     {
                         var fakeSerialMsg = '[' + node._id + '] ' + 'ALARM:' + 'ON';
                         processSerialData(fakeSerialMsg);
-                        exports.sendAdbSMS('Alarm%s*Armed');
+                        exports.sendAdbSMS('Alarm%sAUTO%sARMED');
                         sendEmail('SMART ALARM', 'AUTO ARMED');
                     }
                 

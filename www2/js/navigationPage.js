@@ -119,12 +119,6 @@ NavigationPage.prototype.makePageVisible_ = function (id) {
             this.activepage_.classList.remove(this.CssClasses_.SHOW);
             this.activepage_.classList.add(this.CssClasses_.HIDE);
         }
-        //hide all the pages
-        // this.pages_.forEach(function (page) {
-        //     page.classList.remove(this.CssClasses_.SHOW);
-        //     page.classList.add(this.CssClasses_.HIDE)
-        // }, this
-        // );
 
         if (newActivepage != null) {
             newActivepage.classList.remove(this.CssClasses_.HIDE);
@@ -133,6 +127,8 @@ NavigationPage.prototype.makePageVisible_ = function (id) {
         }
         this.hideDrawer_();
         this.hash = window.location.hash;
+        this.activepage_.scrollIntoView();
+        // window.scrollTo(0,0);
     }
     else
         window.location.hash = this.hash;

@@ -9,10 +9,11 @@ function InterfaceNotifier() {
     var clickEvent = 'click';
     //create action for all dialogs
     document.querySelectorAll('dialog').forEach(function (dialog) {
-        dialog.querySelector('.action').addEventListener(clickEvent, function () {
-            aiController.DialogAction(dialog.id.toUpperCase());
-            dialog.close();
-        });
+        if (dialog.querySelector('.action') != null)
+            dialog.querySelector('.action').addEventListener(clickEvent, function () {
+                aiController.DialogAction(dialog.id.toUpperCase());
+                dialog.close();
+            });
     });
 
 }
@@ -90,6 +91,7 @@ InterfaceNotifier.prototype.error = function (node) {
     navigationPage.navigate('#loading');
     navigationPage.locknavigation(true);
 };
+
 InterfaceNotifier.prototype.updateNode = function (node) {
     'use strict';
     // console.log('refresh node' + JSON.stringify(node));
@@ -101,10 +103,10 @@ InterfaceNotifier.prototype.updateNode = function (node) {
         var newCard = this.createSensorCard_(node);
 
         if (node.hidden)
-            if (showHiddenNodes)
-                newCard.addClass('hiddenNodeShow');
+            if (this.Toggles_.showHiddenNodes)
+                newCard.classList.add('hiddenNodeShow');
             else
-                newCard.addClass('hiddenNode');
+                newCard.classList.add('hiddenNode');
         if (existingCard != null)
             document.querySelector('#sensorspage').replaceChild(newCard, existingCard);
         else
@@ -139,6 +141,7 @@ InterfaceNotifier.prototype.updateNodes = function (nodes) {
 InterfaceNotifier.prototype.updateThermostatSchedule = function (node) {
     'use strict';
     console.log('updateThermostatSchedule:' + JSON.stringify(node));
+    navigationPage.navigate('#thermostatschedule');
     // updateNode(entry);
     // var days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
     // var tabsParent = $('#thermostatTabs').parent();
@@ -259,7 +262,44 @@ InterfaceNotifier.prototype.updateMetricsDefinition = function (metricsDefinitio
 InterfaceNotifier.prototype.updateEventsDefinition = function (eventsDefinition) {
     'use strict';
     this.Definitions_.eventsDef = eventsDefinition;
+
+    var eventlist = document.querySelector('dialog #eventsList');
+    var eventTemplate = document.querySelector('section#templates #eventDefTemplate');
+    for (var key in this.Definitions_.eventsDef) {
+        var evt = this.Definitions_.eventsDef[key];
+        var eventLi = eventTemplate.cloneNode(true);
+        var evtTitle = eventLi.querySelector('#eventDefLabel');
+        evtTitle.textContent = evt.label;
+        var evtSubTitle = eventLi.querySelector('#eventDefDescription');
+        evtSubTitle.textContent = evt.descr || '&nbsp;';
+
+        var enableEvent = eventLi.querySelector('#eventDefEnable');
+        enableEvent.id += key;
+        enableEvent.parentNode.setAttribute('for', enableEvent.id);
+        
+        //add event on click
+        var objEvent = {
+            handleEvent: function (e) {
+                var event = { nodeId: this.iNotifier.Toggles_.selectedNodeId, key: this.data.key, enabled: e.target.checked?true:null, remove:e.target.checked?null:true};
+                aiController.EnableEvent(event);
+                //add 
+                // socket.emit('EDITNODEEVENT', selectedNodeId, $('#addEventType').val(), true);
+                //delete 
+                // socket.emit('EDITNODEEVENT', selectedNodeId, eventKey, null, true);
+            },
+            iNotifier:this,
+            data: { key: key },
+        };
+        enableEvent.addEventListener(this.clickEvent, objEvent);
+
+        this.reinitialixeTextFieldMDL(enableEvent.parentNode);
+        componentHandler.upgradeElement(enableEvent);
+
+        componentHandler.upgradeElement(eventLi);
+        eventlist.appendChild(eventLi);
+    }
     console.log('EventsDefinition Connected!');
+
     // eventsDef = eventsDefinition;
     // $('#addEventType').change(function () {
     //     if ($(this).val()) {
@@ -396,6 +436,7 @@ InterfaceNotifier.prototype.resolveBatteryImage_ = function (voltage) {
     return img;
 
 }
+
 InterfaceNotifier.prototype.resolveRssiImage_ = function (rssi) {
     if (Math.abs(rssi) > 95) img = 'appbar.connection.quality.veryhigh.svg';
     else if (Math.abs(rssi) > 90) img = 'appbar.connection.quality.high.svg';
@@ -406,6 +447,13 @@ InterfaceNotifier.prototype.resolveRssiImage_ = function (rssi) {
     else img = 'appbar.connection.quality.extremelylow.svg';
     return img;
 }
+
+InterfaceNotifier.prototype.reinitialixeTextFieldMDL = function (component) {
+    component.classList.remove('is-upgraded');
+    component.removeAttribute('data-upgraded');
+    componentHandler.upgradeElement(component);
+    component.classList.add('is-dirty');
+};
 
 InterfaceNotifier.prototype.createSensorCard_ = function (node) {
     'use strict';
@@ -768,12 +816,7 @@ InterfaceNotifier.prototype.createCardActions_ = function (node) {
     }
     return divCardActions;
 }
-InterfaceNotifier.prototype.reinitialixeTextFieldMDL = function (component) {
-    component.classList.remove('is-upgraded');
-    component.removeAttribute('data-upgraded');
-    componentHandler.upgradeElement(component);
-    component.classList.add('is-dirty');
-}
+
 InterfaceNotifier.prototype.createCardMenuButton_ = function (node) {
     // ADD button
     var divMenu = document.createElement('div');
@@ -1086,6 +1129,54 @@ InterfaceNotifier.prototype.createSensorEditCard_ = function (node) {
     var nodeIcon = detailCard.querySelector('#sensordetailsvg');
     nodeIcon.appendChild(svgUseCardTitle);
 
+    var nodeSave = detailCard.querySelector('#nodeSave');
+
+    var objNode = {
+        handleEvent: function (e) {
+            var node = this.iNotifier.Toggles_.nodes[this.data.nodeId];
+            node.label = nodelabel.value;
+            node.descr = nodedescr.value;
+            node.type = nodeMoteType.value;
+            if (node.label.trim() == '' || node.label == this.iNotifier.Definitions_.motesDef[node.type])
+                node.label = node.type ? this.iNotifier.Definitions_.motesDef[node.type].label : node.label;
+            aiController.UpdateNode(node);
+        },
+        data: { nodeId: node._id },
+        iNotifier: this,
+    };
+    nodeSave.addEventListener(this.clickEvent, objNode);
+
+    //Node Actions
+    var nodeHidden = detailCard.querySelector('#nodeHidden');
+    if (node.hidden) {
+        nodeHidden.classList.add('mdl-button--accent');
+        nodeHidden.classList.remove('mdl-button--colored');
+    }
+
+    var objHidden = {
+        handleEvent: function (e) {
+            var node = this.iNotifier.Toggles_.nodes[this.data.nodeId];
+            node.hidden = e.target.parentNode.classList.contains('mdl-button--colored') ? 1 : 0;
+            aiController.UpdateNode(node);
+        },
+        data: { nodeId: node._id },
+        iNotifier: this,
+    };
+    nodeHidden.addEventListener(this.clickEvent, objHidden);
+
+    var nodeDelete = detailCard.querySelector('#nodeDelete');
+    var objNDelete = {
+        handleEvent: function (e) {
+            this.iNotifier.Toggles_.nodes[this.data.nodeId] = undefined;
+            var nodeCardDelete = document.querySelector('#sensor' + this.data.nodeId);
+            nodeCardDelete.parentNode.removeChild(nodeCardDelete);
+            aiController.DeleteNode(this.data);
+        },
+        data: { nodeId: node._id },
+        iNotifier: this,
+    };
+    nodeDelete.addEventListener(this.clickEvent, objNDelete);
+
     if (this.Definitions_.motesDef[node.type] && this.Definitions_.motesDef[node.type].controls) {
         var nodeCommands = document.createElement('div');
         nodeCommands.classList.add('mdl-card__actions');
@@ -1139,6 +1230,89 @@ InterfaceNotifier.prototype.createSensorEditCard_ = function (node) {
             value.setAttribute('disabled', 'disabled');
             this.reinitialixeTextFieldMDL(value.parentNode);
 
+            var metricSave = metricCard.querySelector('#metricSave');
+            metricSave.id += key;
+            var objLabel = {
+                handleEvent: function (e) {
+                    var metric = this.iNotifier.Toggles_.nodes[this.data.nodeId].metrics[this.data.key];
+                    if (metric != undefined) {
+                        var metricLabel = container.querySelector('#sensormetriclabel-' + this.data.key);
+                        metric.label = metricLabel.value;
+                        var obj = { nodeId: this.data.nodeId, key: this.data.key, metric: metric }
+                        aiController.UpdateMetric(obj);
+                    }
+                },
+                data: { nodeId: node._id, key: key },
+                iNotifier: this,
+            };
+            metricSave.addEventListener(this.clickEvent, objLabel);
+
+            var metricPin = metricCard.querySelector('#metricPin');
+            if (metric.pin == null)
+                metricPin.parentNode.removeChild(metricPin);
+            else {
+                metricPin.id += key;
+                if (metric.pin == '1') {
+                    metricPin.classList.add('mdl-button--accent');
+                    metricPin.classList.remove('mdl-button--colored');
+                }
+
+                //Add Pin Event
+                var objPin = {
+                    handleEvent: function (e) {
+                        var metric = this.iNotifier.Toggles_.nodes[this.data.nodeId].metrics[this.data.key];
+                        if (metric != undefined) {
+                            metric.pin = e.target.parentNode.classList.contains('mdl-button--colored') ? 1 : 0;
+                            var obj = { nodeId: this.data.nodeId, key: this.data.key, metric: metric }
+                            aiController.UpdateMetric(obj);
+                        }
+                    },
+                    data: { nodeId: node._id, key: key },
+                    iNotifier: this,
+                };
+                metricPin.addEventListener(this.clickEvent, objPin);
+            }
+
+
+            var metricGraph = metricCard.querySelector('#metricGraph');
+            if (metric.graph == null)
+                metricGraph.parentNode.removeChild(metricGraph);
+            else {
+                metricGraph.id += key;
+                if (metric.graph == 1) {
+                    metricGraph.classList.add('mdl-button--accent');
+                    metricGraph.classList.remove('mdl-button--colored');
+                }
+                //Add graph Event
+                var objGraph = {
+                    handleEvent: function (e) {
+                        var metric = this.iNotifier.Toggles_.nodes[this.data.nodeId].metrics[this.data.key];
+                        if (metric != undefined) {
+                            metric.graph = e.target.parentNode.classList.contains('mdl-button--colored') ? 1 : 0;
+                            var obj = { nodeId: this.data.nodeId, key: this.data.key, metric: metric }
+                            aiController.UpdateMetric(obj);
+                        }
+                    },
+                    data: { nodeId: node._id, key: key },
+                    iNotifier: this,
+                };
+                metricGraph.addEventListener(this.clickEvent, objGraph);
+            }
+            var metricDelete = metricCard.querySelector('#metricDelete');
+            metricDelete.id += key;
+            //Add graph Event
+            var objMDelete = {
+                handleEvent: function (e) {
+                    this.iNotifier.Toggles_.nodes[this.data.nodeId].metrics[this.data.key] = undefined;
+                    var metricCardDelete = container.querySelector('#sensormetric-' + this.data.key);
+                    metricCardDelete.parentNode.removeChild(metricCardDelete);
+                    aiController.DeleteMetric(this.data);
+                },
+                data: { nodeId: node._id, key: key },
+                iNotifier: this,
+            };
+            metricDelete.addEventListener(this.clickEvent, objMDelete);
+
             componentHandler.upgradeElement(metricCard);
 
             container.appendChild(metricCard);
@@ -1146,28 +1320,58 @@ InterfaceNotifier.prototype.createSensorEditCard_ = function (node) {
     }
 
     if (node.events != null) {
-        var eventsseparator = document.createElement('div');
-        eventsseparator.classList.add('mdl-cell--12-col');
-        container.appendChild(eventsseparator);
-        var eventTemplate = document.querySelector('section#templates #sensoreventtemplate');
+        var eventCardTemplate = document.querySelector('section#templates #sensorevensttemplate');
+        var eventCard = eventCardTemplate.cloneNode(true);
+        container.appendChild(eventCard);
+
+        var eventsContainer = eventCard.querySelector('ul');
+        var eventTemplate = document.querySelector('section#templates #eventTemplate');
+        var eventsList = document.querySelectorAll('#eventsList li input');
+        eventsList.forEach(function (input) {
+            input.checked = false;
+            input.parentNode.classList.remove('is-checked');
+        });
         for (var key in node.events) {
             var evt = this.Definitions_.eventsDef[key];
             var enabled = node.events[key];
             if (!evt) continue;
-            var eventCard = eventTemplate.cloneNode(true);
-            eventCard.id = 'sensorevent-' + key;
-            var evtTitle = eventCard.querySelector('#sensoreventtitle');
+            var eventLi = eventTemplate.cloneNode(true);
+            eventLi.id = 'sensorevent-' + key;
+            var evtTitle = eventLi.querySelector('#eventLabel');
             evtTitle.textContent = evt.label;
-            var evtSubTitle = eventCard.querySelector('#sensoreventsubtitle');
+            var evtSubTitle = eventLi.querySelector('#eventDescription');
             evtSubTitle.textContent = evt.descr || '&nbsp;';
-            componentHandler.upgradeElement(eventCard);
 
-            container.appendChild(eventCard);
-            // var newLI = $('<li><a data-icon="delete" event-id="' + key + '" href="#" class="eventEnableDisable" style="padding-top:0;padding-bottom:0;padding-left:0"><span class="ui-btn-icon-notext ui-icon-' + (enabled ? (evt.icon ? evt.icon : 'action') : 'minus') + '" style="position:relative;float:left;padding:15px 10px;background-color:' + (enabled ? '#2d0' : '#d00') + '"></span><h2 style="padding-left:10px">' + evt.label + '</h2><p style="padding-left:10px">' + (evt.descr || '&nbsp;') + '</p>' + '</a><a event-id="' + key + '" href="#" class="eventDelete" data-transition="pop" data-icon="delete"></a></li>');
-            // var existingNode = $('#eventList li#evt_' + key);
-            // if (existingNode.length)
-            //   existingNode.replaceWith(newLI);
-            // else $('#eventList').append(newLI);
+            var enableEvent = eventLi.querySelector('#eventEnable');
+            enableEvent.id += key;
+            enableEvent.parentNode.setAttribute('for', enableEvent.id);
+            // enableEvent.setAttribute('checked',enabled);
+            enableEvent.checked = enabled;
+
+            var enabledDefEvent = document.querySelector('#eventDefEnable'+key);
+            enabledDefEvent.checked = true;
+            enabledDefEvent.parentNode.classList.add('is-checked');
+
+            //add event on click
+            var objEvent = {
+                handleEvent: function (e) {
+                    var event = { nodeId: this.data.nodeId, key: this.data.key, enabled: e.target.checked }
+                    aiController.EnableEvent(event);
+                },
+                data: { nodeId: node._id, key: key },
+            };
+            enableEvent.addEventListener(this.clickEvent, objEvent);
+
+            this.reinitialixeTextFieldMDL(enableEvent.parentNode);
+            componentHandler.upgradeElement(enableEvent);
+            // deleteEvent = eventLi.querySelector('#eventDelete');
+            // deleteEvent.id+=key;
+            // componentHandler.upgradeElement(deleteEvent);
+
+
+            componentHandler.upgradeElement(eventLi);
+
+            eventsContainer.appendChild(eventLi);
         }
     }
 };
