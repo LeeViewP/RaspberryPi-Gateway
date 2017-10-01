@@ -285,7 +285,7 @@ exports.comfortTypes = {
             temperature: 22.8
         },
         cool: {
-            icon: "fa-ge",
+            icon: "fa-snowflake-o",
             temperature: 24.8
         },
     },
@@ -297,7 +297,7 @@ exports.comfortTypes = {
             temperature: 20
         },
         cool: {
-            icon: "fa-ge",
+            icon: "fa-snowflake-o",
             temperature: 26.8
         },
     },
@@ -309,7 +309,7 @@ exports.comfortTypes = {
             temperature: 19.5
         },
         cool: {
-            icon: "fa-ge",
+            icon: "fa-snowflake-o",
             temperature: 27.8
         },
     },
@@ -321,7 +321,7 @@ exports.comfortTypes = {
             temperature: 14
         },
         cool: {
-            icon: "fa-ge",
+            icon: "fa-snowflake-o",
             temperature: 30
         },
     },

@@ -26,7 +26,7 @@ SocketExtender.prototype.initializeSocket = function (socket, interfaceNotifier)
     socket.on('reconnect_error', function (error) {
         interfaceNotifier.error(error);
     });
-    
+
     socket.on('UPDATENODE', function (entry) {
         interfaceNotifier.updateNode(entry);
     });
@@ -62,6 +62,13 @@ SocketExtender.prototype.initializeSocket = function (socket, interfaceNotifier)
         aiController.serverTimeOffset = Date.now() - serverMillisSinceEpoch;
         // LOG('SERVERTIME OFFSET: ' + serverTimeOffset + 'ms');
     });
+    socket.on('SERVERSTARTTIME', function (serverMillisSinceProcessStart) {
+        interfaceNotifier.setServerUpTime(serverMillisSinceProcessStart + aiController.serverTimeOffset);
+      });
+    socket.on('GRAPHDATAREADY', function (rawData) {
+         interfaceNotifier.graphDataReady(rawData);
+    });
+    
 };
 
 SocketExtender.prototype.ControlClick = function (data) {
@@ -95,4 +102,13 @@ SocketExtender.prototype.UpdateNode = function (nodeObject) {
 SocketExtender.prototype.DeleteNode = function (nodeObject) {
     this.Socket.emit('DELETENODE', nodeObject.nodeId);
 };
+SocketExtender.prototype.EditNodeSchedule = function (schedule) {
+    this.Socket.emit('EDITNODESCHEDULE', schedule.selectedNodeId, schedule.selectedScheduleDay, schedule.selectedSchedulePeriod,
+        schedule.scheduleObject, schedule.remove);
+};
+
+SocketExtender.prototype.GetGraphData = function (graphObject) {
+    this.Socket.emit('GETGRAPHDATA', graphObject.NodeId, graphObject.MetricKey, graphObject.starTime, graphObject.endTime);
+};
+
 

@@ -43,6 +43,8 @@ var nodemailer = require('nodemailer');                         //https://github
 var request = require('request');
 db = new Datastore({ filename: path.join(__dirname, dbDir, settings.database.name.value), autoload: true });       //used to keep all node/metric data
 var dbunmatched = new Datastore({ filename: path.join(__dirname, dbDir, settings.database.nonMatchesName.value), autoload: true });
+var dbSecurity = new Datastore({ filename: path.join(__dirname, dbDir, 'users.db'), autoload: true }); //will generate some users here and not using basic authentication
+
 serial = new serialport.SerialPort(settings.serial.port.value, { baudrate: settings.serial.baud.value, parser: serialport.parsers.readline("\n") }, false);
 
 serial.on('error', function serialErrorHandler(error) {
@@ -393,7 +395,8 @@ io.sockets.on('connection', function (socket) {
       }
     }
     graphOptions.metricName = metricKey;
-
+    graphOptions.NodeId = nodeId;
+    
     if (exportMode)
       socket.emit('EXPORTDATAREADY', { graphData: graphData, options: graphOptions });
     else

@@ -5,9 +5,40 @@ function isNumeric(n) {
 
 function InterfaceNotifier() {
     'use strict';
-    // var clickEvent = ((document.ontouchstart !== null) ? 'click' : 'touchend');
-    var clickEvent = 'click';
+    // // var clickEvent = ((document.ontouchstart !== null) ? 'click' : 'touchend');
+    // var clickEvent = 'click';
+    // //create action for all dialogs
+    // document.querySelectorAll('dialog').forEach(function (dialog) {
+    //     if (dialog.querySelector('.action') != null)
+    //         dialog.querySelector('.action').addEventListener(clickEvent, function () {
+    //             aiController.DialogAction(dialog.id.toUpperCase());
+    //             dialog.close();
+    //         });
+    // });
+    this.initialize();
+}
+InterfaceNotifier.prototype.clickEvent = null;
+InterfaceNotifier.prototype.socketExtender = null;
+InterfaceNotifier.prototype.DataTable = new Object(); // new google.visualization.DataTable();
+InterfaceNotifier.prototype.DataTableArray = [];
+InterfaceNotifier.prototype.graphHours = null;
+
+InterfaceNotifier.prototype.initDataTable_ = function () {
+    this.DataTable = new google.visualization.DataTable();
+    var column = { type: 'datetime', label: 'Date', id: 'dateId', pattern: '' }
+    this.DataTable.addColumn(column);
+
+};
+
+InterfaceNotifier.prototype.initialize = function () {
+    'use strict';
+    this.clickEvent = 'click';//((document.ontouchstart !== null) ? 'click' : 'touchend');
+    google.charts.load('current', { packages: ['corechart'] });
+    // google.charts.load('current', { 'packages': ['line'] });
+    google.charts.setOnLoadCallback(this.initDataTable_);
+
     //create action for all dialogs
+    var clickEvent = this.clickEvent;
     document.querySelectorAll('dialog').forEach(function (dialog) {
         if (dialog.querySelector('.action') != null)
             dialog.querySelector('.action').addEventListener(clickEvent, function () {
@@ -15,10 +46,73 @@ function InterfaceNotifier() {
                 dialog.close();
             });
     });
+    this.graphHours = 12;
+    var objGraphControl = {
+        handleEvent: function (e) {
+            this.iNotifier.graphHours = parseInt(e.currentTarget.getAttribute('data-hours'));
+            for (var i = 0; i < this.iNotifier.DataTableArray.length; i++) {
+                // if (this.iNotifier.DataTableArray[i] != undefined) {
+                var nodeId = this.iNotifier.DataTableArray[i].getTableProperty('nodeId');
+                var metricKey = this.iNotifier.DataTableArray[i].getTableProperty('metricKey');
+                // this.iNotifier.DataTableArray.splice(i,1);
+                this.iNotifier.getGraphData(parseInt(nodeId), metricKey);
+                // }
+            }
+        },
+        iNotifier: this,
+    };
+    document.querySelectorAll('.graphControl').forEach(function (button) {
+        button.addEventListener(objGraphControl.iNotifier.clickEvent, objGraphControl);
+    });
+    // document.querySelectorAll('.graphControl').addEventListener(this.clickEvent, objGraphControl)
+    // var objCreateGraph = {
 
+    //     handleEvent: function (e) {
+    //         var renderGraph = document.querySelector('#renderGraph');
+    //         var options = {
+    //             chart: { title: 'Some Title', subtitle: 'Some Subtitle' },
+    //             vAxis: { format: '#.###' },
+    //             hAxis: { format: 'HH:mm' },
+    //             // chartArea: { width: '100%', height: '100%' },
+    //             interpolateNulls: true,
+    //             // titlePosition: 'in', axisTitlesPosition: 'in',
+    //             legend: { position: 'bottom' },
+    //             // explorer: {},
+    //             //  width: 800,
+    //             //   height: 500
+    //         };
+
+    //         for (var i = 0; i < this.iNotifier.DataTableArray.length; i++) {
+    //             if (this.iNotifier.DataTableArray[i] == undefined) {
+    //                 this.iNotifier.DataTableArray.splice(i, 1)
+    //             }
+    //         }
+
+    //         if (this.iNotifier.DataTableArray.length > 1) {
+    //             this.iNotifier.DataTable = this.iNotifier.DataTableArray[0];
+    //             var dtColumns = [];
+    //             for (var i = 1; i < this.iNotifier.DataTableArray.length; i++) {
+
+    //                 dtColumns.push(i);
+    //                 this.iNotifier.DataTable = google.visualization.data.join(this.iNotifier.DataTable, this.iNotifier.DataTableArray[i], 'full', [[0, 0]], dtColumns, [1]);
+    //             }
+    //         }
+    //         else
+    //             this.iNotifier.DataTable = this.iNotifier.DataTableArray[0];
+
+    //         //Material Charts not wokinig
+    //         // var chart = new google.charts.Line(renderGraph);
+    //         // chart.draw(this.iNotifier.DataTable, google.charts.Line.convertOptions(options));
+    //         var chart = new google.visualization.LineChart(renderGraph);
+
+    //         options.theme = 'material';
+    //         chart.draw(this.iNotifier.DataTable, options);
+    //     },
+    //     iNotifier: this,
+    //     // data: { key: key },
+    // }
+    // document.querySelector('#createGraph').addEventListener(this.clickEvent, objCreateGraph);
 }
-InterfaceNotifier.prototype.clickEvent = 'click';//((document.ontouchstart !== null) ? 'click' : 'touchend');
-InterfaceNotifier.prototype.socketExtender = null;
 
 InterfaceNotifier.prototype.Definitions_ = {
     /**
@@ -92,6 +186,12 @@ InterfaceNotifier.prototype.error = function (node) {
     navigationPage.locknavigation(true);
 };
 
+
+InterfaceNotifier.prototype.setServerUpTime = function (dataTime) {
+    var serverTime = document.querySelector('#status-uptime');
+    serverTime.setAttribute('data-time', dataTime);
+};
+
 InterfaceNotifier.prototype.updateNode = function (node) {
     'use strict';
     // console.log('refresh node' + JSON.stringify(node));
@@ -113,6 +213,18 @@ InterfaceNotifier.prototype.updateNode = function (node) {
             document.querySelector('#sensorspage').appendChild(newCard);
         if (this.Toggles_.selectedNodeId == node._id && navigationPage.activepage_.id == "sensordetails")
             this.createSensorEditCard_(node);
+
+        //add li to graph
+        var newGLi = this.createNodeGraphLi(node);
+        var existingGLi = document.querySelectorAll('#graphspage #graphNodeList li[id^=gElementTemplate-' + node._id + '-]');
+        // if (existingGLi != null)
+        //     document.querySelector('#graphNodeList').replaceChild(newGLi, existingGLi);
+        // else
+        //     document.querySelector('#graphNodeList').appendChild(newGLi);
+
+        if (existingGLi.length == 0)
+            for (var index in newGLi)
+                document.querySelector('#graphNodeList').appendChild(newGLi[index]);
     }
 
     //   if (node._id == selectedNodeId) refreshNodeDetails(node);
@@ -138,73 +250,176 @@ InterfaceNotifier.prototype.updateNodes = function (nodes) {
     //     $.mobile.navigate('#homepage', { transition: 'slide' });
 };
 
-InterfaceNotifier.prototype.updateThermostatSchedule = function (node) {
+InterfaceNotifier.prototype.updateThermostatSchedule = function (entry) {
     'use strict';
-    console.log('updateThermostatSchedule:' + JSON.stringify(node));
+    console.log('updateThermostatSchedule:' + JSON.stringify(entry));
+    var thermostatcard = document.querySelector('#thermostatcard');
+    for (var day in entry.thermostatSchedule) {
+        var daypanel = thermostatcard.querySelector('#thermostatScheduleDay-panel-' + day);
+        daypanel.setAttribute('data-schedule-day', day);
+        var olddayul = daypanel.querySelector('ul');
+        var dayul = olddayul.cloneNode(false);
+        olddayul.parentNode.replaceChild(dayul, olddayul);
+        for (var schedule in entry.thermostatSchedule[day]) {
+            var comfortType = this.getComfortType(entry.thermostatSchedule[day][schedule].comfortType);
+
+            var litemplate = document.querySelector('#scheduleTemplate');
+            var scheduleLi = litemplate.cloneNode(true);
+            scheduleLi.id += ('-' + day + '-' + schedule)
+            var comfortTypeLabel = scheduleLi.querySelector('#scheduleComfortType');
+            comfortTypeLabel.textContent = comfortType.label;
+            var comfortTypeStartHour = scheduleLi.querySelector('#comfortTypeStartHour');
+            comfortTypeStartHour.textContent = entry.thermostatSchedule[day][schedule].startTime;
+            var comfortTypeHeatTemp = scheduleLi.querySelector('#comfortTypeHeatTemperature');
+            comfortTypeHeatTemp.textContent = comfortType.heat.temperature + "°";
+            var comfortTypeCoolTemp = scheduleLi.querySelector('#comfortTypeCoolTemperature');
+            comfortTypeCoolTemp.textContent = comfortType.cool.temperature + "°";
+
+            var comfortTypeIcon = scheduleLi.querySelector('#comfortTypeIcon');
+            comfortTypeIcon.id += ('-' + day + '-' + schedule)
+            var svgUseComfortTypeIcon = document.createElementNS('http://www.w3.org/2000/svg', 'use');
+            svgUseComfortTypeIcon.setAttributeNS('http://www.w3.org/1999/xlink', 'href', '#' + comfortType.icon);
+            comfortTypeIcon.appendChild(svgUseComfortTypeIcon);
+
+            var linkEditSchedule = scheduleLi.querySelector('#editScheduleLink');
+            linkEditSchedule.id += ('-' + day + '-' + schedule);
+            linkEditSchedule.setAttribute('data-schedule-day', day);
+            linkEditSchedule.setAttribute('data-schedule-period', schedule);
+            //add event on click
+            var objSchedule = {
+                handleEvent: function (e) {
+                    var parentlinkhref = e.target.parentNode.getAttribute('href');
+                    var dialog = document.querySelector('dialog' + parentlinkhref);
+
+                    var scheduleConfortType = dialog.querySelector("#scheduleConfortType");
+                    scheduleConfortType.value = this.data.comfortType;
+                    this.iNotifier.reinitialixeTextFieldMDL(scheduleConfortType.parentNode);
+                    // componentHandler.upgradeElement(scheduleConfortType);
+                    var scheduleStartTime = dialog.querySelector("#scheduleStartTime");
+                    scheduleStartTime.value = this.data.startTime;
+                    this.iNotifier.reinitialixeTextFieldMDL(scheduleStartTime.parentNode);
+                    // componentHandler.upgradeElement(scheduleStartTime);
+                    //show delete
+                    dialog.querySelector('.delete').style.display = "";
+                    //Save Delete buttons
+                    var objScheduleEdit = {
+                        handleEvent: function (e) {
+                            // var saveAction = e.target.parentNode.classList.contains('save');
+                            var deleteAction = e.target.classList.contains('delete');
+                            // iNotifier.selectedNodeId;
+                            var ScheduleObject = {
+                                selectedNodeId: this.data.nodeId,
+                                selectedScheduleDay: this.data.day,
+                                selectedSchedulePeriod: this.data.schedule,
+                                scheduleObject:
+                                {
+                                    startTime: scheduleStartTime.value,
+                                    comfortType: scheduleConfortType.value,
+                                },
+                                remove: deleteAction,
+                            };
+                            aiController.EditNodeSchedule(ScheduleObject);
+                            this.dialog.close();
+                            var sch = this;
+                            this.dialog.querySelectorAll('.save,.delete').forEach(function (button) {
+                                button.removeEventListener(sch.iNotifier.clickEvent, sch);
+
+                            });
+                        },
+                        iNotifier: this.iNotifier,
+                        data: {
+                            nodeId: entry._id,
+                            day: this.data.day,
+                            schedule: this.data.schedule,
+                        },
+                        dialog: dialog,
+                    }
+
+                    dialog.querySelectorAll('.save,.delete').forEach(function (button) {
+                        button.addEventListener(objScheduleEdit.iNotifier.clickEvent, objScheduleEdit);
+                    });
+
+                },
+                iNotifier: this,
+                data: {
+                    day: linkEditSchedule.getAttribute('data-schedule-day'),
+                    schedule: linkEditSchedule.getAttribute('data-schedule-period'),
+                    comfortType: entry.thermostatSchedule[day][schedule].comfortType,
+                    startTime: entry.thermostatSchedule[day][schedule].startTime,
+                },
+            };
+
+            linkEditSchedule.addEventListener(this.clickEvent, objSchedule);
+
+            dayul.appendChild(scheduleLi);
+        }
+    }
+
+    var oldlinkAddSchedule = thermostatcard.querySelector('#addSchedule');
+    var linkAddSchedule = oldlinkAddSchedule.cloneNode(true);
+    var linkcontainer = oldlinkAddSchedule.parentNode;
+    linkcontainer.replaceChild(linkAddSchedule, oldlinkAddSchedule);
+    var objAddSchedule = {
+        handleEvent: function (e) {
+            //find current tab
+            var currentTab = thermostatcard.querySelector('.mdl-tabs__panel.is-active');
+            var dataday = currentTab.getAttribute('data-schedule-day');
+            //find the dialog
+            var dialog = document.querySelector(e.target.parentNode.getAttribute('href'));
+            // set events for dialog buttons
+            //Hide the delete one
+            dialog.querySelector('.delete').style.display = "none";
+            var scheduleConfortType = dialog.querySelector("#scheduleConfortType");
+            scheduleConfortType.value = "";
+            this.iNotifier.reinitialixeTextFieldMDL(scheduleConfortType.parentNode);
+            scheduleConfortType.parentNode.classList.remove('is-dirty');
+            // componentHandler.upgradeElement(scheduleConfortType);
+            var scheduleStartTime = dialog.querySelector("#scheduleStartTime");
+            scheduleStartTime.value = null;
+            this.iNotifier.reinitialixeTextFieldMDL(scheduleStartTime.parentNode);
+            scheduleStartTime.parentNode.classList.remove('is-dirty');
+            // componentHandler.upgradeElement(scheduleStartTime);
+            var objSaveSchedule = {
+                handleEvent: function (e) {
+                    var ScheduleObject = {
+                        selectedNodeId: this.data.nodeId,
+                        selectedScheduleDay: this.data.day,
+                        selectedSchedulePeriod: this.data.schedule,
+                        scheduleObject:
+                        {
+                            startTime: scheduleStartTime.value,
+                            comfortType: scheduleConfortType.value,
+                        },
+                        remove: false,
+                    };
+                    aiController.EditNodeSchedule(ScheduleObject);
+                    this.dialog.close();
+                    var schS = this;
+                    this.dialog.querySelectorAll('.save').forEach(function (button) {
+                        button.removeEventListener(schS.iNotifier.clickEvent, schS);
+
+                    });
+                },
+                iNotifier: this.iNotifier,
+                dialog: dialog,
+                data: {
+                    nodeId: entry._id,
+                    day: dataday,
+                    schedule: null,
+
+                },
+            }
+            dialog.querySelectorAll('.save').forEach(function (button) {
+                button.addEventListener(objSaveSchedule.iNotifier.clickEvent, objSaveSchedule);
+            });
+
+        },
+        iNotifier: this,
+        thermostatcard: thermostatcard,
+
+    };
+    linkAddSchedule.addEventListener(this.clickEvent, objAddSchedule);
     navigationPage.navigate('#thermostatschedule');
-    // updateNode(entry);
-    // var days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-    // var tabsParent = $('#thermostatTabs').parent();
-    // $('#thermostatTabs').remove();
-    // var tabs = $('<div/>', { 'data-role': "tabs", 'id': "thermostatTabs" }).appendTo(tabsParent);
-    // var thNavBar = $('<div/>', { 'data-role': "navbar", 'id': "thermostatNavbar" }).appendTo(tabs);
-
-    // var thUl = $('<ul/>', { 'id': "thermostatScheduleWeekDays" }).appendTo(thNavBar);
-
-    // for (var day in entry.thermostatSchedule) {
-    //     var thLi = $('<li/>', { class: "tab" }).appendTo(thUl);
-    //     var thLiA = $('<a/>', { 'href': "#day" + day, text: days[day], 'scheduled-day': day }).appendTo(thLi);
-    //     thLiA.addClass('scheduleday');
-    //     var thTab = $('<div/>', { 'id': "day" + day }).appendTo(tabs);
-    //     var thTabUl = $('<ul/>', { 'data-role': "listview", 'data-inset': "true", 'id': "listview" + day }).appendTo(thTab);
-    //     var thTabUlDivider = $('<li/>', { 'data-role': "divider", 'id': "listDivider" + day }).appendTo(thTabUl);
-    //     var thDividerH = $('<h2/>', { 'text': days[day] + ' Schedule' }).appendTo(thTabUlDivider);
-    //     //var thDividerAdd =  $('<a/>', {'href':"#thermostatScheduleDetatils", 'data-role':"button", 'data-inline':"true", 'data-icon':"plus", 'data-iconpos':"notext", 'data-mini':"true", 'title':"Add new schedule" }).appendTo(thTabUlDivider); 
-    //     var thDividerAddContainer = $('<div/>').appendTo(thTabUlDivider);
-    //     thDividerAddContainer.addClass("ui-li-count ui-body-inherit");
-    //     var thDividerAdd = $('<a/>', { 'href': "#thermostatScheduleDetails", 'data-role': "button", 'data-inline': "true", 'data-icon': "plus", 'data-iconpos': "notext", 'data-mini': "true", 'title': "Add new schedule" }).appendTo(thDividerAddContainer);
-    //     thDividerAdd.addClass("newschedule");
-    //     for (var schedule in entry.thermostatSchedule[day]) {
-    //         var comfortType = getComfortType(entry.thermostatSchedule[day][schedule].comfortType);
-
-    //         var thTabLi = $('<li/>').appendTo(thTabUl);
-    //         var thASchedule = $('<a/>', { 'href': "#thermostatScheduleDetails", 'scheduled-period': schedule }).appendTo(thTabLi);
-    //         thASchedule.addClass('scheduledetails');
-    //         var thComfortTypeImage = $('<img/>', { 'src': "images/" + comfortType.icon, }).appendTo(thASchedule);
-    //         var thStartHour = $('<div/>', { 'id': "thStartHour" + day + schedule, 'style': "float:right;" }).appendTo(thASchedule);
-    //         thStartHour.text(entry.thermostatSchedule[day][schedule].startTime);
-    //         var thConfortType = $('<div/>', { 'text': comfortType.label }).appendTo(thASchedule);
-    //         var thConfortTypeTemperatures = $('<div/>').appendTo(thASchedule); //newBtn.addClass('ui-icon-' + state.icon);
-    //         var thSpanHeat = $('<span/>', { 'data-icon': comfortType.heat.icon, 'style': "color:#ff1100; border-style: hidden;background-color: transparent" }).appendTo(thConfortTypeTemperatures);
-    //         thSpanHeat.addClass('ui-btn ui-btn-inline ui-btn-icon-left ui-icon-' + comfortType.heat.icon);
-    //         thSpanHeat.text(comfortType.heat.temperature + "°");
-
-    //         var thSpanCool = $('<span/>', { 'data-icon': comfortType.cool.icon, 'text': comfortType.cool.temperature + "°", 'style': "color:#0077ff; border-style: hidden;background-color: transparent;" }).appendTo(thConfortTypeTemperatures);
-    //         thSpanCool.addClass('ui-btn ui-btn-inline ui-btn-icon-left ui-icon-' + comfortType.cool.icon);
-    //         var thAOption = $('<a/>', {
-    //             'href': "#schedule-option-popup",
-    //             'title': "Schedule Options",
-    //             'scheduled-period': schedule,
-    //             'data-role': "button", 'data-icon': "action",
-    //             'data-iconpos': "notext", 'data-rel': "popup",
-    //             'data-position-to': "window",
-    //             'data-transition': "pop"
-    //         }).appendTo(thTabLi);
-    //         thAOption.addClass('scheduledetails');
-    //     }
-    //     thTabUl.listview().listview('refresh');
-    //     $('#listview' + day).listview('refresh');
-    // }
-    // // thUl.listview().listview('refresh');
-    // //  $('#thermostatScheduleWeekDays').listview('refresh');
-
-    // tabsParent.enhanceWithin();
-    // tabs.tabs({ active: selectedScheduleDay });
-
-    // //$('#thermostatSchedulePage').trigger('pagecreate');
-    // //$('#thermostatScheduleWeekDays').trigger('create');
-    // $.mobile.changePage('#thermostatSchedulePage', { transition: 'slide' });
-    // //alert(JSON.stringify(entry));
 };
 
 InterfaceNotifier.prototype.updateMotesDefinition = function (motesDefinition) {
@@ -233,6 +448,27 @@ InterfaceNotifier.prototype.updateMotesDefinition = function (motesDefinition) {
 InterfaceNotifier.prototype.updateComfortTypesDefinition = function (comfortTypesDefinition) {
     'use strict';
     this.Definitions_.comfortTypesDef = comfortTypesDefinition
+    var oldscheduleConfortType = document.querySelector('#scheduleConfortType');
+
+    //clean the select
+    var selectParentNode = oldscheduleConfortType.parentNode;
+    var scheduleConfortType = oldscheduleConfortType.cloneNode(false); // Make a shallow copy
+    selectParentNode.replaceChild(scheduleConfortType, oldscheduleConfortType);
+
+    var optEmpty = document.createElement('option');
+    optEmpty.value = '';
+    optEmpty.innerHTML = '';
+    scheduleConfortType.appendChild(optEmpty);
+    for (var comfort in this.Definitions_.comfortTypesDef) {
+        var opt = document.createElement('option');
+        opt.value = comfort;
+        opt.innerHTML = this.Definitions_.comfortTypesDef[comfort].label || comfort;
+        scheduleConfortType.appendChild(opt);
+    }
+    componentHandler.upgradeElement(scheduleConfortType);
+    this.reinitialixeTextFieldMDL(scheduleConfortType.parentNode);
+
+    // scheduleConfortType
     console.log('ComfortTypesDefinition Connected!');
     // $("#addComfortType").empty();
     // $('#addComfortType').append('<option value="">Select type...</option>');
@@ -263,7 +499,7 @@ InterfaceNotifier.prototype.updateEventsDefinition = function (eventsDefinition)
     'use strict';
     this.Definitions_.eventsDef = eventsDefinition;
 
-    var eventlist = document.querySelector('dialog #eventsList');
+    var eventlist = document.querySelector('#eventsList');
     var eventTemplate = document.querySelector('section#templates #eventDefTemplate');
     for (var key in this.Definitions_.eventsDef) {
         var evt = this.Definitions_.eventsDef[key];
@@ -276,18 +512,18 @@ InterfaceNotifier.prototype.updateEventsDefinition = function (eventsDefinition)
         var enableEvent = eventLi.querySelector('#eventDefEnable');
         enableEvent.id += key;
         enableEvent.parentNode.setAttribute('for', enableEvent.id);
-        
+
         //add event on click
         var objEvent = {
             handleEvent: function (e) {
-                var event = { nodeId: this.iNotifier.Toggles_.selectedNodeId, key: this.data.key, enabled: e.target.checked?true:null, remove:e.target.checked?null:true};
+                var event = { nodeId: this.iNotifier.Toggles_.selectedNodeId, key: this.data.key, enabled: e.target.checked ? true : null, remove: e.target.checked ? null : true };
                 aiController.EnableEvent(event);
                 //add 
                 // socket.emit('EDITNODEEVENT', selectedNodeId, $('#addEventType').val(), true);
                 //delete 
                 // socket.emit('EDITNODEEVENT', selectedNodeId, eventKey, null, true);
             },
-            iNotifier:this,
+            iNotifier: this,
             data: { key: key },
         };
         enableEvent.addEventListener(this.clickEvent, objEvent);
@@ -447,6 +683,19 @@ InterfaceNotifier.prototype.resolveRssiImage_ = function (rssi) {
     else img = 'appbar.connection.quality.extremelylow.svg';
     return img;
 }
+
+InterfaceNotifier.prototype.getComfortTypeIcon = function (comfortType) {
+    if (this.Definitions_.comfortTypesDef != undefined && comfortType != undefined && this.Definitions_.comfortTypesDef[comfortType] != undefined)
+        return this.Definitions_.comfortTypesDef[comfortType].icon || 'icon_default.png';
+    return 'icon_default.png';
+};
+
+InterfaceNotifier.prototype.getComfortType = function (comfortType) {
+    if (this.Definitions_.comfortTypesDef != undefined && comfortType != undefined && this.Definitions_.comfortTypesDef[comfortType] != undefined)
+        return this.Definitions_.comfortTypesDef[comfortType] || new Object();
+    return new Object();
+};
+
 
 InterfaceNotifier.prototype.reinitialixeTextFieldMDL = function (component) {
     component.classList.remove('is-upgraded');
@@ -1129,7 +1378,49 @@ InterfaceNotifier.prototype.createSensorEditCard_ = function (node) {
     var nodeIcon = detailCard.querySelector('#sensordetailsvg');
     nodeIcon.appendChild(svgUseCardTitle);
 
-    var nodeSave = detailCard.querySelector('#nodeSave');
+    // var nodeSave = detailCard.querySelector('#nodeSave');
+
+    // var objNode = {
+    //     handleEvent: function (e) {
+    //         var node = this.iNotifier.Toggles_.nodes[this.data.nodeId];
+    //         node.label = nodelabel.value;
+    //         node.descr = nodedescr.value;
+    //         node.type = nodeMoteType.value;
+    //         if (node.label.trim() == '' || node.label == this.iNotifier.Definitions_.motesDef[node.type])
+    //             node.label = node.type ? this.iNotifier.Definitions_.motesDef[node.type].label : node.label;
+    //         var nodeHidden = detailCard.querySelector('#nodeHidden');
+    //         node.hidden = nodeHidden.classList.contains('nodeHidden') ? 1 : 0;
+    //         aiController.UpdateNode(node);
+    //     },
+    //     data: { nodeId: node._id },
+    //     iNotifier: this,
+    // };
+    // nodeSave.addEventListener(this.clickEvent, objNode);
+
+    //Node Actions
+    var nodeHidden = detailCard.querySelector('#nodeHidden');
+    if (node.hidden) {
+        nodeHidden.classList.add('nodeHidden');
+        nodeHidden.classList.add('mdl-button--accent');
+        nodeHidden.classList.remove('mdl-button--colored');
+    }
+
+
+    var objHidden = {
+        handleEvent: function (e) {
+            var node = this.iNotifier.Toggles_.nodes[this.data.nodeId];
+            if (e.target.parentNode.classList.contains('nodeHidden'))
+                e.target.parentNode.classList.remove('nodeHidden')
+            else
+                e.target.parentNode.classList.add('nodeHidden')
+            node.hidden = e.target.parentNode.classList.contains('nodeHidden') ? 1 : 0;
+            aiController.UpdateNode(node);
+        },
+        data: { nodeId: node._id },
+        iNotifier: this,
+    };
+    nodeHidden.addEventListener(this.clickEvent, objHidden);
+
 
     var objNode = {
         handleEvent: function (e) {
@@ -1139,30 +1430,18 @@ InterfaceNotifier.prototype.createSensorEditCard_ = function (node) {
             node.type = nodeMoteType.value;
             if (node.label.trim() == '' || node.label == this.iNotifier.Definitions_.motesDef[node.type])
                 node.label = node.type ? this.iNotifier.Definitions_.motesDef[node.type].label : node.label;
+            var nodeHidden = detailCard.querySelector('#nodeHidden');
+            node.hidden = nodeHidden.classList.contains('nodeHidden') ? 1 : 0;
             aiController.UpdateNode(node);
         },
         data: { nodeId: node._id },
         iNotifier: this,
     };
-    nodeSave.addEventListener(this.clickEvent, objNode);
 
-    //Node Actions
-    var nodeHidden = detailCard.querySelector('#nodeHidden');
-    if (node.hidden) {
-        nodeHidden.classList.add('mdl-button--accent');
-        nodeHidden.classList.remove('mdl-button--colored');
-    }
-
-    var objHidden = {
-        handleEvent: function (e) {
-            var node = this.iNotifier.Toggles_.nodes[this.data.nodeId];
-            node.hidden = e.target.parentNode.classList.contains('mdl-button--colored') ? 1 : 0;
-            aiController.UpdateNode(node);
-        },
-        data: { nodeId: node._id },
-        iNotifier: this,
-    };
-    nodeHidden.addEventListener(this.clickEvent, objHidden);
+    // nodeHidden.addEventListener(this.clickEvent, objNode);
+    nodelabel.addEventListener('blur', objNode);
+    nodedescr.addEventListener('blur', objNode);
+    nodeMoteType.addEventListener('change', objNode);
 
     var nodeDelete = detailCard.querySelector('#nodeDelete');
     var objNDelete = {
@@ -1230,8 +1509,9 @@ InterfaceNotifier.prototype.createSensorEditCard_ = function (node) {
             value.setAttribute('disabled', 'disabled');
             this.reinitialixeTextFieldMDL(value.parentNode);
 
-            var metricSave = metricCard.querySelector('#metricSave');
-            metricSave.id += key;
+            // var metricSave = metricCard.querySelector('#metricSave');
+            // metricSave.id += key;
+
             var objLabel = {
                 handleEvent: function (e) {
                     var metric = this.iNotifier.Toggles_.nodes[this.data.nodeId].metrics[this.data.key];
@@ -1245,7 +1525,9 @@ InterfaceNotifier.prototype.createSensorEditCard_ = function (node) {
                 data: { nodeId: node._id, key: key },
                 iNotifier: this,
             };
-            metricSave.addEventListener(this.clickEvent, objLabel);
+            label.addEventListener("blur", objLabel);
+
+            // metricSave.addEventListener(this.clickEvent, objLabel);
 
             var metricPin = metricCard.querySelector('#metricPin');
             if (metric.pin == null)
@@ -1348,7 +1630,7 @@ InterfaceNotifier.prototype.createSensorEditCard_ = function (node) {
             // enableEvent.setAttribute('checked',enabled);
             enableEvent.checked = enabled;
 
-            var enabledDefEvent = document.querySelector('#eventDefEnable'+key);
+            var enabledDefEvent = document.querySelector('#eventDefEnable' + key);
             enabledDefEvent.checked = true;
             enabledDefEvent.parentNode.classList.add('is-checked');
 
@@ -1376,60 +1658,219 @@ InterfaceNotifier.prototype.createSensorEditCard_ = function (node) {
     }
 };
 
-// InterfaceNotifier.prototype.createEditCard_ = function (node) {
-//     var divCard = document.createElement('div');
-//     divCard.classList.add('mdl-card', 'mdl-shadow--2dp', 'mdl-cell', 'mdl-cell--12-col');//'demo-updates', 
-//     // divCard.id = 'sensor' + node._id;
+InterfaceNotifier.prototype.createNodeGraphLi = function (node) {
+    var liTemplate = document.querySelector('section #gElementTemplate');
+    var liArray = [];
+    for (var key in node.metrics) {
+        var metric = node.metrics[key];
+        if (metric.graph == 1) {
 
-//     var divCardTitle = this.createEditCardTitle_(node);
-//     componentHandler.upgradeElement(divCardTitle);
-//     divCard.appendChild(divCardTitle);
-//     return divCard;
-// };
-// InterfaceNotifier.prototype.createEditCardTitle_ = function (node) {
+            var li = undefined;
 
-//     //Card Title
-//     var divCardTitle = document.createElement('div');
-//     divCardTitle.classList.add('mdl-card__title'); //, 'mdl-card--expand' , 'mdl-color--accent', 'mdl-color-text--white'
+            li = liTemplate.cloneNode(true);
+            li.id += '-' + node._id + '-' + key;
+            var label = li.querySelector('#gElementLabel');
+            label.id += '-' + node._id + '-' + key;
+            label.textContent = node.label;
 
-//     var h2CardTitle = document.createElement('h3');
+            var description = li.querySelector('#gElementDescription');
+            description.id += '-' + node._id + '-' + key;
+            description.textContent = node.descr;
 
-//     var divCardTitleText = document.createElement('div');
-//     divCardTitleText.classList.add('mdl-card__title-text', 'mdl-color-text--primary-contrast');
-//     divCardTitleText.textContent = node.label;
-//     componentHandler.upgradeElement(divCardTitleText);
-//     h2CardTitle.appendChild(divCardTitleText);
+            var metricLabel = li.querySelector('#gElementMetricLabel');
+            metricLabel.id += '-' + node._id + '-' + key;
+            var unit = metric.unit || '';
+            metricLabel.textContent = (metric.label || metric.descr) + (unit != '' ? '(' + unit + ')' : '');
 
-//     // var divCardSubtitleText = document.createElement('div');
-//     // divCardSubtitleText.classList.add('mdl-card__subtitle-text', 'mdl-color-text--primary-contrast');
-//     // divCardSubtitleText.textContent = node.descr || ' ';
-//     // componentHandler.upgradeElement(divCardSubtitleText);
-//     // h2CardTitle.appendChild(divCardSubtitleText);
+            var check = li.querySelector('#gElementCheck')
+            check.id += '-' + node._id + '-' + key;
+            check.setAttribute('data-node-id', node._id);
+            check.setAttribute('data-metric-key', key);
+            check.parentNode.setAttribute('for', check.id);
+            this.reinitialixeTextFieldMDL(check.parentNode);
+            componentHandler.upgradeElement(check);
 
-//     componentHandler.upgradeElement(h2CardTitle);
-//     divCardTitle.appendChild(h2CardTitle)
+            var objMetric = {
+                handleEvent: function (e) {
+                    var nodeId = e.target.getAttribute('data-node-id');
+                    var metricKey = e.target.getAttribute('data-metric-key');
+                    if (e.target.checked) {
+                        this.iNotifier.getGraphData(parseInt(nodeId), metricKey);
+                    }
+                    else {
+                        for (var i = 0; i < this.iNotifier.DataTableArray.length; i++) {
+                            // if (this.iNotifier.DataTableArray[i] != undefined)
+                            if (this.iNotifier.DataTableArray[i].getTableProperty('name') == nodeId + '-' + metricKey)
+                                this.iNotifier.DataTableArray.splice(i, 1);
+                        }
+                        this.iNotifier.renderGraph();
+                    }
+                },
+                iNotifier: this,
+            };
+            check.addEventListener('change', objMetric);
+        }
+        if (li != undefined)
+            liArray.push(li);
+    }
 
-//     // divCardTitle.appendChild(this.createSpacer_());
+    return liArray;
+    check.addEventListener(this.clickEvent, objMetric);
 
-//     // var svgCardTitle = document.createElementNS('http://www.w3.org/2000/svg', 'svg');// document.createElement('svg');
-//     // svgCardTitle.setAttribute('fill', 'currentColor');
-//     // svgCardTitle.setAttribute('viewBox', '0 0 76 76');
-//     // svgCardTitle.setAttribute('width', '76');
-//     // svgCardTitle.setAttribute('height', '76');
-//     // svgCardTitle.classList.add('mdl-color-text--primary'); //mdl-color--primary
-//     // // svgCardTitle.setAttribute('xmlns:xlink','http://www.w3.org/1999/xlink');
+    return li;
 
-//     // var icon = node.type != undefined ? this.Definitions_.motesDef[node.type].icon || '' : ''
-//     // var svgUseCardTitle = document.createElementNS('http://www.w3.org/2000/svg', 'use');// document.createElement('use');
-//     // svgUseCardTitle.setAttributeNS(
-//     //     'http://www.w3.org/1999/xlink', // xlink NS URI
-//     //     'href',                         // attribute (no 'xlink:')
-//     //     '#' + icon);
+};
 
-//     // componentHandler.upgradeElement(svgCardTitle);
-//     // componentHandler.upgradeElement(svgUseCardTitle);
-//     // svgCardTitle.appendChild(svgUseCardTitle);
-//     // divCardTitle.appendChild(svgCardTitle);
+InterfaceNotifier.prototype.getGraphData = function (nodeId, metricKey) {
+    if (this.Toggles_.nodes[nodeId].metrics[metricKey] != null) {
+        var endTime = Date.now();
+        var startTime = Date.now() - (this.graphHours * 60 * 60 * 1000); // 1h
+        graph = {
+            NodeId: nodeId,
+            MetricKey: metricKey,
+            starTime: startTime,
+            endTime: endTime,
+        }
+        aiController.GetGraphData(graph)
+    }
+};
 
-//     return divCardTitle;
-// };
+InterfaceNotifier.prototype.graphDataReady = function (rawData) {
+    // "{"graphData":{"data":[{"t":1506589907000,"v":22.1},{"t":1506593523000,"v":22.1},{"t":1506595870000,"v":22}],"queryTime":1,"totalIntervalDatapoints":3,"totalDatapoints":497196,"logSize":4474764},"options":{"legendLbl":"Temperature","metricName":"C","NodeId":2}}"
+
+    var node = this.Toggles_.nodes[rawData.options.NodeId];
+    var data = new google.visualization.DataTable();
+    data.addColumn('datetime', 'Day');
+    var valueColumn = {
+        type: 'number',
+        label: (rawData.options.legendLbl || node.metrics[rawData.options.metricName].label) + '-' + node.label + ' (' + node.descr + ')',// 'Node [' + rawData.options.NodeId + ']',
+        pattern: '#,##'
+    }
+    data.addColumn(valueColumn);
+    for (var key in rawData.graphData.data) {
+        var d = new Date();
+        d.setTime(rawData.graphData.data[key].t);
+        data.addRow([d, rawData.graphData.data[key].v]);
+        // data.setValue(d, rawData.graphData.data[key].v);
+
+    }
+    // if (!node.metrics[rawData.options.metricName].unit)
+    // switch(node.metrics[rawData.options.metricName].unit)
+    // {
+    //     case '°': rawData.options.targetAxisIndex=0; break;
+    //     case 'mmHg': rawData.options.targetAxisIndex=1; break;
+    //     case '%': rawData.options.targetAxisIndex=3; break;
+    //     default: rawData.options.targetAxisIndex=2; break;
+
+    // }
+    // else
+    // rawData.options.targetAxisIndex=1; 
+    // 0: {title: 'Temperature'},
+    // 1: {title: 'Pressure'},
+    // 2: {title: 'Motion'},
+    // 3: {title: 'Humidity'}
+
+    data.setTableProperty('name', rawData.options.NodeId + '-' + rawData.options.metricName);
+    data.setTableProperty('nodeId', rawData.options.NodeId);
+    data.setTableProperty('metricKey', rawData.options.metricName);
+    data.setTableProperty('options', JSON.stringify(rawData.options));
+
+    var i;
+    for (i = 0; i < this.DataTableArray.length; i++) {
+        if (this.DataTableArray[i].getTableProperty('name') == data.getTableProperty('name')) {
+            break;
+        }
+    }
+    if (i < this.DataTableArray.length)
+        this.DataTableArray[i] = data;
+    else
+        this.DataTableArray.push(data);
+
+    this.renderGraph();
+};
+
+InterfaceNotifier.prototype.renderGraph = function () {
+    var renderGraph = document.querySelector('#renderGraph');
+    var chart = new google.visualization.ComboChart(renderGraph); //LineChart
+    if (this.DataTableArray.length == 0) {
+        renderGraph.textContent = "Select a metric to start the graph";
+        return
+    }
+    var options = {
+        title: 'Metric Chart',
+        // chart: { title: 'Some Title', subtitle: 'Some Subtitle' },
+        vAxis: { format: '#.###' },
+        hAxis: {
+            // format: 'HH:mm',
+            gridlines: {
+                    units: {
+                        months: { format: ['MMM yy'] },
+                        days: { format: ['MMM dd'] },
+                        hours: { format: ['HH:mm', 'ha'] }
+                    }
+            }
+        },
+        vAxes: {
+            // Adds titles to each axis.
+            0: {},
+            1: {},
+            // 3: {title: 'Humidity'}
+        },
+        chartArea: { width: '90%' },
+        interpolateNulls: true,
+        seriesType: 'line',
+        // titlePosition: 'in', axisTitlesPosition: 'in',
+        legend: { position: 'bottom' },
+        series: [],
+        explorer: { axis: 'horizontal' },
+        animation: {
+            duration: 1000,
+            easing: 'linear',
+            startup: true
+        },
+        //  width: 800,
+        //   height: 500
+    };
+
+    // "{"legendLbl":"Motion",
+    // "lines":{"show":false,"fill":false},
+    // "points":{"show":true,"radius":5,"lineWidth":1},
+    // "grid":{"backgroundColor":{"colors":["#000","#03c","#08c"]}},"yaxis":{"ticks":0},"metricName":"M","NodeId":8}"
+
+    //Joining the array tables
+    this.DataTable = this.DataTableArray[0];
+    var tableOptions = JSON.parse(this.DataTableArray[0].getTableProperty('options'));
+    var convertedOptions = new Object();
+    if (tableOptions.points)
+        if (tableOptions.points.show) {
+            convertedOptions.type = 'scatter';
+            convertedOptions.targetAxisIndex = 1;
+        }
+
+    options.series.push(convertedOptions);
+    // series: {5: {type: 'line'}}interpolateNulls: true
+
+    if (this.DataTableArray.length > 1) {
+        var dtColumns = [];
+        for (var i = 1; i < this.DataTableArray.length; i++) {
+            var ntableOptions = JSON.parse(this.DataTableArray[i].getTableProperty('options'));
+            var nconvertedOptions = new Object();
+            if (ntableOptions.points)
+                if (ntableOptions.points.show) {
+                    nconvertedOptions.type = 'scatter';
+                    nconvertedOptions.targetAxisIndex = 1;
+                }
+            options.series.push(nconvertedOptions);
+            dtColumns.push(i);
+            this.DataTable = google.visualization.data.join(this.DataTable, this.DataTableArray[i], 'full', [[0, 0]], dtColumns, [1]);
+        }
+    }
+
+
+    //Material Charts not wokinig
+    // var chart = new google.charts.Line(renderGraph);
+    // chart.draw(this.iNotifier.DataTable, google.charts.Line.convertOptions(options));
+
+    options.theme = 'material';
+    chart.draw(this.DataTable, options);
+};

@@ -32,6 +32,12 @@ function updateAgos() {
         element.style.color = agoObject.color;
         element.textContent = agoObject.text;
     });
+    document.querySelectorAll('span.upAgo').forEach(function (element) {
+        var timestamp = parseInt(element.getAttribute('data-time'));
+        var agoObject = ago(timestamp, false);
+        element.style.color = agoObject.color;
+        element.textContent = agoObject.text;
+    });
 }
 
 function AiController() {
@@ -79,13 +85,36 @@ AiController.prototype.DeleteNode = function (nodeObject) {
     this.socket.DeleteNode(nodeObject);
 };
 
+AiController.prototype.EditNodeSchedule = function (schedule) {
+    this.socket.EditNodeSchedule(schedule);
+};
 
-try {
-    var aiController = new AiController();
-}
-catch (err)
-{ alert ('Error:'+err.message)}
+AiController.prototype.GetGraphData = function (graphObject) {
+    this.socket.GetGraphData(graphObject);
+};
 
-//refresh "updated X ago" indicators
-var updateAgosTimer = setInterval(updateAgos, 3000);
+var aiController
+window.addEventListener('load', function () {
+    try {
+        aiController = new AiController();
+
+    }
+    catch (err) {
+        console.error(err.message);
+        var notification = document.querySelector('.mdl-js-snackbar');
+        notification.MaterialSnackbar.showSnackbar(
+            {
+                message: 'err.message'
+            }
+        );
+    }
+
+    //refresh "updated X ago" indicators
+    var updateAgosTimer = setInterval(updateAgos, 3000);
+});
+
+
+
+
+
 

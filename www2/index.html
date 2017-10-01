@@ -93,17 +93,38 @@ mdl-color--accent-contrast
         <button type="button" class="mdl-button close">Disagree</button>
       </div>
   </dialog>
-
-  <dialog class="mdl-dialog" id="editEvents">
+  <dialog class="mdl-dialog" id="editSchedule">
+      <h4 class="mdl-dialog__title">Edit Schedule</h4>
+      <div class="mdl-dialog__content" >
+         <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+            <select class="mdl-textfield__input" id="scheduleConfortType" ></select>
+            <label class="mdl-textfield__label" for="scheduleConfortType">Comfort Type</label>
+          </div>
+          <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+              <input class="mdl-textfield__input" type="time" id="scheduleStartTime">
+              <label class="mdl-textfield__label" for="nodelabel">Start Time</label>
+          </div>
+          <!--<div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+              <input class="mdl-textfield__input" type="text" id="nodedescr">
+              <label class="mdl-textfield__label" for="nodedescr">Description/Location</label>
+          </div>-->
+      </div>
+      <div class="mdl-dialog__actions">
+        <button type="button" class="mdl-button delete">Delete</button>
+        <button type="button" class="mdl-button save">Save</button>
+        
+        <button type="button" class="mdl-button close">Cancel</button>
+      </div>
+  </dialog>
+  <!--<dialog class="mdl-dialog" id="editEvents">
       <h4 class="mdl-dialog__title">Edit Node Events</h4>
       <div class="mdl-dialog__content" >
         <ul id ="eventsList" class="mdl-list"  style="overflow: auto; height: 500px;"></ul>
       </div>
       <div class="mdl-dialog__actions">
-        <!--<button type="button" class="mdl-button action">Agree</button>-->
         <button type="button" class="mdl-button close">Close</button>
       </div>
-  </dialog>
+  </dialog>-->
       
   <div class="demo-layout mdl-layout mdl-js-layout mdl-layout--fixed-drawer mdl-layout--fixed-header">
     <header class="demo-header mdl-layout__header  mdl-color--primary-dark">
@@ -151,6 +172,7 @@ mdl-color--accent-contrast
             <li class="mdl-menu__item"><i class="material-icons">add</i>Add another account...</li>
           </ul>
         </div>
+        
       </header>
       <nav class="demo-navigation mdl-navigation mdl-color--accent-contrast">
         <a class="mdl-navigation__link" href="#loading"><i class="material-icons" role="presentation">home</i>Home</a>
@@ -158,7 +180,8 @@ mdl-color--accent-contrast
         <!--<a class="mdl-navigation__link" href="#nodashboard"><i class="material-icons" role="presentation">delete</i>Trash</a>-->
         <a class="mdl-navigation__link" href="#dashboard"><i class="material-icons" role="presentation">dashboard</i>Dashboard</a>
         <a class="mdl-navigation__link" href="#sensorspage"><i class="material-icons" role="presentation">developer_board</i>Sensors</a>
-        <!--<a class="mdl-navigation__link" href=""><i class="material-icons" role="presentation">flag</i>Updates</a>
+        <a class="mdl-navigation__link" href="#graphspage"><i class="material-icons" role="presentation">insert_chart</i>Graphs</a>
+        <!--<a id ="metricGraph" href="#" class="mdl-button mdl-js-button mdl-button--icon mdl-button--colored"><i class="material-icons">insert_chart</i></a>
         <a class="mdl-navigation__link" href=""><i class="material-icons" role="presentation">local_offer</i>Promos</a>-->
         <div class="mdl-layout-spacer"></div>
         <a class="mdl-navigation__link" href="#logpage"><i class="material-icons" role="presentation">keyboard</i>Log / Terminal</a>
@@ -167,7 +190,8 @@ mdl-color--accent-contrast
         <a class="mdl-navigation__link" href="#processExit"><i class="material-icons" role="presentation">refresh</i>Restart Gateway</a>
         <a class="mdl-navigation__link" href="#piReboot"><i class="material-icons" role="presentation">power_settings_new</i>Restart System</a>
         <div class="mdl-layout-spacer"></div>
-        <a class="mdl-navigation__link" href=""><i class="material-icons" role="presentation">help_outline</i><span class="visuallyhidden">Help</span></a>
+        <!-- <a class="mdl-navigation__link" href=""><i class="material-icons" role="presentation">help_outline</i><span class="visuallyhidden">Help</span></a> -->
+        <span class="mdl-navigation__link"><i class="material-icons">access_time</i>Uptime:&nbsp;<span id="status-uptime" data-time="147676078" class="upAgo"></span></span>        
       </nav>
     </div>
     <main class="mdl-layout__content mdl-color--grey-100">
@@ -293,10 +317,96 @@ mdl-color--accent-contrast
 
       </div>
       <div class="mdl-tabs__panel mdl-grid demo-content navigation-page" id="sensordetails">     
-          <div class="mdl-grid" id="sensordetailscontainer"/>
+          <div class="mdl-grid" id="sensordetailscontainer"></div>
       </div>
       <div class="mdl-tabs__panel mdl-grid demo-content navigation-page" id="thermostatschedule">
+        <div class="mdl-card mdl-shadow--2dp mdl-cell mdl-cell--12-col " id='thermostatcard'>
+          <div class="mdl-card__title mdl-card--expand">
+            <h2 class="mdl-card__title-text">Thermostat Schedules</h2>
+          </div>
+          <div class="mdl-card__supporting-text ">
+            <div class="mdl-tabs mdl-js-tabs mdl-js-ripple-effect">
+                <div class="mdl-tabs__tab-bar">
+                    <a href="#thermostatScheduleDay-panel-0" class="mdl-tabs__tab is-active">Sunday</a>
+                    <a href="#thermostatScheduleDay-panel-1" class="mdl-tabs__tab">Monday</a>
+                    <a href="#thermostatScheduleDay-panel-2" class="mdl-tabs__tab">Tuesday</a>
+                    <a href="#thermostatScheduleDay-panel-3" class="mdl-tabs__tab">Wednesday</a>
+                    <a href="#thermostatScheduleDay-panel-4" class="mdl-tabs__tab">Thursday</a>
+                    <a href="#thermostatScheduleDay-panel-5" class="mdl-tabs__tab">Friday</a>
+                    <a href="#thermostatScheduleDay-panel-6" class="mdl-tabs__tab">Saturday</a>
+                </div>
 
+                <div class="mdl-tabs__panel is-active" id="thermostatScheduleDay-panel-0">
+                  <ul>
+                  </ul>
+                </div>
+                <div class="mdl-tabs__panel" id="thermostatScheduleDay-panel-1">
+                  <ul>
+                  </ul>
+                </div>
+                <div class="mdl-tabs__panel" id="thermostatScheduleDay-panel-2">
+                  <ul>
+                  </ul>
+                </div>
+                <div class="mdl-tabs__panel" id="thermostatScheduleDay-panel-3">
+                  <ul>
+                  </ul>
+                </div>
+                <div class="mdl-tabs__panel" id="thermostatScheduleDay-panel-4">
+                  <ul>
+                  </ul>
+                </div>
+                <div class="mdl-tabs__panel" id="thermostatScheduleDay-panel-5">
+                  <ul>
+                  </ul>
+                </div>
+                <div class="mdl-tabs__panel" id="thermostatScheduleDay-panel-6">
+                  <ul>
+                  </ul>
+                </div>
+            </div>
+          </div>
+          <div class="mdl-card__actions mdl-card--border">
+            <a id = "addSchedule" href="#editSchedule" class="mdl-button mdl-js-button mdl-js-ripple-effect">Add Schedule</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="mdl-tabs__panel mdl-grid demo-content navigation-page" id="eventspage">
+        <div class="mdl-card mdl-shadow--2dp mdl-cell mdl-cell--12-col ">
+          <div class="mdl-card__title mdl-card--expand">
+            <h2 class="mdl-card__title-text">Edit Node Events</h2>
+          </div>
+          <div class="mdl-card__supporting-text ">
+          <ul id ="eventsList" class="mdl-list" ></ul>
+          </div>
+        </div>
+      </div>
+      <div class="mdl-tabs__panel mdl-grid demo-content navigation-page" id="graphspage">
+        <div class="mdl-card mdl-shadow--2dp mdl-cell mdl-cell--12-col " id='graphcard'>
+          <div class="mdl-card__media mdl-card--expand mdl-color--white mdl-color-text--primary-contrast mdl-typography--text-center">
+              <div id="renderGraph" class="chart"></div>
+          </div>
+          <div class="mdl-card__actions mdl-card--border">
+            <!--<a id = "createGraph" href="#" class="mdl-button mdl-js-button mdl-js-ripple-effect">View Graph</a>-->
+            <div class="mdl-layout-spacer"></div>
+            <a  href="#" class="mdl-button mdl-js-button mdl-js-ripple-effect graphControl" data-hours = "1">last hour</a>
+            <a  href="#" class="mdl-button mdl-js-button mdl-js-ripple-effect graphControl" data-hours = "24">last day</a>
+            <a  href="#" class="mdl-button mdl-js-button mdl-js-ripple-effect graphControl" data-hours = "167">last week</a>
+            <a  href="#" class="mdl-button mdl-js-button mdl-js-ripple-effect graphControl" data-hours = "720">last month</a>
+            <a  href="#" class="mdl-button mdl-js-button mdl-js-ripple-effect graphControl" data-hours = "8760">last year</a>
+          </div>
+          <div class="mdl-card__title">
+            <h2 class="mdl-card__title-text">Graphs</h2>
+          </div>
+          <div class="mdl-card__supporting-text ">
+            <ul  class="mdl-list"  id="graphNodeList">
+              
+            </ul>
+            <!-- <ul  class="mdl-list"  id="graphMetricList">
+            </ul> -->
+          </div>
+        </div>
       </div>
     </main>
     <section id ="templates" style="display: none;">
@@ -331,7 +441,7 @@ mdl-color--accent-contrast
         </div>
 
         <div class="mdl-card__actions mdl-card--border">
-            <a id="nodeSave" href="#sensorspage" class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-color-text--primary">Save</a>
+            <!--<a id="nodeSave" href="#sensorspage" class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-color-text--primary">Save</a>-->
             <div class="mdl-layout-spacer"></div>
             <a id="nodeHidden" href="#" class="mdl-button mdl-js-button mdl-button--icon mdl-button--colored"><i class="material-icons">remove_red_eye</i></a>
             <div class="mdl-tooltip" data-mdl-for="nodeHidden">Hide node</div>
@@ -367,7 +477,7 @@ mdl-color--accent-contrast
         </div>
 
         <div class="mdl-card__actions mdl-card--border">
-          <a id ="metricSave" href="#" class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-color-text--primary ">Save</a>
+          <!--<a id ="metricSave" href="#" class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-color-text--primary ">Save</a>-->
           <div class="mdl-layout-spacer"></div>
           <a id ="metricPin" href="#" class="mdl-button mdl-js-button mdl-button--icon mdl-button--colored"><i class="material-icons">location_on</i></a>
           <a id ="metricGraph" href="#" class="mdl-button mdl-js-button mdl-button--icon mdl-button--colored"><i class="material-icons">insert_chart</i></a>
@@ -398,7 +508,7 @@ mdl-color--accent-contrast
           </div>
           <div class="mdl-card__actions mdl-card--border">
             <div class="mdl-layout-spacer"></div>
-            <a href="#editEvents" class="mdl-button mdl-js-button mdl-button--icon mdl-button--colored"><i class="material-icons">edit</i></a>
+            <a href="#eventspage" class="mdl-button mdl-js-button mdl-button--icon mdl-button--colored"><i class="material-icons">edit</i></a>
           </div>
         </div>
 
@@ -430,7 +540,49 @@ mdl-color--accent-contrast
               <!--<a id="eventDelete" class="mdl-list__item-secondary-action" href="#"><i class="material-icons">delete</i></a>-->
             </span>
           </li>
-
+          <li id="scheduleTemplate" class="mdl-list__item mdl-list__item--three-line">
+            <span class="mdl-list__item-primary-content">
+              <svg fill="currentColor" viewBox="0 0 76 76" width="76" height="76" class=" mdl-list__item-icon mdl-list__item-avatar" id="comfortTypeIcon"> </svg>
+              <!--<i class="material-icons">person</i>-->
+              <span id="scheduleComfortType">Aaron Paul</span>
+              <span class="mdl-list__item-text-body">
+                <span>
+                  <svg fill="currentColor" viewBox="0 0 1792 1792" width="18" height="18" class="mdl-color-text--red"> 
+                    <use xlink:href="#fa-fire" />
+                  </svg>
+                  <span id="comfortTypeHeatTemperature" class="mdl-color-text--red">62 Episodes</span>
+                </span>
+                <!--<br/>-->
+                <span>
+                  <svg fill="currentColor" viewBox="0 0 1792 1792" width="18" height="18" class="mdl-color-text--blue"> 
+                    <use xlink:href="#fa-snowflake-o" />
+                  </svg>
+                  <span id="comfortTypeCoolTemperature" class="mdl-color-text--blue">65 Episodes</span>
+                </span>
+                </span>
+            </span>
+            <span class="mdl-list__item-secondary-content">
+              <time class="mdl-list__item-secondary-info" id="comfortTypeStartHour">Actor</time>
+              <a class="mdl-list__item-secondary-action" href="#editSchedule" id="editScheduleLink"><i class="material-icons">edit</i></a>
+              <!--<a class="mdl-list__item-secondary-action" href="#"><i class="material-icons">delete</i></a>-->
+            </span>
+          </li>
+          <li  class="mdl-list__item mdl-list__item--two-line" id="gElementTemplate">
+            <span class="mdl-list__item-primary-content">
+              <span id="gElementLabel"></span>
+              <span id="gElementDescription" class="mdl-list__item-sub-title"></span>
+              <!-- <span id="gElementMetricLabel"class="mdl-list__item-text-body"></span> -->
+            </span>
+            <span class="mdl-list__item-secondary-content">
+              <span class="mdl-list__item-secondary-info" id="gElementMetricLabel"></span>
+              <span class="mdl-list__item-secondary-action">
+                <label class="mdl-checkbox mdl-js-checkbox mdl-js-ripple-effect" for="gElementCheck">
+                  <input type="checkbox" id="gElementCheck" class="mdl-checkbox__input" />
+                </label>
+              </span>
+            </span>
+          </li>
+          
     </section>
   </div>
 <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" style="position: fixed; left: -1000px; height: -1000px;">
@@ -571,6 +723,25 @@ mdl-color--accent-contrast
       <path d="M 6.53125 2.125 C 6.42825 2.18 4 3.505 4 7.25 C 4 9.07 4.26725 10.2115 4.53125 11.3125 C 4.76925 12.3015 5 13.2325 5 14.6875 C 5 16.6465 4.255 18.039 3.75 18.75 L 2 17 L 2 22 L 7 22 L 5.15625 20.15625 C 5.83025 19.28425 7 17.4035 7 14.6875 C 7 12.9955 6.72275 11.90275 6.46875 10.84375 C 6.22075 9.81175 6 8.834 6 7.25 C 6 4.755 7.42175 3.902 7.46875 3.875 L 6.53125 2.125 z M 12.53125 2.125 C 12.42825 2.18 10 3.505 10 7.25 C 10 9.07 10.26725 10.2115 10.53125 11.3125 C 10.76925 12.3015 11 13.2325 11 14.6875 C 11 16.6465 10.255 18.039 9.75 18.75 L 8 17 L 8 22 L 13 22 L 11.15625 20.15625 C 11.83025 19.28425 13 17.4035 13 14.6875 C 13 12.9955 12.72275 11.90275 12.46875 10.84375 C 12.22075 9.81175 12 8.834 12 7.25 C 12 4.755 13.42175 3.902 13.46875 3.875 L 12.53125 2.125 z M 17 3 L 17 5 L 20 5 L 20 7 L 18 7 L 18 9 L 20 9 L 20 11 L 17 11 L 17 13 L 20 13 L 20 15 L 18 15 L 18 17 L 20 17 L 20 19 L 17 19 L 17 21 L 20 21 L 21 21 L 22 21 L 22 3 L 21 3 L 20 3 L 17 3 z"
       />
     </g>
+    <g id="appbar.home.people.svg">
+      <path stroke="null" d="M 24.0033,56.0078L 24.0033,38.0053L 21.753,39.7556L 18.5026,34.8799L 38.0053,20.2528L 46.0064,26.2536L 46.0064,21.7531L 50.007,21.0029L 50.007,29.0041L 57.508,34.8799L 54.2576,39.7556L 52.0072,38.0053L 52.0072,56.0078L 24.0033,56.0078 Z M 37.9679,32.6047C 35.4822,32.6047 33.4672,34.9555 33.4672,37.8554C 33.4672,40.7553 35.4822,43.1062 37.9679,43.1062C 40.4535,43.1062 42.4685,40.7553 42.4685,37.8554C 42.4685,34.9555 40.4535,32.6047 37.9679,32.6047 Z M 29.004,53.0075L 47.0065,53.0075C 47.0065,53.0075 46.7065,46.4066 45.5063,44.6064C 44.4406,43.0078 42.806,42.8061 42.2059,42.8061C 41.6058,42.8061 39.5055,44.9064 38.0053,44.9064C 36.5051,44.9064 34.1798,42.8061 33.5797,42.8061C 32.9796,42.8061 29.004,42.5061 29.004,53.0075 Z "/>
+
+    </g>
+    <g id="appbar.moon.sleep.svg">
+      <path stroke="null" d="M 41.1615,61.029C 28.0464,61.029 17.4145,50.3971 17.4145,37.2819C 17.4145,26.1675 25.0501,16.8364 35.3618,14.2482C 31.1173,18.5382 28.4964,24.4378 28.4964,30.9494C 28.4964,44.0645 39.1283,54.6964 52.2435,54.6964C 54.2442,54.6964 56.1871,54.449 58.0432,53.9831C 53.7389,58.3336 47.765,61.029 41.1615,61.029 Z M 49.9383,49.0772L 43.2883,49.0772L 43.2883,48.1882L 47.0243,43.3139L 43.7316,43.3139L 43.7316,41.6883L 49.9383,41.6883L 49.9383,42.7574L 46.3985,47.4517L 49.9383,47.4517L 49.9383,49.0772 Z M 56.2341,39.5784L 47.6841,39.5784L 47.6841,38.4354L 52.4875,32.1684L 48.2541,32.1684L 48.2541,30.0784L 56.2341,30.0784L 56.2341,31.4529L 51.683,37.4884L 56.2341,37.4884L 56.2341,39.5784 Z M 50.2606,28.4964L 39.8106,28.4964L 39.8106,27.0995L 45.6815,19.4398L 40.5073,19.4398L 40.5073,16.8853L 50.2606,16.8853L 50.2606,18.5653L 44.6982,25.942L 50.2606,25.942L 50.2606,28.4964 Z "/>
+    </g>
+    <g id="appbar.man.suitcase.run.svg">
+      <path stroke="null" d="M 39.3107,55.1477C 39.0039,56.5911 37.1892,57.9084 35.7459,57.6015C 34.3025,57.2947 33.7769,55.4801 34.0837,54.0367L 35.8799,45.5864L 33.1056,42.3081L 30.1408,47.809C 29.9573,48.152 28.859,48.6197 28.5,48.6875C 28.237,48.8449 27.9423,48.9594 27.6236,49.0197L 20.018,49.9644C 18.568,50.2384 17.1704,49.2851 16.8964,47.8351C 16.6224,46.3851 17.5758,45.3834 19.0257,45.1094L 26.6314,43.7688L 26.649,43.7656L 29.8154,37.5292L 29.9019,36.5702L 31.8462,27.423C 32.3064,25.2579 34.4346,23.8759 36.5997,24.3361C 38.1005,24.6551 39.2251,25.7755 39.6206,27.1542L 43.2489,32.5125L 48.8258,35.223C 49.8212,35.7068 50.2359,36.9059 49.7522,37.9013C 49.2684,38.8967 48.0693,39.3114 47.0739,38.8276L 41.394,36.0671C 41.0549,35.9023 40.7832,35.6544 40.5914,35.3599C 40.3288,35.2124 40.0955,35.0032 39.9151,34.7368L 38.8277,33.131L 37.7424,38.2368L 37.4929,39.0142L 41.1667,44.3333C 41.4591,45.025 41.4379,45.7707 41.1675,46.4119L 39.3107,55.1477 Z M 37.2064,15.0563C 39.3715,15.5165 40.7536,17.6447 40.2934,19.8098C 39.8332,21.9749 37.705,23.357 35.5399,22.8968C 33.3748,22.4366 31.9927,20.3083 32.4529,18.1433C 32.9131,15.9782 35.0413,14.5961 37.2064,15.0563 Z M 52.996,38.6747L 56.0306,48.9223L 49.6259,50.8189L 46.5912,40.5713L 52.996,38.6747 Z M 48.3449,51.1983C 46.93,51.6173 45.4433,50.8099 45.0243,49.395L 43.507,44.2712C 43.088,42.8563 43.8954,41.3697 45.3103,40.9507L 48.3449,51.1983 Z M 54.2769,38.2954C 55.6918,37.8764 57.1785,38.6837 57.5975,40.0986L 59.1148,45.2224C 59.5338,46.6373 58.7265,48.124 57.3116,48.543L 54.2769,38.2954 Z "/>
+    </g>
+    <g id="appbar.plane.rotated.45.svg">
+      <path stroke="null" d="M 55.4764,22.0625L 55.4134,22.1254C 55.4134,22.1254 57.5889,22.6373 48.2065,33.0244L 49.4015,39.3332L 49.8155,38.9192C 50.4338,38.3009 51.4363,38.3009 52.0546,38.9192C 52.673,39.5375 52.673,40.5401 52.0546,41.1584L 50.0536,43.1594L 50.5017,46.0701L 50.6551,45.9166C 51.2735,45.2983 52.276,45.2983 52.8943,45.9166C 53.5126,46.535 53.5126,47.5375 52.8943,48.1558L 51.0175,50.0326C 51.384,53.2996 51.5253,56.1205 51.2149,57.6723C 51.2149,57.6723 49.2557,59.6315 48.1361,58.512C 48.1361,58.512 44.343,45.6154 41.7525,39.8052C 31.7557,49.9687 31.0624,49.2754 31.0624,49.2754C 31.0624,49.2754 33.0217,55.713 30.7825,57.9522L 26.8639,50.6749L 26.9269,50.6119L 19.6496,46.6933C 21.8888,44.4541 28.3264,46.4134 28.3264,46.4134C 28.3264,46.4134 27.6331,45.7201 37.7966,35.7233C 31.9864,33.1328 19.0898,29.3397 19.0898,29.3397C 17.9702,28.2202 19.9295,26.2609 19.9295,26.2609C 21.4813,25.9505 24.3022,26.0919 27.5692,26.4583L 29.446,24.5815C 30.0643,23.9632 31.0668,23.9632 31.6852,24.5815C 32.3035,25.1998 32.3035,26.2023 31.6852,26.8207L 31.5317,26.9742L 34.4423,27.4222L 36.4434,25.4212C 37.0617,24.8028 38.0642,24.8028 38.6826,25.4212C 39.3009,26.0395 39.3009,27.042 38.6826,27.6604L 38.2686,28.0743L 44.5774,29.2693C 54.9645,19.8869 55.4764,22.0625 55.4764,22.0625 Z "/>
+    </g>
+    <g id="fa-fire">
+     <path d="M1600 1696v64q0 13-9.5 22.5t-22.5 9.5h-1344q-13 0-22.5-9.5t-9.5-22.5v-64q0-13 9.5-22.5t22.5-9.5h1344q13 0 22.5 9.5t9.5 22.5zm-256-1056q0 78-24.5 144t-64 112.5-87.5 88-96 77.5-87.5 72-64 81.5-24.5 96.5q0 96 67 224l-4-1 1 1q-90-41-160-83t-138.5-100-113.5-122.5-72.5-150.5-27.5-184q0-78 24.5-144t64-112.5 87.5-88 96-77.5 87.5-72 64-81.5 24.5-96.5q0-94-66-224l3 1-1-1q90 41 160 83t138.5 100 113.5 122.5 72.5 150.5 27.5 184z"/>
+    </g>
+    <g id="fa-snowflake-o">
+     <path d="M1630 1117l-167 33 186 107q23 13 29.5 38.5t-6.5 48.5q-14 23-39 29.5t-48-6.5l-186-106 55 160q13 38-12 63.5t-60.5 20.5-48.5-42l-102-300-271-156v313l208 238q16 18 17 39t-11 36.5-28.5 25-37 5.5-36.5-22l-112-128v214q0 26-19 45t-45 19-45-19-19-45v-214l-112 128q-16 18-36.5 22t-37-5.5-28.5-25-11-36.5 17-39l208-238v-313l-271 156-102 300q-13 37-48.5 42t-60.5-20.5-12-63.5l55-160-186 106q-23 13-48 6.5t-39-29.5q-13-23-6.5-48.5t29.5-38.5l186-107-167-33q-29-6-42-29t-8.5-46.5 25.5-40 50-10.5l310 62 271-157-271-157-310 62q-4 1-13 1-27 0-44-18t-19-40 11-43 40-26l167-33-186-107q-23-13-29.5-38.5t6.5-48.5 39-30 48 7l186 106-55-160q-13-38 12-63.5t60.5-20.5 48.5 42l102 300 271 156v-313l-208-238q-16-18-17-39t11-36.5 28.5-25 37-5.5 36.5 22l112 128v-214q0-26 19-45t45-19 45 19 19 45v214l112-128q16-18 36.5-22t37 5.5 28.5 25 11 36.5-17 39l-208 238v313l271-156 102-300q13-37 48.5-42t60.5 20.5 12 63.5l-55 160 186-106q23-13 48-6.5t39 29.5q13 23 6.5 48.5t-29.5 38.5l-186 107 167 33q27 5 40 26t11 43-19 40-44 18q-9 0-13-1l-310-62-271 157 271 157 310-62q29-6 50 10.5t25.5 40-8.5 46.5-42 29z"/>
+    </g>
   </defs>
 </svg>
 
@@ -585,6 +756,7 @@ mdl-color--accent-contrast
   class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent mdl-color-text--white">View Source</a> -->
 <!--mdl-button--colored-->
 <script src="https://code.getmdl.io/1.3.0/material.min.js"></script>
+<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
 <script src="/js/dialog-polyfill.js"></script>
 <script src="/js/navigationPage.js"></script>
 <script language="javascript" type="text/javascript" src="js/bind.1.0.1.min.js"></script>

@@ -248,6 +248,10 @@ _:-ms-input-placeholder, :root .demo-graph {
   -webkit-animation: blink-animation 1s steps(5, start) infinite;
   color:darkred;
 }
+.chart{
+  width:100%;
+  min-height: 500px;
+}
 @keyframes blink-animation {
   to {
     visibility: hidden;

@@ -60,7 +60,7 @@ module.exports = function (io) {
                     }
                     else {
 
-                        //console.log('EDITNODESCHEDULE: EDIT ');
+                        console.log('EDITNODESCHEDULE: EDIT ');
                         dbNode.thermostatSchedule[selectedScheduleDay][selectedSchedulePeriod] = scheduleObject;
                     }
                 }
